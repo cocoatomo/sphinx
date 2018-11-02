@@ -99,7 +99,7 @@ def dedent_docstring(s):
         # dummy function to mock `inspect.getdoc`.
         pass
 
-    dummy.__doc__ = s  # type: ignore
+    dummy.__doc__ = s
     docstring = inspect.getdoc(dummy)
     return docstring.lstrip("\r\n").rstrip("\r\n")
 
@@ -143,7 +143,7 @@ class TokenProcessor:
         # type: (List[str]) -> None
         lines = iter(buffers)
         self.buffers = buffers
-        self.tokens = tokenize.generate_tokens(lambda: next(lines))  # type: ignore  # NOQA
+        self.tokens = tokenize.generate_tokens(lambda: next(lines))
         self.current = None     # type: Token
         self.previous = None    # type: Token
 

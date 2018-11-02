@@ -153,7 +153,7 @@ class path(text_type):
         """
         if isinstance(text, bytes):
             text = text.decode(encoding)
-        with open(self, 'w', encoding=encoding, **kwargs) as f:  # type: ignore
+        with open(self, 'w', encoding=encoding, **kwargs) as f:
             f.write(text)
 
     def text(self, encoding='utf-8', **kwargs):
@@ -161,7 +161,7 @@ class path(text_type):
         """
         Returns the text in the file.
         """
-        with open(self, mode='r', encoding=encoding, **kwargs) as f:  # type: ignore
+        with open(self, mode='r', encoding=encoding, **kwargs) as f:
             return f.read()
 
     def bytes(self):
