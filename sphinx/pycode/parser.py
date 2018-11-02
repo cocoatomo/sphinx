@@ -49,7 +49,7 @@ def get_assign_targets(node):
 
 
 def get_lvar_names(node, self=None):
-    # type: (ast.AST, ast.expr) -> List[str]
+    # type: (ast.AST, ast.arg) -> List[str]
     """Convert assignment-AST to variable names.
 
     This raises `TypeError` if the assignment does not create new variable::
@@ -59,7 +59,7 @@ def get_lvar_names(node, self=None):
         # => TypeError
     """
     if self:
-        self_id = self.arg  # type: ignore
+        self_id = self.arg
 
     node_name = node.__class__.__name__
     if node_name in ('Index', 'Num', 'Slice', 'Str', 'Subscript'):
@@ -278,7 +278,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.comments[(context, name)] = comment
 
     def get_self(self):
-        # type: () -> ast.expr
+        # type: () -> ast.arg
         """Returns the name of first argument if in function."""
         if self.current_function and self.current_function.args.args:
             return self.current_function.args.args[0]
