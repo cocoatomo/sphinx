@@ -158,7 +158,7 @@ def import_module(modname, warningiserror=False):
 
 
 def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warningiserror=False):
-    # type: (str, List[unicode], str, Callable[[Any, unicode], Any], bool) -> Any
+    # type: (str, List[str], str, Callable[[Any, str], Any], bool) -> Any
     if objpath:
         logger.debug('[autodoc] from %s import %s', modname, '.'.join(objpath))
     else:
@@ -225,7 +225,7 @@ Attribute = namedtuple('Attribute', ['name', 'directly_defined', 'value'])
 
 
 def get_object_members(subject, objpath, attrgetter, analyzer=None):
-    # type: (Any, List[unicode], Callable, Any) -> Dict[str, Attribute]  # NOQA
+    # type: (Any, List[str], Callable, Any) -> Dict[str, Attribute]
     """Get members and attributes of target object."""
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})

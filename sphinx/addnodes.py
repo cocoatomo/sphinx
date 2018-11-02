@@ -40,12 +40,12 @@ class translatable:
         raise NotImplementedError
 
     def apply_translated_message(self, original_message, translated_message):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         """Apply translated message."""
         raise NotImplementedError
 
     def extract_original_messages(self):
-        # type: () -> Sequence[unicode]
+        # type: () -> Sequence[str]
         """Extract translation messages.
 
         :returns: list of extracted messages or messages generator
@@ -67,12 +67,12 @@ class toctree(nodes.General, nodes.Element, translatable):
             self['rawcaption'] = self['caption']
 
     def apply_translated_message(self, original_message, translated_message):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         if self.get('rawcaption') == original_message:
             self['caption'] = translated_message
 
     def extract_original_messages(self):
-        # type: () -> List[unicode]
+        # type: () -> List[str]
         if 'rawcaption' in self:
             return [self['rawcaption']]
         else:
@@ -125,7 +125,7 @@ class desc_type(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 class desc_returns(desc_type):
     """Node for a "returns" annotation (a la -> in Python)."""
     def astext(self):
-        # type: () -> unicode
+        # type: () -> str
         return ' -> ' + nodes.TextElement.astext(self)
 
 
@@ -147,7 +147,7 @@ class desc_optional(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     child_text_separator = ', '
 
     def astext(self):
-        # type: () -> unicode
+        # type: () -> str
         return '[' + nodes.TextElement.astext(self) + ']'
 
 

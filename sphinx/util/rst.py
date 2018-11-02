@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 def escape(text):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     text = symbols_re.sub(r'\\\1', text)
     text = re.sub(r'^\.', r'\.', text)  # escape a dot at top
     return text
@@ -37,7 +37,7 @@ def escape(text):
 
 @contextmanager
 def default_role(docname, name):
-    # type: (unicode, unicode) -> Generator
+    # type: (str, str) -> Generator
     if name:
         dummy_reporter = Reporter('', 4, 4)
         role_fn, _ = roles.role(name, english, 0, dummy_reporter)

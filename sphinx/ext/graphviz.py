@@ -49,16 +49,16 @@ class ClickableMapDefinition:
     href_re = re.compile('href=".*?"')
 
     def __init__(self, filename, content, dot=''):
-        # type: (unicode, unicode, unicode) -> None
-        self.id = None  # type: unicode
+        # type: (str, str, str) -> None
+        self.id = None  # type: str
         self.filename = filename
         self.content = content.splitlines()
-        self.clickable = []  # type: List[unicode]
+        self.clickable = []  # type: List[str]
 
         self.parse(dot=dot)
 
     def parse(self, dot=None):
-        # type: (unicode) -> None
+        # type: (str) -> None
         matched = self.maptag_re.match(self.content[0])
         if not matched:
             raise GraphvizError('Invalid clickable map file found: %s' % self.filename)
@@ -76,7 +76,7 @@ class ClickableMapDefinition:
                 self.clickable.append(line)
 
     def generate_clickable_map(self):
-        # type: () -> unicode
+        # type: () -> str
         """Generate clickable map tags if clickable item exists.
 
         If not exists, this only returns empty string.
@@ -92,7 +92,7 @@ class graphviz(nodes.General, nodes.Inline, nodes.Element):
 
 
 def figure_wrapper(directive, node, caption):
-    # type: (Directive, nodes.Node, unicode) -> nodes.figure
+    # type: (Directive, nodes.Node, str) -> nodes.figure
     figure_node = nodes.figure('', node)
     if 'align' in node:
         figure_node['align'] = node.attributes.pop('align')
@@ -212,7 +212,7 @@ class GraphvizSimple(SphinxDirective):
 
 
 def render_dot(self, code, options, format, prefix='graphviz'):
-    # type: (nodes.NodeVisitor, unicode, Dict, unicode, unicode) -> Tuple[unicode, unicode]
+    # type: (nodes.NodeVisitor, str, Dict, str, str) -> Tuple[str, str]
     """Render graphviz code into a PNG or PDF output file."""
     graphviz_dot = options.get('graphviz_dot', self.builder.config.graphviz_dot)
     hashkey = (code + str(options) + str(graphviz_dot) +
@@ -277,7 +277,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
 
 def render_dot_html(self, node, code, options, prefix='graphviz',
                     imgcls=None, alt=None):
-    # type: (nodes.NodeVisitor, graphviz, unicode, Dict, unicode, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
+    # type: (nodes.NodeVisitor, graphviz, str, Dict, str, str, str) -> Tuple[str, str]
     format = self.builder.config.graphviz_output_format
     try:
         if format not in ('png', 'svg'):
@@ -335,7 +335,7 @@ def html_visit_graphviz(self, node):
 
 
 def render_dot_latex(self, node, code, options, prefix='graphviz'):
-    # type: (nodes.NodeVisitor, graphviz, unicode, Dict, unicode) -> None
+    # type: (nodes.NodeVisitor, graphviz, str, Dict, str) -> None
     try:
         fname, outfn = render_dot(self, code, options, 'pdf', prefix)
     except GraphvizError as exc:
@@ -373,7 +373,7 @@ def latex_visit_graphviz(self, node):
 
 
 def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
-    # type: (nodes.NodeVisitor, graphviz, unicode, Dict, unicode) -> None
+    # type: (nodes.NodeVisitor, graphviz, str, Dict, str) -> None
     try:
         fname, outfn = render_dot(self, code, options, 'png', prefix)
     except GraphvizError as exc:
@@ -416,7 +416,7 @@ def on_build_finished(app, exc):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_node(graphviz,
                  html=(html_visit_graphviz, None),
                  latex=(latex_visit_graphviz, None),

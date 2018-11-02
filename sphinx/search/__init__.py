@@ -50,10 +50,10 @@ class SearchLanguage:
        This class is used to preprocess search word which Sphinx HTML readers
        type, before searching index. Default implementation does nothing.
     """
-    lang = None                 # type: unicode
-    language_name = None        # type: unicode
-    stopwords = set()           # type: Set[unicode]
-    js_stemmer_rawcode = None   # type: unicode
+    lang = None                 # type: str
+    language_name = None        # type: str
+    stopwords = set()           # type: Set[str]
+    js_stemmer_rawcode = None   # type: str
     js_stemmer_code = """
 /**
  * Dummy stemmer for languages without stemming rules.
@@ -63,7 +63,7 @@ var Stemmer = function() {
     return w;
   }
 }
-"""                             # type: unicode
+"""
 
     _word_re = re.compile(r'(?u)\w+')
 
@@ -79,7 +79,7 @@ var Stemmer = function() {
         """
 
     def split(self, input):
-        # type: (unicode) -> List[unicode]
+        # type: (str) -> List[str]
         """
         This method splits a sentence into words.  Default splitter splits input
         at white spaces, which should be enough for most languages except CJK
@@ -88,7 +88,7 @@ var Stemmer = function() {
         return self._word_re.findall(input)
 
     def stem(self, word):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         """
         This method implements stemming algorithm of the Python version.
 
@@ -102,7 +102,7 @@ var Stemmer = function() {
         return word
 
     def word_filter(self, word):
-        # type: (unicode) -> bool
+        # type: (str) -> bool
         """
         Return true if the target word should be registered in the search index.
         This method is called after stemming.
@@ -120,7 +120,7 @@ from sphinx.search.en import SearchEnglish
 
 
 def parse_stop_word(source):
-    # type: (unicode) -> Set[unicode]
+    # type: (str) -> Set[str]
     """
     parse snowball style word list like this:
 
@@ -152,7 +152,7 @@ languages = {
     'sv': 'sphinx.search.sv.SearchSwedish',
     'tr': 'sphinx.search.tr.SearchTurkish',
     'zh': 'sphinx.search.zh.SearchChinese',
-}   # type: Dict[unicode, Any]
+}   # type: Dict[str, Any]
 
 
 class _JavaScriptIndex:
@@ -165,7 +165,7 @@ class _JavaScriptIndex:
     SUFFIX = ')'
 
     def dumps(self, data):
-        # type: (Any) -> unicode
+        # type: (Any) -> str
         return self.PREFIX + jsdump.dumps(data) + self.SUFFIX
 
     def loads(self, s):
@@ -196,8 +196,8 @@ class WordCollector(NodeVisitor):
     def __init__(self, document, lang):
         # type: (nodes.Node, SearchLanguage) -> None
         NodeVisitor.__init__(self, document)
-        self.found_words = []           # type: List[unicode]
-        self.found_title_words = []     # type: List[unicode]
+        self.found_words = []           # type: List[str]
+        self.found_title_words = []     # type: List[str]
         self.lang = lang
 
     def is_meta_keywords(self, node, nodetype):
@@ -244,24 +244,24 @@ class IndexBuilder:
     formats = {
         'jsdump':   jsdump,
         'pickle':   pickle
-    }   # type: Dict[unicode, Any]
+    }   # type: Dict[str, Any]
 
     def __init__(self, env, lang, options, scoring):
-        # type: (BuildEnvironment, unicode, Dict, unicode) -> None
+        # type: (BuildEnvironment, str, Dict, str) -> None
         self.env = env
-        self._titles = {}           # type: Dict[unicode, unicode]
+        self._titles = {}           # type: Dict[str, str]
                                     # docname -> title
-        self._filenames = {}        # type: Dict[unicode, unicode]
+        self._filenames = {}        # type: Dict[str, str]
                                     # docname -> filename
-        self._mapping = {}          # type: Dict[unicode, Set[unicode]]
+        self._mapping = {}          # type: Dict[str, Set[str]]
                                     # stemmed word -> set(docname)
-        self._title_mapping = {}    # type: Dict[unicode, Set[unicode]]
+        self._title_mapping = {}    # type: Dict[str, Set[str]]
                                     # stemmed words in titles -> set(docname)
-        self._stem_cache = {}       # type: Dict[unicode, unicode]
+        self._stem_cache = {}       # type: Dict[str, str]
                                     # word -> stemmed word
-        self._objtypes = {}         # type: Dict[Tuple[unicode, unicode], int]
+        self._objtypes = {}         # type: Dict[Tuple[str, str], int]
                                     # objtype -> index
-        self._objnames = {}         # type: Dict[int, Tuple[unicode, unicode, unicode]]
+        self._objnames = {}         # type: Dict[int, Tuple[str, str, str]]
                                     # objtype index -> (domain, type, objname (localized))
         lang_class = languages.get(lang)    # type: Type[SearchLanguage]
                                             # add language-specific SearchLanguage instance
@@ -303,7 +303,7 @@ class IndexBuilder:
         self._titles = dict(zip(index2fn, frozen['titles']))
 
         def load_terms(mapping):
-            # type: (Dict[unicode, Any]) -> Dict[unicode, Set[unicode]]
+            # type: (Dict[str, Any]) -> Dict[str, Set[str]]
             rv = {}
             for k, v in mapping.items():
                 if isinstance(v, int):
@@ -324,8 +324,8 @@ class IndexBuilder:
         format.dump(self.freeze(), stream)
 
     def get_objects(self, fn2index):
-        # type: (Dict[unicode, int]) -> Dict[unicode, Dict[unicode, Tuple[int, int, int, unicode]]]  # NOQA
-        rv = {}  # type: Dict[unicode, Dict[unicode, Tuple[int, int, int, unicode]]]
+        # type: (Dict[str, int]) -> Dict[str, Dict[str, Tuple[int, int, int, str]]]
+        rv = {}  # type: Dict[str, Dict[str, Tuple[int, int, int, str]]]
         otypes = self._objtypes
         onames = self._objnames
         for domainname, domain in sorted(self.env.domains.items()):
@@ -346,13 +346,12 @@ class IndexBuilder:
                     otypes[domainname, type] = typeindex
                     otype = domain.object_types.get(type)
                     if otype:
-                        # use unicode() to fire translation proxies
                         onames[typeindex] = (domainname, type,
                                              text_type(domain.get_type_name(otype)))
                     else:
                         onames[typeindex] = (domainname, type, type)
                 if anchor == fullname:
-                    shortanchor = ''  # type: unicode
+                    shortanchor = ''
                 elif anchor == type + '-' + fullname:
                     shortanchor = '-'
                 else:
@@ -361,8 +360,8 @@ class IndexBuilder:
         return rv
 
     def get_terms(self, fn2index):
-        # type: (Dict) -> Tuple[Dict[unicode, List[unicode]], Dict[unicode, List[unicode]]]
-        rvs = {}, {}  # type: Tuple[Dict[unicode, List[unicode]], Dict[unicode, List[unicode]]]
+        # type: (Dict) -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]
+        rvs = {}, {}  # type: Tuple[Dict[str, List[str]], Dict[str, List[str]]]
         for rv, mapping in zip(rvs, (self._mapping, self._title_mapping)):
             for k, v in mapping.items():
                 if len(v) == 1:
@@ -374,7 +373,7 @@ class IndexBuilder:
         return rvs
 
     def freeze(self):
-        # type: () -> Dict[unicode, Any]
+        # type: () -> Dict[str, Any]
         """Create a usable data structure for serializing."""
         docnames, titles = zip(*sorted(self._titles.items()))
         filenames = [self._filenames.get(docname) for docname in docnames]
@@ -390,11 +389,11 @@ class IndexBuilder:
                     titleterms=title_terms, envversion=self.env.version)
 
     def label(self):
-        # type: () -> unicode
+        # type: () -> str
         return "%s (code: %s)" % (self.lang.language_name, self.lang.lang)
 
     def prune(self, docnames):
-        # type: (Iterable[unicode]) -> None
+        # type: (Iterable[str]) -> None
         """Remove data for all docnames not in the list."""
         new_titles = {}
         new_filenames = {}
@@ -410,7 +409,7 @@ class IndexBuilder:
             wordnames.intersection_update(docnames)
 
     def feed(self, docname, filename, title, doctree):
-        # type: (unicode, unicode, unicode, nodes.Node) -> None
+        # type: (str, str, str, nodes.Node) -> None
         """Feed a doctree to the index."""
         self._titles[docname] = title
         self._filenames[docname] = filename
@@ -420,7 +419,7 @@ class IndexBuilder:
 
         # memoize self.lang.stem
         def stem(word):
-            # type: (unicode) -> unicode
+            # type: (str) -> str
             try:
                 return self._stem_cache[word]
             except KeyError:
@@ -445,7 +444,7 @@ class IndexBuilder:
                 self._mapping.setdefault(stemmed_word, set()).add(docname)
 
     def context_for_searchtool(self):
-        # type: () -> Dict[unicode, Any]
+        # type: () -> Dict[str, Any]
         return dict(
             search_language_stemming_code = self.lang.js_stemmer_code,
             search_language_stop_words = jsdump.dumps(sorted(self.lang.stopwords)),
@@ -454,7 +453,7 @@ class IndexBuilder:
         )
 
     def get_js_stemmer_rawcode(self):
-        # type: () -> unicode
+        # type: () -> str
         if self.lang.js_stemmer_rawcode:
             return path.join(
                 sphinx.package_dir, 'search',

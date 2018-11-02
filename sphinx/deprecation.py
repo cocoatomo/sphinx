@@ -38,22 +38,22 @@ class DeprecatedDict(dict):
         super(DeprecatedDict, self).__init__(data)
 
     def __setitem__(self, key, value):
-        # type: (unicode, Any) -> None
+        # type: (str, Any) -> None
         warnings.warn(self.message, self.warning, stacklevel=2)
         super(DeprecatedDict, self).__setitem__(key, value)
 
     def setdefault(self, key, default=None):
-        # type: (unicode, Any) -> None
+        # type: (str, Any) -> None
         warnings.warn(self.message, self.warning, stacklevel=2)
         return super(DeprecatedDict, self).setdefault(key, default)
 
     def __getitem__(self, key):
-        # type: (unicode) -> None
+        # type: (str) -> None
         warnings.warn(self.message, self.warning, stacklevel=2)
         return super(DeprecatedDict, self).__getitem__(key)
 
     def get(self, key, default=None):
-        # type: (unicode, Any) -> None
+        # type: (str, Any) -> None
         warnings.warn(self.message, self.warning, stacklevel=2)
         return super(DeprecatedDict, self).get(key, default)
 

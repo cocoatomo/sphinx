@@ -230,7 +230,7 @@ class Autosummary(SphinxDirective):
     }
 
     def warn(self, msg):
-        # type: (unicode) -> None
+        # type: (str) -> None
         self.warnings.append(self.state.document.reporter.warning(
             msg, line=self.lineno))
 
@@ -275,13 +275,13 @@ class Autosummary(SphinxDirective):
         return self.warnings + nodes
 
     def get_items(self, names):
-        # type: (List[unicode]) -> List[Tuple[unicode, unicode, unicode, unicode]]
+        # type: (List[str]) -> List[Tuple[str, str, str, str]]
         """Try to import the given names, and return a list of
         ``[(name, signature, summary_string, real_name), ...]``.
         """
         prefixes = get_import_prefixes_from_env(self.env)
 
-        items = []  # type: List[Tuple[unicode, unicode, unicode, unicode]]
+        items = []  # type: List[Tuple[str, str, str, str]]
 
         max_item_chars = 50
 
@@ -349,7 +349,7 @@ class Autosummary(SphinxDirective):
         return items
 
     def get_table(self, items):
-        # type: (List[Tuple[unicode, unicode, unicode, unicode]]) -> List[Union[addnodes.tabular_col_spec, autosummary_table]]  # NOQA
+        # type: (List[Tuple[str, str, str, str]]) -> List[Union[addnodes.tabular_col_spec, autosummary_table]]  # NOQA
         """Generate a proper list of table nodes for autosummary:: directive.
 
         *items* is a list produced by :meth:`get_items`.
@@ -368,7 +368,7 @@ class Autosummary(SphinxDirective):
         group.append(body)
 
         def append_row(*column_texts):
-            # type: (unicode) -> None
+            # type: (str) -> None
             row = nodes.row('')
             source, line = self.state_machine.get_source_and_line()
             for text in column_texts:
@@ -388,7 +388,7 @@ class Autosummary(SphinxDirective):
         for name, sig, summary, real_name in items:
             qualifier = 'obj'
             if 'nosignatures' not in self.options:
-                col1 = ':%s:`%s <%s>`\\ %s' % (qualifier, name, real_name, rst.escape(sig))  # type: unicode  # NOQA
+                col1 = ':%s:`%s <%s>`\\ %s' % (qualifier, name, real_name, rst.escape(sig))
             else:
                 col1 = ':%s:`%s <%s>`' % (qualifier, name, real_name)
             col2 = summary
@@ -398,13 +398,13 @@ class Autosummary(SphinxDirective):
 
 
 def strip_arg_typehint(s):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     """Strip a type hint from argument definition."""
     return s.split(':')[0].strip()
 
 
 def mangle_signature(sig, max_chars=30):
-    # type: (unicode, int) -> unicode
+    # type: (str, int) -> str
     """Reformat a function signature to a more compact form."""
     # Strip return type annotation
     s = re.sub(r"\)\s*->\s.*$", ")", sig)
@@ -418,8 +418,8 @@ def mangle_signature(sig, max_chars=30):
     s = re.sub(r"'[^']*'", "", s)
 
     # Parse the signature to arguments + options
-    args = []  # type: List[unicode]
-    opts = []  # type: List[unicode]
+    args = []  # type: List[str]
+    opts = []  # type: List[str]
 
     opt_re = re.compile(r"^(.*, |)([a-zA-Z0-9_*]+)=")
     while s:
@@ -452,7 +452,7 @@ def mangle_signature(sig, max_chars=30):
 
 
 def extract_summary(doc, document):
-    # type: (List[unicode], Any) -> unicode
+    # type: (List[str], Any) -> str
     """Extract summary from docstring."""
 
     # Skip a blank lines at the top
@@ -501,7 +501,7 @@ def extract_summary(doc, document):
 
 
 def limited_join(sep, items, max_chars=30, overflow_marker="..."):
-    # type: (unicode, List[unicode], int, unicode) -> unicode
+    # type: (str, List[str], int, str) -> str
     """Join a number of strings to one, limiting the length to *max_chars*.
 
     If the string overflows this limit, replace the last fitting item by
@@ -550,7 +550,7 @@ def get_import_prefixes_from_env(env):
 
 
 def import_by_name(name, prefixes=[None]):
-    # type: (unicode, List) -> Tuple[unicode, Any, Any, unicode]
+    # type: (str, List) -> Tuple[str, Any, Any, str]
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
@@ -569,7 +569,7 @@ def import_by_name(name, prefixes=[None]):
 
 
 def _import_by_name(name):
-    # type: (str) -> Tuple[Any, Any, unicode]
+    # type: (str) -> Tuple[Any, Any, str]
     """Import a Python object given its full name."""
     try:
         name_parts = name.split('.')
@@ -613,7 +613,7 @@ def _import_by_name(name):
 # -- :autolink: (smart default role) -------------------------------------------
 
 def autolink_role(typ, rawtext, etext, lineno, inliner, options={}, content=[]):
-    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
     """Smart linking role.
 
     Expands to ':obj:`text`' if `text` is an object that can be imported;
@@ -636,9 +636,9 @@ def autolink_role(typ, rawtext, etext, lineno, inliner, options={}, content=[]):
 
 
 def get_rst_suffix(app):
-    # type: (Sphinx) -> unicode
+    # type: (Sphinx) -> str
     def get_supported_format(suffix):
-        # type: (unicode) -> Tuple[unicode]
+        # type: (str) -> Tuple[str]
         parser_class = app.registry.get_source_parsers().get(suffix)
         if parser_class is None:
             return ('restructuredtext',)
@@ -646,7 +646,7 @@ def get_rst_suffix(app):
             parser_class = import_object(parser_class, 'source parser')  # type: ignore
         return parser_class.supported
 
-    suffix = None  # type: unicode
+    suffix = None  # type: str
     for suffix in app.config.source_suffix:
         if 'restructuredtext' in get_supported_format(suffix):
             return suffix
@@ -685,7 +685,7 @@ def process_generate_options(app):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     # I need autodoc
     app.setup_extension('sphinx.ext.autodoc')
     app.add_node(autosummary_toc,

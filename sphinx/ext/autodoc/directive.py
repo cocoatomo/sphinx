@@ -51,11 +51,11 @@ class DocumenterBridge:
         self.reporter = reporter
         self.genopt = options
         self.lineno = lineno
-        self.filename_set = set()  # type: Set[unicode]
+        self.filename_set = set()  # type: Set[str]
         self.result = ViewList()
 
     def warn(self, msg):
-        # type: (unicode) -> None
+        # type: (str) -> None
         logger.warning(msg, location=(self.env.docname, self.lineno))
 
 

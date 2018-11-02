@@ -39,25 +39,25 @@ __all__ = [
 
 
 def assert_re_search(regex, text, flags=0):
-    # type: (Pattern, unicode, int) -> None
+    # type: (Pattern, str, int) -> None
     if not re.search(regex, text, flags):
         assert False, '%r did not match %r' % (regex, text)
 
 
 def assert_not_re_search(regex, text, flags=0):
-    # type: (Pattern, unicode, int) -> None
+    # type: (Pattern, str, int) -> None
     if re.search(regex, text, flags):
         assert False, '%r did match %r' % (regex, text)
 
 
 def assert_startswith(thing, prefix):
-    # type: (unicode, unicode) -> None
+    # type: (str, str) -> None
     if not thing.startswith(prefix):
         assert False, '%r does not start with %r' % (thing, prefix)
 
 
 def assert_node(node, cls=None, xpath="", **kwargs):
-    # type: (nodes.Node, Any, unicode, Any) -> None
+    # type: (nodes.Node, Any, str, Any) -> None
     if cls:
         if isinstance(cls, list):
             assert_node(node, cls[0], xpath=xpath, **kwargs)
@@ -87,7 +87,7 @@ def assert_node(node, cls=None, xpath="", **kwargs):
 
 
 def etree_parse(path):
-    # type: (unicode) -> Any
+    # type: (str) -> Any
     with warnings.catch_warnings(record=False):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
         return ElementTree.parse(path)  # type: ignore
@@ -108,7 +108,7 @@ class SphinxTestApp(application.Sphinx):
     def __init__(self, buildername='html', srcdir=None,
                  freshenv=False, confoverrides=None, status=None, warning=None,
                  tags=None, docutilsconf=None):
-        # type: (unicode, path, bool, Dict, IO, IO, unicode, unicode) -> None
+        # type: (str, path, bool, Dict, IO, IO, str, str) -> None
 
         if docutilsconf is not None:
             (srcdir / 'docutils.conf').write_text(docutilsconf)
@@ -191,14 +191,14 @@ _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
 
 
 def remove_unicode_literals(s):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     warnings.warn('remove_unicode_literals() is deprecated.',
                   RemovedInSphinx40Warning)
     return _unicode_literals_re.sub(lambda x: x.group(1) or x.group(2), s)
 
 
 def find_files(root, suffix=None):
-    # type: (unicode, bool) -> Generator
+    # type: (str, bool) -> Generator
     for dirpath, dirs, files in os.walk(root, followlinks=True):
         dirpath = path(dirpath)
         for f in [f for f in files if not suffix or f.endswith(suffix)]:  # type: ignore
@@ -207,5 +207,5 @@ def find_files(root, suffix=None):
 
 
 def strip_escseq(text):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     return re.sub('\x1b.*?m', '', text)

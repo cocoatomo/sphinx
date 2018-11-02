@@ -56,7 +56,7 @@ class IfConfig(SphinxDirective):
 
 
 def process_ifconfig_nodes(app, doctree, docname):
-    # type: (Sphinx, nodes.Node, unicode) -> None
+    # type: (Sphinx, nodes.Node, str) -> None
     ns = dict((confval.name, confval.value) for confval in app.config)
     ns.update(app.config.__dict__.copy())
     ns['builder'] = app.builder.name
@@ -79,7 +79,7 @@ def process_ifconfig_nodes(app, doctree, docname):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_node(ifconfig)
     app.add_directive('ifconfig', IfConfig)
     app.connect('doctree-resolved', process_ifconfig_nodes)

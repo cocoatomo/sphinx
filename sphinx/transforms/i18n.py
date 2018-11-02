@@ -38,12 +38,12 @@ logger = logging.getLogger(__name__)
 
 
 def publish_msgstr(app, source, source_path, source_line, config, settings):
-    # type: (Sphinx, unicode, unicode, int, Config, Dict) -> nodes.document
+    # type: (Sphinx, str, str, int, Config, Dict) -> nodes.document
     """Publish msgstr (single line) into docutils document
 
     :param sphinx.application.Sphinx app: sphinx application
-    :param unicode source: source text
-    :param unicode source_path: source path for warning indication
+    :param str source: source text
+    :param str source_path: source path for warning indication
     :param source_line: source line for warning indication
     :param sphinx.config.Config config: sphinx config
     :param docutils.frontend.Values settings: docutils settings
@@ -291,7 +291,7 @@ class Locale(SphinxTransform):
                                   ' original: {0}, translated: {1}')
                                .format(old_foot_ref_rawsources, new_foot_ref_rawsources),
                                location=node)
-            old_foot_namerefs = {}  # type: Dict[unicode, List[nodes.footnote_reference]]
+            old_foot_namerefs = {}  # type: Dict[str, List[nodes.footnote_reference]]
             for r in old_foot_refs:
                 old_foot_namerefs.setdefault(r.get('refname'), []).append(r)
             for new in new_foot_refs:
@@ -403,7 +403,7 @@ class Locale(SphinxTransform):
                                location=node)
 
             def get_ref_key(node):
-                # type: (nodes.Node) -> Tuple[unicode, unicode, unicode]
+                # type: (nodes.Node) -> Tuple[str, str, str]
                 case = node["refdomain"], node["reftype"]
                 if case == ('std', 'term'):
                     return None
@@ -445,7 +445,7 @@ class Locale(SphinxTransform):
         if 'index' in self.config.gettext_additional_targets:
             # Extract and translate messages for index entries.
             for node, entries in traverse_translatable_index(self.document):
-                new_entries = []   # type: List[Tuple[unicode, unicode, unicode, unicode, unicode]]  # NOQA
+                new_entries = []   # type: List[Tuple[str, str, str, str, str]]
                 for type, msg, tid, main, key_ in entries:
                     msg_parts = split_index_msg(type, msg)
                     msgstr_parts = []

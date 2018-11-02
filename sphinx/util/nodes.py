@@ -97,7 +97,7 @@ def get_full_module_name(node):
 
 
 def repr_domxml(node, length=80):
-    # type: (nodes.Node, Optional[int]) -> unicode
+    # type: (nodes.Node, Optional[int]) -> str
     """
     return DOM XML representation of the specified node like:
     '<paragraph translatable="False"><inline classes="versionmodified">New in version...'
@@ -247,7 +247,7 @@ META_TYPE_NODES = (
 
 
 def extract_messages(doctree):
-    # type: (nodes.Node) -> Iterable[Tuple[nodes.Node, unicode]]
+    # type: (nodes.Node) -> Iterable[Tuple[nodes.Node, str]]
     """Extract translatable messages from a document tree."""
     for node in doctree.traverse(is_translatable):
         if isinstance(node, addnodes.translatable):
@@ -275,7 +275,7 @@ def extract_messages(doctree):
 
 
 def find_source_node(node):
-    # type: (nodes.Node) -> unicode
+    # type: (nodes.Node) -> str
     for pnode in traverse_parent(node):
         if pnode.source:
             return pnode.source
@@ -291,7 +291,7 @@ def traverse_parent(node, cls=None):
 
 
 def traverse_translatable_index(doctree):
-    # type: (nodes.Node) -> Iterable[Tuple[nodes.Node, List[unicode]]]
+    # type: (nodes.Node) -> Iterable[Tuple[nodes.Node, List[str]]]
     """Traverse translatable index node from a document tree."""
     for node in doctree.traverse(NodeMatcher(addnodes.index, inline=False)):
         if 'raw_entries' in node:
@@ -302,7 +302,7 @@ def traverse_translatable_index(doctree):
 
 
 def nested_parse_with_titles(state, content, node):
-    # type: (Any, List[unicode], nodes.Node) -> unicode
+    # type: (Any, List[str], nodes.Node) -> str
     """Version of state.nested_parse() that allows titles and does not require
     titles to have the same decoration as the calling document.
 
@@ -322,7 +322,7 @@ def nested_parse_with_titles(state, content, node):
 
 
 def clean_astext(node):
-    # type: (nodes.Node) -> unicode
+    # type: (nodes.Node) -> str
     """Like node.astext(), but ignore images."""
     node = node.deepcopy()
     for img in node.traverse(nodes.image):
@@ -333,7 +333,7 @@ def clean_astext(node):
 
 
 def split_explicit_title(text):
-    # type: (unicode) -> Tuple[bool, unicode, unicode]
+    # type: (str) -> Tuple[bool, str, str]
     """Split role content into title and target, if given."""
     match = explicit_title_re.match(text)
     if match:
@@ -347,10 +347,10 @@ indextypes = [
 
 
 def process_index_entry(entry, targetid):
-    # type: (unicode, unicode) -> List[Tuple[unicode, unicode, unicode, unicode, unicode]]
+    # type: (str, str) -> List[Tuple[str, str, str, str, str]]
     from sphinx.domains.python import pairindextypes
 
-    indexentries = []  # type: List[Tuple[unicode, unicode, unicode, unicode, unicode]]
+    indexentries = []  # type: List[Tuple[str, str, str, str, str]]
     entry = entry.strip()
     oentry = entry
     main = ''
@@ -386,7 +386,7 @@ def process_index_entry(entry, targetid):
 
 
 def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed):
-    # type: (Builder, Set[unicode], unicode, nodes.Node, Callable, nodes.Node) -> nodes.Node
+    # type: (Builder, Set[str], str, nodes.Node, Callable, nodes.Node) -> nodes.Node
     """Inline all toctrees in the *tree*.
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
@@ -419,7 +419,7 @@ def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed
 
 
 def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
-    # type: (Builder, unicode, unicode, unicode, nodes.Node, unicode) -> nodes.reference
+    # type: (Builder, str, str, str, nodes.Node, str) -> nodes.reference
     """Shortcut to create a reference node."""
     node = nodes.reference('', '', internal=True)
     if fromdocname == todocname and targetid:
@@ -443,7 +443,7 @@ def set_source_info(directive, node):
 
 
 def set_role_source_info(inliner, lineno, node):
-    # type: (Any, unicode, nodes.Node) -> None
+    # type: (Any, str, nodes.Node) -> None
     node.source, node.line = inliner.reporter.get_source_and_line(lineno)
 
 

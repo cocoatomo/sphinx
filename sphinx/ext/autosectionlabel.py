@@ -53,7 +53,7 @@ def register_sections_as_label(app, document):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_config_value('autosectionlabel_prefix_document', False, 'env')
     app.connect('doctree-read', register_sections_as_label)
 

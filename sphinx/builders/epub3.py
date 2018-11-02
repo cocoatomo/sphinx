@@ -142,7 +142,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         return metadata
 
     def prepare_writing(self, docnames):
-        # type: (Iterable[unicode]) -> None
+        # type: (Iterable[str]) -> None
         super(Epub3Builder, self).prepare_writing(docnames)
 
         writing_mode = self.config.epub_writing_mode
@@ -206,7 +206,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         return metadata
 
     def build_navigation_doc(self, outdir, outname):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         """Write the metainfo file nav.xhtml."""
         logger.info(__('writing %s file...'), outname)
 
@@ -232,7 +232,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
 def convert_epub_css_files(app, config):
     # type: (Sphinx, Config) -> None
     """This converts string styled epub_css_files to tuple styled one."""
-    epub_css_files = []  # type: List[Tuple[unicode, Dict]]
+    epub_css_files = []  # type: List[Tuple[str, Dict]]
     for entry in config.epub_css_files:
         if isinstance(entry, string_types):
             epub_css_files.append((entry, {}))
@@ -248,7 +248,7 @@ def convert_epub_css_files(app, config):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_builder(Epub3Builder)
 
     # config values

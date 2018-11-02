@@ -44,7 +44,7 @@ def math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
 
 
 def get_node_equation_number(writer, node):
-    # type: (Writer, nodes.Node) -> unicode
+    # type: (Writer, nodes.Node) -> str
     warnings.warn('sphinx.ext.mathbase.get_node_equation_number() is moved to '
                   'sphinx.util.math package.',
                   RemovedInSphinx30Warning, stacklevel=2)
@@ -53,7 +53,7 @@ def get_node_equation_number(writer, node):
 
 
 def wrap_displaymath(text, label, numbering):
-    # type: (unicode, unicode, bool) -> unicode
+    # type: (str, str, bool) -> str
     warnings.warn('sphinx.ext.mathbase.wrap_displaymath() is moved to '
                   'sphinx.util.math package.',
                   RemovedInSphinx30Warning, stacklevel=2)

@@ -17,7 +17,7 @@ if False:
 
 
 def get_node_equation_number(writer, node):
-    # type: (Writer, nodes.Node) -> unicode
+    # type: (Writer, nodes.Node) -> str
     if writer.builder.config.math_numfig and writer.builder.config.numfig:
         figtype = 'displaymath'
         if writer.builder.name == 'singlehtml':
@@ -35,9 +35,9 @@ def get_node_equation_number(writer, node):
 
 
 def wrap_displaymath(text, label, numbering):
-    # type: (unicode, unicode, bool) -> unicode
+    # type: (str, str, bool) -> str
     def is_equation(part):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return part.strip()
 
     if label is None:

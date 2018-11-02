@@ -25,7 +25,7 @@ if False:
 
 
 def copy_asset_file(source, destination, context=None, renderer=None):
-    # type: (unicode, unicode, Dict, BaseRenderer) -> None
+    # type: (str, str, Dict, BaseRenderer) -> None
     """Copy an asset file to destination.
 
     On copying, it expands the template variables if context argument is given and
@@ -58,7 +58,7 @@ def copy_asset_file(source, destination, context=None, renderer=None):
 
 
 def copy_asset(source, destination, excluded=lambda path: False, context=None, renderer=None):
-    # type: (unicode, unicode, Union[Callable[[unicode], bool], Matcher], Dict, BaseRenderer) -> None  # NOQA
+    # type: (str, str, Union[Callable[[str], bool], Matcher], Dict, BaseRenderer) -> None
     """Copy asset files to destination recursively.
 
     On copying, it expands the template variables if context argument is given and

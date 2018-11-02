@@ -71,7 +71,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
         self.build_devhelp(self.outdir, self.config.devhelp_basename)
 
     def build_devhelp(self, outdir, outname):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         logger.info(__('dumping devhelp index...'))
 
         # Basic info
@@ -111,7 +111,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
         index = IndexEntries(self.env).create_index(self)
 
         def write_index(title, refs, subitems):
-            # type: (unicode, List[Any], Any) -> None
+            # type: (str, List[Any], Any) -> None
             if len(refs) == 0:
                 pass
             elif len(refs) == 1:
@@ -140,7 +140,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(DevhelpBuilder)
 

@@ -174,13 +174,13 @@ class SphinxBaseFileInput(FileInput):
         FileInput.__init__(self, *args, **kwds)
 
     def decode(self, data):
-        # type: (Union[unicode, bytes]) -> unicode
+        # type: (Union[str, bytes]) -> str
         if isinstance(data, text_type):  # py3: `data` already decoded.
             return data
         return data.decode(self.encoding, 'sphinx')  # py2: decoding
 
     def read(self):
-        # type: () -> unicode
+        # type: () -> str
         """Reads the contents from file.
 
         After reading, it emits Sphinx event ``source-read``.
@@ -230,7 +230,7 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
     supported = ('restructuredtext',)
 
     def prepend_prolog(self, text, prolog):
-        # type: (StringList, unicode) -> None
+        # type: (StringList, str) -> None
         docinfo = self.count_docinfo_lines(text)
         if docinfo:
             # insert a blank line after docinfo
@@ -244,7 +244,7 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
         text.insert(docinfo + lineno + 1, '', '<generated>', 0)
 
     def append_epilog(self, text, epilog):
-        # type: (StringList, unicode) -> None
+        # type: (StringList, str) -> None
         # append a blank line and rst_epilog
         text.append('', '<generated>', 0)
         for lineno, line in enumerate(epilog.splitlines()):
@@ -281,7 +281,7 @@ class FiletypeNotFoundError(Exception):
 
 
 def get_filetype(source_suffix, filename):
-    # type: (Dict[unicode, unicode], unicode) -> unicode
+    # type: (Dict[str, str], str) -> str
     for suffix, filetype in source_suffix.items():
         if filename.endswith(suffix):
             # If default filetype (None), considered as restructuredtext.
@@ -291,7 +291,7 @@ def get_filetype(source_suffix, filename):
 
 
 def read_doc(app, env, filename):
-    # type: (Sphinx, BuildEnvironment, unicode) -> nodes.document
+    # type: (Sphinx, BuildEnvironment, str) -> nodes.document
     """Parse a document and convert to doctree."""
     filetype = get_filetype(app.config.source_suffix, filename)
     input_class = app.registry.get_source_input(filetype)
@@ -320,7 +320,7 @@ def read_doc(app, env, filename):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.registry.add_source_input(SphinxFileInput)
     app.registry.add_source_input(SphinxRSTFileInput)
 

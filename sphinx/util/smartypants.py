@@ -128,9 +128,9 @@ langquotes = {'af':           u'“”‘’',
 
 
 def educateQuotes(text, language='en'):
-    # type: (unicode, unicode) -> unicode
+    # type: (str, str) -> str
     """
-    Parameter:  - text string (unicode or bytes).
+    Parameter:  - text string (str or bytes).
                 - language (`BCP 47` language tag.)
     Returns:    The `text`, with "educated" curly quote characters.
 
@@ -243,7 +243,7 @@ def educateQuotes(text, language='en'):
 
 
 def educate_tokens(text_tokens, attr=smartquotes.default_smartypants_attr, language='en'):
-    # type: (Iterable[Tuple[str, unicode]], unicode, unicode) -> Iterator
+    # type: (Iterable[Tuple[str, str]], str, str) -> Iterator
     """Return iterator that "educates" the items of `text_tokens`.
 
     This is modified to intercept the ``attr='2'`` as it was used by the

@@ -49,7 +49,7 @@ class InventoryFileReader:
         self.buffer += chunk
 
     def readline(self):
-        # type: () -> unicode
+        # type: () -> str
         pos = self.buffer.find(b'\n')
         if pos != -1:
             line = self.buffer[:pos].decode('utf-8')
@@ -64,7 +64,7 @@ class InventoryFileReader:
         return line
 
     def readlines(self):
-        # type: () -> Iterator[unicode]
+        # type: () -> Iterator[str]
         while not self.eof:
             line = self.readline()
             if line:
@@ -80,7 +80,7 @@ class InventoryFileReader:
         yield decompressor.flush()
 
     def read_compressed_lines(self):
-        # type: () -> Iterator[unicode]
+        # type: () -> Iterator[str]
         buf = b''
         for chunk in self.read_compressed_chunks():
             buf += chunk
@@ -94,7 +94,7 @@ class InventoryFileReader:
 class InventoryFile:
     @classmethod
     def load(cls, stream, uri, joinfunc):
-        # type: (IO, unicode, Callable) -> Inventory
+        # type: (IO, str, Callable) -> Inventory
         reader = InventoryFileReader(stream)
         line = reader.readline().rstrip()
         if line == '# Sphinx inventory version 1':
@@ -106,7 +106,7 @@ class InventoryFile:
 
     @classmethod
     def load_v1(cls, stream, uri, join):
-        # type: (InventoryFileReader, unicode, Callable) -> Inventory
+        # type: (InventoryFileReader, str, Callable) -> Inventory
         invdata = {}  # type: Inventory
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
@@ -125,7 +125,7 @@ class InventoryFile:
 
     @classmethod
     def load_v2(cls, stream, uri, join):
-        # type: (InventoryFileReader, unicode, Callable) -> Inventory
+        # type: (InventoryFileReader, str, Callable) -> Inventory
         invdata = {}  # type: Inventory
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
@@ -155,9 +155,9 @@ class InventoryFile:
 
     @classmethod
     def dump(cls, filename, env, builder):
-        # type: (unicode, BuildEnvironment, Builder) -> None
+        # type: (str, BuildEnvironment, Builder) -> None
         def escape(string):
-            # type: (unicode) -> unicode
+            # type: (str) -> str
             return re.sub("\\s+", " ", string)
 
         with open(os.path.join(filename), 'wb') as f:

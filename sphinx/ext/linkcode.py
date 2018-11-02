@@ -44,7 +44,7 @@ def doctree_read(app, doctree):
 
     for objnode in doctree.traverse(addnodes.desc):
         domain = objnode.get('domain')
-        uris = set()  # type: Set[unicode]
+        uris = set()  # type: Set[str]
         for signode in objnode:
             if not isinstance(signode, addnodes.desc_signature):
                 continue
@@ -78,7 +78,7 @@ def doctree_read(app, doctree):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.connect('doctree-read', doctree_read)
     app.add_config_value('linkcode_resolve', None, '')
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

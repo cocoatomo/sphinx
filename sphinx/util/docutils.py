@@ -107,7 +107,7 @@ def patched_get_language():
     from docutils.languages import get_language
 
     def patched_get_language(language_code, reporter=None):
-        # type: (unicode, Reporter) -> Any
+        # type: (str, Reporter) -> Any
         return get_language(language_code)
 
     try:
@@ -120,7 +120,7 @@ def patched_get_language():
 
 @contextmanager
 def using_user_docutils_conf(confdir):
-    # type: (unicode) -> Generator[None, None, None]
+    # type: (str) -> Generator[None, None, None]
     """Let docutils know the location of ``docutils.conf`` for Sphinx."""
     try:
         docutilsconfig = os.environ.get('DOCUTILSCONFIG', None)
@@ -137,7 +137,7 @@ def using_user_docutils_conf(confdir):
 
 @contextmanager
 def patch_docutils(confdir=None):
-    # type: (unicode) -> Generator[None, None, None]
+    # type: (str) -> Generator[None, None, None]
     """Patch to docutils temporarily."""
     with patched_get_language(), using_user_docutils_conf(confdir):
         yield
@@ -162,7 +162,7 @@ class sphinx_domains:
         self.enable()
 
     def __exit__(self, type, value, traceback):
-        # type: (unicode, unicode, unicode) -> None
+        # type: (str, str, str) -> None
         self.disable()
 
     def enable(self):
@@ -179,7 +179,7 @@ class sphinx_domains:
         roles.role = self.role_func
 
     def lookup_domain_element(self, type, name):
-        # type: (unicode, unicode) -> Tuple[Any, List]
+        # type: (str, str) -> Tuple[Any, List]
         """Lookup a markup element (directive or role), given its name which can
         be a full name (with domain).
         """
@@ -208,14 +208,14 @@ class sphinx_domains:
         raise ElementLookupError
 
     def lookup_directive(self, name, lang_module, document):
-        # type: (unicode, unicode, nodes.document) -> Tuple[Any, List]
+        # type: (str, str, nodes.document) -> Tuple[Any, List]
         try:
             return self.lookup_domain_element('directive', name)
         except ElementLookupError:
             return self.directive_func(name, lang_module, document)
 
     def lookup_role(self, name, lang_module, lineno, reporter):
-        # type: (unicode, unicode, int, Any) -> Tuple[Any, List]
+        # type: (str, str, int, Any) -> Tuple[Any, List]
         try:
             return self.lookup_domain_element('role', name)
         except ElementLookupError:
@@ -224,7 +224,7 @@ class sphinx_domains:
 
 class WarningStream:
     def write(self, text):
-        # type: (unicode) -> None
+        # type: (str) -> None
         matched = report_re.search(text)
         if not matched:
             logger.warning(text.rstrip("\r\n"))
@@ -245,7 +245,7 @@ class LoggingReporter(Reporter):
     def __init__(self, source, report_level=Reporter.WARNING_LEVEL,
                  halt_level=Reporter.SEVERE_LEVEL, debug=False,
                  error_handler='backslashreplace'):
-        # type: (unicode, int, int, bool, unicode) -> None
+        # type: (str, int, int, bool, str) -> None
         stream = WarningStream()
         Reporter.__init__(self, source, report_level, halt_level,
                           stream, debug, error_handler=error_handler)
@@ -310,7 +310,7 @@ class SphinxFileOutput(FileOutput):
         FileOutput.__init__(self, **kwargs)
 
     def write(self, data):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         if (self.destination_path and self.autoclose and 'b' not in self.mode and
                 self.overwrite_if_changed and os.path.exists(self.destination_path)):
             with open(self.destination_path, encoding=self.encoding) as f:  # type: ignore
@@ -349,7 +349,7 @@ __document_cache__ = None  # type: nodes.document
 
 
 def new_document(source_path, settings=None):
-    # type: (unicode, Any) -> nodes.document
+    # type: (str, Any) -> nodes.document
     """Return a new empty document object.  This is an alternative of docutils'.
 
     This is a simple wrapper for ``docutils.utils.new_document()``.  It
@@ -368,3 +368,5 @@ def new_document(source_path, settings=None):
     document = nodes.document(settings, __document_cache__.reporter, source=source_path)
     document.note_source(source_path, -1)
     return document
+
+

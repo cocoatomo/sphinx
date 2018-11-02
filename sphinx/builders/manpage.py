@@ -43,7 +43,7 @@ class ManualPageBuilder(Builder):
     epilog = __('The manual pages are in %(outdir)s.')
 
     default_translator_class = ManualPageTranslator
-    supported_image_types = []  # type: List[unicode]
+    supported_image_types = []  # type: List[str]
 
     def init(self):
         # type: () -> None
@@ -52,11 +52,11 @@ class ManualPageBuilder(Builder):
                               'will be written'))
 
     def get_outdated_docs(self):
-        # type: () -> Union[unicode, List[unicode]]
+        # type: () -> Union[str, List[str]]
         return 'all manpages'  # for now
 
     def get_target_uri(self, docname, typ=None):
-        # type: (unicode, unicode) -> unicode
+        # type: (str, str) -> str
         if typ == 'token':
             return ''
         raise NoUri
@@ -90,7 +90,7 @@ class ManualPageBuilder(Builder):
                 encoding='utf-8')
 
             tree = self.env.get_doctree(docname)
-            docnames = set()  # type: Set[unicode]
+            docnames = set()  # type: Set[str]
             largetree = inline_all_toctrees(self, docnames, docname, tree,
                                             darkgreen, [docname])
             logger.info('} ', nonl=True)
@@ -114,7 +114,7 @@ class ManualPageBuilder(Builder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_builder(ManualPageBuilder)
 
     app.add_config_value('man_pages',

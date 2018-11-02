@@ -66,11 +66,11 @@ class ENUM:
         app.add_config_value('latex_show_urls', 'no', None, ENUM('no', 'footnote', 'inline'))
     """
     def __init__(self, *candidates):
-        # type: (unicode) -> None
+        # type: (str) -> None
         self.candidates = candidates
 
     def match(self, value):
-        # type: (Union[unicode,List,Tuple]) -> bool
+        # type: (Union[str, List, Tuple]) -> bool
         if isinstance(value, (list, tuple)):
             return all(item in self.candidates for item in value)
         else:
@@ -153,7 +153,7 @@ class Config:
         smartquotes_excludes = ({'languages': ['ja'],
                                  'builders': ['man', 'text']},
                                 'env', []),
-    )  # type: Dict[unicode, Tuple]
+    )  # type: Dict[str, Tuple]
 
     def __init__(self, *args):
         # type: (Any) -> None
@@ -164,7 +164,7 @@ class Config:
                           RemovedInSphinx30Warning, stacklevel=2)
             dirname, filename, overrides, tags = args
             if dirname is None:
-                config = {}  # type: Dict[unicode, Any]
+                config = {}  # type: Dict[str, Any]
             else:
                 config = eval_config_file(path.join(dirname, filename), tags)
         else:
@@ -186,11 +186,11 @@ class Config:
                 config['extensions'] = overrides.pop('extensions').split(',')
             else:
                 config['extensions'] = overrides.pop('extensions')
-        self.extensions = config.get('extensions', [])  # type: List[unicode]
+        self.extensions = config.get('extensions', [])  # type: List[str]
 
     @classmethod
     def read(cls, confdir, overrides=None, tags=None):
-        # type: (unicode, Dict, Tags) -> Config
+        # type: (str, Dict, Tags) -> Config
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)
         namespace = eval_config_file(filename, tags)
@@ -209,7 +209,7 @@ class Config:
         check_unicode(self)
 
     def convert_overrides(self, name, value):
-        # type: (unicode, Any) -> Any
+        # type: (str, Any) -> Any
         if not isinstance(value, string_types):
             return value
         else:
@@ -275,7 +275,7 @@ class Config:
                 self.__dict__[name] = config[name]  # type: ignore
 
     def __getattr__(self, name):
-        # type: (unicode) -> Any
+        # type: (str) -> Any
         if name.startswith('_'):
             raise AttributeError(name)
         if name not in self.values:
@@ -286,19 +286,19 @@ class Config:
         return default
 
     def __getitem__(self, name):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return getattr(self, name)
 
     def __setitem__(self, name, value):
-        # type: (unicode, Any) -> None
+        # type: (str, Any) -> None
         setattr(self, name, value)
 
     def __delitem__(self, name):
-        # type: (unicode) -> None
+        # type: (str) -> None
         delattr(self, name)
 
     def __contains__(self, name):
-        # type: (unicode) -> bool
+        # type: (str) -> bool
         return name in self.values
 
     def __iter__(self):
@@ -307,14 +307,14 @@ class Config:
             yield ConfigValue(name, getattr(self, name), value[1])  # type: ignore
 
     def add(self, name, default, rebuild, types):
-        # type: (unicode, Any, Union[bool, unicode], Any) -> None
+        # type: (str, Any, Union[bool, str], Any) -> None
         if name in self.values:
             raise ExtensionError(__('Config value %r already present') % name)
         else:
             self.values[name] = (default, rebuild, types)
 
     def filter(self, rebuild):
-        # type: (Union[unicode, List[unicode]]) -> Iterator[ConfigValue]
+        # type: (Union[str, List[str]]) -> Iterator[ConfigValue]
         if isinstance(rebuild, string_types):
             rebuild = [rebuild]
         return (value for value in self if value.rebuild in rebuild)
@@ -349,9 +349,9 @@ class Config:
 
 
 def eval_config_file(filename, tags):
-    # type: (unicode, Tags) -> Dict[unicode, Any]
+    # type: (str, Tags) -> Dict[str, Any]
     """Evaluate a config file."""
-    namespace = {}  # type: Dict[unicode, Any]
+    namespace = {}  # type: Dict[str, Any]
     namespace['__file__'] = filename
     namespace['tags'] = tags
 
@@ -506,7 +506,7 @@ def check_primary_domain(app, config):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.connect('config-inited', convert_source_suffix)
     app.connect('config-inited', init_numfig_format)
     app.connect('config-inited', correct_copyright_year)

@@ -34,7 +34,7 @@ class path(text_type):
         return self.__class__(os.path.dirname(self))
 
     def basename(self):
-        # type: () -> unicode
+        # type: () -> str
         return os.path.basename(self)
 
     def abspath(self):
@@ -99,7 +99,7 @@ class path(text_type):
         shutil.rmtree(self, ignore_errors=ignore_errors, onerror=onerror)
 
     def copytree(self, destination, symlinks=False):
-        # type: (unicode, bool) -> None
+        # type: (str, bool) -> None
         """
         Recursively copy a directory to the given `destination`. If the given
         `destination` does not exist it will be created.
@@ -112,7 +112,7 @@ class path(text_type):
         shutil.copytree(self, destination, symlinks=symlinks)
 
     def movetree(self, destination):
-        # type: (unicode) -> None
+        # type: (str) -> None
         """
         Recursively move the file or directory to the given `destination`
         similar to the  Unix "mv" command.
@@ -143,11 +143,11 @@ class path(text_type):
         os.utime(self, arg)
 
     def open(self, mode='r', **kwargs):
-        # type: (unicode, Any) -> IO
+        # type: (str, Any) -> IO
         return open(self, mode, **kwargs)
 
     def write_text(self, text, encoding='utf-8', **kwargs):
-        # type: (unicode, unicode, Any) -> None
+        # type: (str, str, Any) -> None
         """
         Writes the given `text` to the file.
         """
@@ -157,7 +157,7 @@ class path(text_type):
             f.write(text)
 
     def text(self, encoding='utf-8', **kwargs):
-        # type: (unicode, Any) -> unicode
+        # type: (str, Any) -> str
         """
         Returns the text in the file.
         """
@@ -217,7 +217,7 @@ class path(text_type):
         return self.__class__(os.path.join(self, *map(self.__class__, args)))
 
     def listdir(self):
-        # type: () -> List[unicode]
+        # type: () -> List[str]
         return os.listdir(self)
 
     __div__ = __truediv__ = joinpath

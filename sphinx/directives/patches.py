@@ -70,7 +70,7 @@ class RSTTable(tables.RSTTable):
     Only for docutils-0.13 or older version."""
 
     def make_title(self):
-        # type: () -> Tuple[nodes.Node, unicode]
+        # type: () -> Tuple[nodes.Node, str]
         title, message = tables.RSTTable.make_title(self)
         if title:
             set_source_info(self, title)
@@ -84,7 +84,7 @@ class CSVTable(tables.CSVTable):
     Only for docutils-0.13 or older version."""
 
     def make_title(self):
-        # type: () -> Tuple[nodes.Node, unicode]
+        # type: () -> Tuple[nodes.Node, str]
         title, message = tables.CSVTable.make_title(self)
         if title:
             set_source_info(self, title)
@@ -98,7 +98,7 @@ class ListTable(tables.ListTable):
     Only for docutils-0.13 or older version."""
 
     def make_title(self):
-        # type: () -> Tuple[nodes.Node, unicode]
+        # type: () -> Tuple[nodes.Node, str]
         title, message = tables.ListTable.make_title(self)
         if title:
             set_source_info(self, title)

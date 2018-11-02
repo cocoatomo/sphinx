@@ -34,7 +34,7 @@ glob_re = re.compile(r'.*[*?\[].*')
 
 
 def int_or_nothing(argument):
-    # type: (unicode) -> int
+    # type: (str) -> int
     if not argument:
         return 999
     return int(argument)
@@ -390,7 +390,7 @@ class Include(BaseInclude, SphinxDirective):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     directives.register_directive('toctree', TocTree)
     directives.register_directive('sectionauthor', Author)
     directives.register_directive('moduleauthor', Author)

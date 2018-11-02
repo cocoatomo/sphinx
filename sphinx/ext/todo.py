@@ -125,7 +125,7 @@ class TodoList(SphinxDirective):
 
 
 def process_todo_nodes(app, doctree, fromdocname):
-    # type: (Sphinx, nodes.Node, unicode) -> None
+    # type: (Sphinx, nodes.Node, str) -> None
     if not app.config['todo_include_todos']:
         for node in doctree.traverse(todo_node):
             node.parent.remove(node)
@@ -192,7 +192,7 @@ def process_todo_nodes(app, doctree, fromdocname):
 
 
 def purge_todos(app, env, docname):
-    # type: (Sphinx, BuildEnvironment, unicode) -> None
+    # type: (Sphinx, BuildEnvironment, str) -> None
     if not hasattr(env, 'todo_all_todos'):
         return
     env.todo_all_todos = [todo for todo in env.todo_all_todos  # type: ignore
@@ -200,7 +200,7 @@ def purge_todos(app, env, docname):
 
 
 def merge_info(app, env, docnames, other):
-    # type: (Sphinx, BuildEnvironment, Iterable[unicode], BuildEnvironment) -> None
+    # type: (Sphinx, BuildEnvironment, Iterable[str], BuildEnvironment) -> None
     if not hasattr(other, 'todo_all_todos'):
         return
     if not hasattr(env, 'todo_all_todos'):
@@ -237,7 +237,7 @@ def latex_depart_todo_node(self, node):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_event('todo-defined')
     app.add_config_value('todo_include_todos', False, 'html')
     app.add_config_value('todo_link_only', False, 'html')

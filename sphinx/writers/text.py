@@ -35,7 +35,7 @@ class Cell:
     """
     def __init__(self, text="", rowspan=1, colspan=1):
         self.text = text
-        self.wrapped = []  # type: List[unicode]
+        self.wrapped = []  # type: List[str]
         self.rowspan = rowspan
         self.colspan = colspan
         self.col = None
@@ -204,11 +204,11 @@ class Table:
         self.rewrap()
 
         def writesep(char="-", lineno=None):
-            # type: (unicode, Optional[int]) -> unicode
+            # type: (str, Optional[int]) -> str
             """Called on the line *before* lineno.
             Called with no *lineno* for the last sep.
             """
-            out = []  # type: List[unicode]
+            out = []  # type: List[str]
             for colno, width in enumerate(self.measured_widths):
                 if (
                     lineno is not None and
@@ -265,14 +265,14 @@ class TextWrapper(textwrap.TextWrapper):
         r'(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))')   # em-dash
 
     def _wrap_chunks(self, chunks):
-        # type: (List[unicode]) -> List[unicode]
+        # type: (List[str]) -> List[str]
         """_wrap_chunks(chunks : [string]) -> [string]
 
         The original _wrap_chunks uses len() to calculate width.
         This method respects wide/fullwidth characters for width adjustment.
         """
         drop_whitespace = getattr(self, 'drop_whitespace', True)  # py25 compat
-        lines = []  # type: List[unicode]
+        lines = []  # type: List[str]
         if self.width <= 0:
             raise ValueError("invalid width %r (must be > 0)" % self.width)
 
@@ -314,7 +314,7 @@ class TextWrapper(textwrap.TextWrapper):
         return lines
 
     def _break_word(self, word, space_left):
-        # type: (unicode, int) -> Tuple[unicode, unicode]
+        # type: (str, int) -> Tuple[str, str]
         """_break_word(word : string, space_left : int) -> (string, string)
 
         Break line by unicode width instead of len(word).
@@ -327,16 +327,16 @@ class TextWrapper(textwrap.TextWrapper):
         return word, ''
 
     def _split(self, text):
-        # type: (unicode) -> List[unicode]
+        # type: (str) -> List[str]
         """_split(text : string) -> [string]
 
         Override original method that only split by 'wordsep_re'.
         This '_split' split wide-characters into chunk by one character.
         """
         def split(t):
-            # type: (unicode) -> List[unicode]
+            # type: (str) -> List[str]
             return textwrap.TextWrapper._split(self, t)  # type: ignore
-        chunks = []  # type: List[unicode]
+        chunks = []  # type: List[str]
         for chunk in split(text):
             for w, g in groupby(chunk, column_width):
                 if w == 1:
@@ -346,7 +346,7 @@ class TextWrapper(textwrap.TextWrapper):
         return chunks
 
     def _handle_long_word(self, reversed_chunks, cur_line, cur_len, width):
-        # type: (List[unicode], List[unicode], int, int) -> None
+        # type: (List[str], List[str], int, int) -> None
         """_handle_long_word(chunks : [string],
                              cur_line : [string],
                              cur_len : int, width : int)
@@ -368,7 +368,7 @@ STDINDENT = 3
 
 
 def my_wrap(text, width=MAXWIDTH, **kwargs):
-    # type: (unicode, int, Any) -> List[unicode]
+    # type: (str, int, Any) -> List[str]
     w = TextWrapper(width=width, **kwargs)
     return w.wrap(text)
 
@@ -410,7 +410,7 @@ class TextTranslator(nodes.NodeVisitor):
         self.sectionchars = builder.config.text_sectionchars
         self.add_secnumbers = builder.config.text_add_secnumbers
         self.secnumber_suffix = builder.config.text_secnumber_suffix
-        self.states = [[]]      # type: List[List[Tuple[int, Union[unicode, List[unicode]]]]]
+        self.states = [[]]      # type: List[List[Tuple[int, Union[str, List[str]]]]]
         self.stateindent = [0]
         self.list_counter = []  # type: List[int]
         self.sectionlevel = 0
@@ -418,7 +418,7 @@ class TextTranslator(nodes.NodeVisitor):
         self.table = None       # type: Table
 
     def add_text(self, text):
-        # type: (unicode) -> None
+        # type: (str) -> None
         self.states[-1].append((-1, text))
 
     def new_state(self, indent=STDINDENT):
@@ -427,12 +427,12 @@ class TextTranslator(nodes.NodeVisitor):
         self.stateindent.append(indent)
 
     def end_state(self, wrap=True, end=[''], first=None):
-        # type: (bool, List[unicode], unicode) -> None
+        # type: (bool, List[str], str) -> None
         content = self.states.pop()
         maxindent = sum(self.stateindent)
         indent = self.stateindent.pop()
-        result = []     # type: List[Tuple[int, List[unicode]]]
-        toformat = []   # type: List[unicode]
+        result = []     # type: List[Tuple[int, List[str]]]
+        toformat = []   # type: List[str]
 
         def do_format():
             # type: () -> None
@@ -531,7 +531,7 @@ class TextTranslator(nodes.NodeVisitor):
         self.new_state(0)
 
     def get_section_number_string(self, node):
-        # type: (nodes.Node) -> unicode
+        # type: (nodes.Node) -> str
         if isinstance(node.parent, nodes.section):
             anchorname = '#' + node.parent['ids'][0]
             numbers = self.builder.secnumbers.get(anchorname)
@@ -547,12 +547,12 @@ class TextTranslator(nodes.NodeVisitor):
             char = self._title_char
         else:
             char = '^'
-        text = None  # type: unicode
+        text = None  # type: str
         text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore
         if self.add_secnumbers:
             text = self.get_section_number_string(node) + text
         self.stateindent.pop()
-        title = ['', text, '%s' % (char * column_width(text)), '']  # type: List[unicode]
+        title = ['', text, '%s' % (char * column_width(text)), '']
         if len(self.states) == 2 and len(self.states[-1]) == 0:
             # remove an empty line before title if it is first section title in the document
             title.pop(0)
@@ -1049,7 +1049,7 @@ class TextTranslator(nodes.NodeVisitor):
             self.add_text(self.nl)
 
     def _make_depart_admonition(name):
-        # type: (unicode) -> Callable[[TextTranslator, nodes.Node], None]
+        # type: (str) -> Callable[[TextTranslator, nodes.Node], None]
         def depart_admonition(self, node):
             # type: (nodes.NodeVisitor, nodes.Node) -> None
             self.end_state(first=admonitionlabels[name] + ': ')

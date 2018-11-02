@@ -47,22 +47,22 @@ class ChangesBuilder(Builder):
         self.templates.init(self, self.theme)
 
     def get_outdated_docs(self):
-        # type: () -> unicode
+        # type: () -> str
         return self.outdir
 
     typemap = {
         'versionadded': 'added',
         'versionchanged': 'changed',
         'deprecated': 'deprecated',
-    }  # type: Dict[unicode, unicode]
+    }  # type: Dict[str, str]
 
     def write(self, *ignored):
         # type: (Any) -> None
         version = self.config.version
         domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
-        libchanges = {}     # type: Dict[unicode, List[Tuple[unicode, unicode, int]]]
-        apichanges = []     # type: List[Tuple[unicode, unicode, int]]
-        otherchanges = {}   # type: Dict[Tuple[unicode, unicode], List[Tuple[unicode, unicode, int]]]  # NOQA
+        libchanges = {}     # type: Dict[str, List[Tuple[str, str, int]]]
+        apichanges = []     # type: List[Tuple[str, str, int]]
+        otherchanges = {}   # type: Dict[Tuple[str, str], List[Tuple[str, str, int]]]
         if version not in self.env.versionchanges:
             logger.info(bold(__('no changes in version %s.') % version))
             return
@@ -124,7 +124,7 @@ class ChangesBuilder(Builder):
                   '.. deprecated:: %s' % version]
 
         def hl(no, line):
-            # type: (int, unicode) -> unicode
+            # type: (int, str) -> str
             line = '<a name="L%s"> </a>' % no + htmlescape(line)
             for x in hltext:
                 if x in line:
@@ -158,7 +158,7 @@ class ChangesBuilder(Builder):
                         self.outdir)
 
     def hl(self, text, version):
-        # type: (unicode, unicode) -> unicode
+        # type: (str, str) -> str
         text = htmlescape(text)
         for directive in ['versionchanged', 'versionadded', 'deprecated']:
             text = text.replace('.. %s:: %s' % (directive, version),
@@ -171,7 +171,7 @@ class ChangesBuilder(Builder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_builder(ChangesBuilder)
 
     return {
