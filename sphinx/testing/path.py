@@ -165,7 +165,7 @@ class path(text_type):
             return f.read()
 
     def bytes(self):
-        # type: () -> str
+        # type: () -> __builtins__.bytes
         """
         Returns the bytes in the file.
         """
