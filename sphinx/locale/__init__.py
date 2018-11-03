@@ -223,8 +223,7 @@ def init(locale_dirs, language, catalog='sphinx', namespace='general'):
     # loading
     for dir_ in locale_dirs:
         try:
-            trans = gettext.translation(catalog, localedir=dir_,
-                                        languages=languages)
+            trans = gettext.translation(catalog, localedir=dir_, languages=languages)
             if translator is None:
                 translator = trans
             else:
