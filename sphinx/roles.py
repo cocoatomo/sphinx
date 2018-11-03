@@ -22,7 +22,7 @@ from sphinx.util.nodes import split_explicit_title, process_index_entry, \
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple, Type  # NOQA
+    from typing import Any, Callable, Dict, List, Tuple, Type  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -395,7 +395,7 @@ specific_docroles = {
     'samp': emph_literal_role,
     'abbr': abbr_role,
     'index': index_role,
-}
+}  # type: Dict[str, Callable[[str, str, str, int, Inliner, Dict, List[str]], Tuple[List[nodes.Node], List[nodes.Node]]]]  # NOQA
 
 
 def setup(app):
