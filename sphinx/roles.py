@@ -26,7 +26,7 @@ if False:
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-
+    from sphinx.util.typing import RoleFunction  # NOQA
 
 generic_docroles = {
     'command': addnodes.literal_strong,
@@ -395,7 +395,7 @@ specific_docroles = {
     'samp': emph_literal_role,
     'abbr': abbr_role,
     'index': index_role,
-}  # type: Dict[str, Callable[[str, str, str, int, Inliner, Dict, List[str]], Tuple[List[nodes.Node], List[nodes.Node]]]]  # NOQA
+}  # type: Dict[str, RoleFunction]
 
 
 def setup(app):
