@@ -99,7 +99,7 @@ class XRefRole:
     def __call__(self, typ, rawtext, text, lineno, inliner,
                  options={}, content=[]):
         # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
-        env = inliner.document.settings.env
+        env = inliner.document.settings.env  # type: ignore
         if not typ:
             typ = env.temp_data.get('default_role')
             if not typ:
@@ -120,7 +120,7 @@ class XRefRole:
             if self.fix_parens:
                 text, tgt = self._fix_parens(env, False, text, "")
             innernode = self.innernodeclass(rawtext, text, classes=classes)
-            return self.result_nodes(inliner.document, env, innernode,
+            return self.result_nodes(inliner.document, env, innernode,  # type: ignore
                                      is_ref=False)
         # split title and target in role content
         has_explicit_title, title, target = split_explicit_title(text)
@@ -146,7 +146,7 @@ class XRefRole:
         refnode['refdoc'] = env.docname
         refnode['refwarn'] = self.warn_dangling
         # result_nodes allow further modification of return values
-        return self.result_nodes(inliner.document, env, refnode, is_ref=True)
+        return self.result_nodes(inliner.document, env, refnode, is_ref=True)  # type: ignore
 
     # methods that can be overwritten
 
@@ -175,14 +175,14 @@ class AnyXRefRole(XRefRole):
         result = XRefRole.process_link(self, env, refnode, has_explicit_title,
                                        title, target)
         # add all possible context info (i.e. std:program, py:module etc.)
-        refnode.attributes.update(env.ref_context)
+        refnode.attributes.update(env.ref_context)  # type: ignore
         return result
 
 
 def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
     """Role for PEP/RFC references that generate an index entry."""
-    env = inliner.document.settings.env
+    env = inliner.document.settings.env  # type: ignore
     if not typ:
         assert env.temp_data['default_role']
         typ = env.temp_data['default_role'].lower()
@@ -195,7 +195,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
     targetid = 'index-%s' % env.new_serialno('index')
     indexnode = addnodes.index()
     targetnode = nodes.target('', '', ids=[targetid])
-    inliner.document.note_explicit_target(targetnode)
+    inliner.document.note_explicit_target(targetnode)  # type: ignore
     if typ == 'pep':
         indexnode['entries'] = [
             ('single', _('Python Enhancement Proposals; PEP %s') % target,
@@ -209,11 +209,11 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
         try:
             pepnum = int(target)
         except ValueError:
-            msg = inliner.reporter.error('invalid PEP number %s' % target,
+            msg = inliner.reporter.error('invalid PEP number %s' % target,  # type: ignore
                                          line=lineno)
-            prb = inliner.problematic(rawtext, rawtext, msg)
+            prb = inliner.problematic(rawtext, rawtext, msg)  # type: ignore
             return [prb], [msg]
-        ref = inliner.document.settings.pep_base_url + 'pep-%04d' % pepnum
+        ref = inliner.document.settings.pep_base_url + 'pep-%04d' % pepnum  # type: ignore
         sn = nodes.strong(title, title)
         rn = nodes.reference('', '', internal=False, refuri=ref + anchor,
                              classes=[typ])
@@ -231,11 +231,11 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
         try:
             rfcnum = int(target)
         except ValueError:
-            msg = inliner.reporter.error('invalid RFC number %s' % target,
+            msg = inliner.reporter.error('invalid RFC number %s' % target,  # type: ignore
                                          line=lineno)
-            prb = inliner.problematic(rawtext, rawtext, msg)
+            prb = inliner.problematic(rawtext, rawtext, msg)  # type: ignore
             return [prb], [msg]
-        ref = inliner.document.settings.rfc_base_url + inliner.rfc_url % rfcnum
+        ref = inliner.document.settings.rfc_base_url + inliner.rfc_url % rfcnum  # type: ignore
         sn = nodes.strong(title, title)
         rn = nodes.reference('', '', internal=False, refuri=ref + anchor,
                              classes=[typ])
@@ -250,7 +250,7 @@ _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
 def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
-    env = inliner.document.settings.env
+    env = inliner.document.settings.env  # type: ignore
     if not typ:
         assert env.temp_data['default_role']
         typ = env.temp_data['default_role'].lower()
@@ -289,7 +289,7 @@ parens_re = re.compile(r'(\\*{|\\*})')
 def emph_literal_role(typ, rawtext, text, lineno, inliner,
                       options={}, content=[]):
     # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
-    env = inliner.document.settings.env
+    env = inliner.document.settings.env  # type: ignore
     if not typ:
         assert env.temp_data['default_role']
         typ = env.temp_data['default_role'].lower()
@@ -355,7 +355,7 @@ def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
     # create new reference target
-    env = inliner.document.settings.env
+    env = inliner.document.settings.env  # type: ignore
     targetid = 'index-%s' % env.new_serialno('index')
     targetnode = nodes.target('', '', ids=[targetid])
     # split text and target in role content

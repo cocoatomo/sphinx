@@ -432,7 +432,7 @@ def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
             node['refuri'] = builder.get_relative_uri(fromdocname, todocname)
     if title:
         node['reftitle'] = title
-    node.append(child)
+    node.append(child)  # type: ignore
     return node
 
 
