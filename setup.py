@@ -47,6 +47,7 @@ extras_require = {
         'flake8-import-order',
         'mypy',
         'typed_ast',
+        'docutils-stubs',
     ],
 }
 
