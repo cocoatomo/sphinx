@@ -453,7 +453,7 @@ class MessagePrefixFilter(logging.Filter):
     def filter(self, record):
         # type: (logging.LogRecord) -> bool
         if self.prefix:
-            record.msg = self.prefix + ' ' + record.msg  # type: ignore
+            record.msg = self.prefix + ' ' + record.msg
         return True
 
 
@@ -525,7 +525,7 @@ class ColorizeFormatter(logging.Formatter):
             color = COLOR_MAP.get(record.levelno)
 
         if color:
-            return colorize(color, message)  # type: ignore
+            return colorize(color, message)
         else:
             return message
 

@@ -258,7 +258,7 @@ def save_traceback(app):
     last_msgs = ''
     if app is not None:
         last_msgs = '\n'.join(
-            '#   %s' % strip_colors(force_decode(s, 'utf-8')).strip()  # type: ignore
+            '#   %s' % strip_colors(force_decode(s, 'utf-8')).strip()
             for s in app.messagelog)
     os.write(fd, (_DEBUG_HEADER %
                   (sphinx.__display_version__,

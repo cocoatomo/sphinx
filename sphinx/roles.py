@@ -120,8 +120,7 @@ class XRefRole:
             if self.fix_parens:
                 text, tgt = self._fix_parens(env, False, text, "")
             innernode = self.innernodeclass(rawtext, text, classes=classes)
-            return self.result_nodes(inliner.document, env, innernode,  # type: ignore
-                                     is_ref=False)
+            return self.result_nodes(inliner.document, env, innernode, is_ref=False)
         # split title and target in role content
         has_explicit_title, title, target = split_explicit_title(text)
         title = utils.unescape(title)
@@ -146,7 +145,7 @@ class XRefRole:
         refnode['refdoc'] = env.docname
         refnode['refwarn'] = self.warn_dangling
         # result_nodes allow further modification of return values
-        return self.result_nodes(inliner.document, env, refnode, is_ref=True)  # type: ignore
+        return self.result_nodes(inliner.document, env, refnode, is_ref=True)
 
     # methods that can be overwritten
 
@@ -175,7 +174,7 @@ class AnyXRefRole(XRefRole):
         result = XRefRole.process_link(self, env, refnode, has_explicit_title,
                                        title, target)
         # add all possible context info (i.e. std:program, py:module etc.)
-        refnode.attributes.update(env.ref_context)  # type: ignore
+        refnode.attributes.update(env.ref_context)
         return result
 
 
@@ -195,7 +194,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
     targetid = 'index-%s' % env.new_serialno('index')
     indexnode = addnodes.index()
     targetnode = nodes.target('', '', ids=[targetid])
-    inliner.document.note_explicit_target(targetnode)  # type: ignore
+    inliner.document.note_explicit_target(targetnode)
     if typ == 'pep':
         indexnode['entries'] = [
             ('single', _('Python Enhancement Proposals; PEP %s') % target,
@@ -209,9 +208,8 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
         try:
             pepnum = int(target)
         except ValueError:
-            msg = inliner.reporter.error('invalid PEP number %s' % target,  # type: ignore
-                                         line=lineno)
-            prb = inliner.problematic(rawtext, rawtext, msg)  # type: ignore
+            msg = inliner.reporter.error('invalid PEP number %s' % target, line=lineno)
+            prb = inliner.problematic(rawtext, rawtext, msg)
             return [prb], [msg]
         ref = inliner.document.settings.pep_base_url + 'pep-%04d' % pepnum  # type: ignore
         sn = nodes.strong(title, title)
@@ -231,9 +229,8 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
         try:
             rfcnum = int(target)
         except ValueError:
-            msg = inliner.reporter.error('invalid RFC number %s' % target,  # type: ignore
-                                         line=lineno)
-            prb = inliner.problematic(rawtext, rawtext, msg)  # type: ignore
+            msg = inliner.reporter.error('invalid RFC number %s' % target, line=lineno)
+            prb = inliner.problematic(rawtext, rawtext, msg)
             return [prb], [msg]
         ref = inliner.document.settings.rfc_base_url + inliner.rfc_url % rfcnum  # type: ignore
         sn = nodes.strong(title, title)

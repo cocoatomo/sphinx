@@ -237,7 +237,7 @@ class SphinxComponentRegistry:
                       ref_nodeclass, objname, doc_field_types))
 
         # create a subclass of GenericObject as the new directive
-        directive = type(directivename,  # type: ignore
+        directive = type(directivename,
                          (GenericObject, object),
                          {'indextemplate': indextemplate,
                           'parse_node': staticmethod(parse_node),
@@ -259,7 +259,7 @@ class SphinxComponentRegistry:
                      (directivename, rolename, indextemplate, ref_nodeclass, objname))
 
         # create a subclass of Target as the new directive
-        directive = type(directivename,  # type: ignore
+        directive = type(directivename,
                          (Target, object),
                          {'indextemplate': indextemplate})
 
@@ -430,7 +430,7 @@ class SphinxComponentRegistry:
     def add_js_file(self, filename, **attributes):
         # type: (str, **str) -> None
         logger.debug('[app] adding js_file: %r, %r', filename, attributes)
-        self.js_files.append((filename, attributes))  # type: ignore
+        self.js_files.append((filename, attributes))
 
     def add_latex_package(self, name, options):
         # type: (str, str) -> None

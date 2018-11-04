@@ -141,7 +141,7 @@ class Graphviz(SphinxDirective):
             rel_filename, filename = self.env.relfn2path(argument)
             self.env.note_dependency(rel_filename)
             try:
-                with open(filename, 'r', encoding='utf-8') as fp:  # type: ignore
+                with open(filename, 'r', encoding='utf-8') as fp:
                     dotcode = fp.read()
             except (IOError, OSError):
                 return [document.reporter.warning(

@@ -494,8 +494,7 @@ Doctest summary
             # type: (Any, List[TestCode], Any) -> bool
             examples = []
             for testcode in testcodes:
-                example = doctest.Example(testcode.code, '',  # type: ignore
-                                          lineno=testcode.lineno)
+                example = doctest.Example(testcode.code, '', lineno=testcode.lineno)
                 examples.append(example)
             if not examples:
                 return True
@@ -547,11 +546,11 @@ Doctest summary
                     exc_msg = m.group('msg')
                 else:
                     exc_msg = None
-                example = doctest.Example(code[0].code, output,  # type: ignore
+                example = doctest.Example(code[0].code, output,
                                           exc_msg=exc_msg,
                                           lineno=code[0].lineno,
                                           options=options)
-                test = doctest.DocTest([example], {}, group.name,  # type: ignore
+                test = doctest.DocTest([example], {}, group.name,
                                        code[0].filename, code[0].lineno, None)
                 self.type = 'exec'  # multiple statements again
             # DocTest.__init__ copies the globs namespace, which we don't want
