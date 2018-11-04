@@ -368,5 +368,3 @@ def new_document(source_path, settings=None):
     document = nodes.document(settings, __document_cache__.reporter, source=source_path)
     document.note_source(source_path, -1)
     return document
-
-
