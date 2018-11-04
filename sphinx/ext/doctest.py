@@ -225,7 +225,7 @@ class TestGroup:
         else:
             raise RuntimeError(__('invalid TestCode type'))
 
-    def __repr__(self):  # type: ignore
+    def __repr__(self):
         # type: () -> str
         return 'TestGroup(name=%r, setup=%r, cleanup=%r, tests=%r)' % (
             self.name, self.setup, self.cleanup, self.tests)
@@ -240,7 +240,7 @@ class TestCode:
         self.lineno = lineno
         self.options = options or {}
 
-    def __repr__(self):  # type: ignore
+    def __repr__(self):
         # type: () -> str
         return 'TestCode(%r, %r, filename=%r, lineno=%r, options=%r)' % (
             self.code, self.type, self.filename, self.lineno, self.options)
@@ -313,8 +313,7 @@ class DocTestBuilder(Builder):
         date = time.strftime('%Y-%m-%d %H:%M:%S')
 
         self.outfile = None  # type: IO
-        self.outfile = open(path.join(self.outdir, 'output.txt'),  # type: ignore
-                            'w', encoding='utf-8')
+        self.outfile = open(path.join(self.outdir, 'output.txt'), 'w', encoding='utf-8')
         self.outfile.write(('Results of doctest builder run on %s\n'
                             '==================================%s\n') %
                            (date, '=' * len(date)))

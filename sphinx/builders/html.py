@@ -831,7 +831,7 @@ class StandaloneHTMLBuilder(Builder):
             ensuredir(path.join(self.outdir, '_static'))
             # first, create pygments style file
             with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
-                f.write(self.highlighter.get_stylesheet())  # type: ignore
+                f.write(self.highlighter.get_stylesheet())
             # then, copy translations JavaScript file
             if self.config.language is not None:
                 jsfile = self._get_translations_js()
@@ -954,7 +954,7 @@ class StandaloneHTMLBuilder(Builder):
         try:
             searchindexfn = path.join(self.outdir, self.searchindex_filename)
             if self.indexer_dumps_unicode:
-                f = open(searchindexfn, 'r', encoding='utf-8')  # type: ignore
+                f = open(searchindexfn, 'r', encoding='utf-8')
             else:
                 f = open(searchindexfn, 'rb')
             with f:
@@ -1135,7 +1135,7 @@ class StandaloneHTMLBuilder(Builder):
         # outfilename's path is in general different from self.outdir
         ensuredir(path.dirname(outfilename))
         try:
-            with open(outfilename, 'w',  # type: ignore
+            with open(outfilename, 'w',
                       encoding=ctx['encoding'], errors='xmlcharrefreplace') as f:
                 f.write(output)
         except (IOError, OSError) as err:
@@ -1173,7 +1173,7 @@ class StandaloneHTMLBuilder(Builder):
         # first write to a temporary file, so that if dumping fails,
         # the existing index won't be overwritten
         if self.indexer_dumps_unicode:
-            f = open(searchindexfn + '.tmp', 'w', encoding='utf-8')  # type: ignore
+            f = open(searchindexfn + '.tmp', 'w', encoding='utf-8')
         else:
             f = open(searchindexfn + '.tmp', 'wb')
         with f:
@@ -1432,7 +1432,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     def dump_context(self, context, filename):
         # type: (Dict, str) -> None
         if self.implementation_dumps_unicode:
-            f = open(filename, 'w', encoding='utf-8')  # type: ignore
+            f = open(filename, 'w', encoding='utf-8')
         else:
             f = open(filename, 'wb')
         with f:

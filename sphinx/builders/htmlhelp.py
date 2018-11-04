@@ -208,7 +208,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     def open_file(self, outdir, basename, mode='w'):
         # type: (str, str, str) -> IO
         # open a file with the correct encoding for the selected language
-        return open(path.join(outdir, basename), mode,  # type: ignore
+        return open(path.join(outdir, basename), mode,
                     encoding=self.encoding, errors='xmlcharrefreplace')
 
     def update_page_context(self, pagename, templatename, ctx, event_arg):

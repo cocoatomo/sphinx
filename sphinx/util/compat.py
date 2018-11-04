@@ -37,7 +37,7 @@ def deprecate_source_parsers(app, config):
                       RemovedInSphinx30Warning)
         for suffix, parser in config.source_parsers.items():
             if isinstance(parser, string_types):
-                parser = import_object(parser, 'source parser')  # type: ignore
+                parser = import_object(parser, 'source parser')
             app.add_source_parser(suffix, parser)
 
 

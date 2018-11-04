@@ -203,7 +203,7 @@ class ImageConverter(BaseImageConverter):
         self.available = None   # type: bool
                                 # the converter is available or not.
                                 # Will be checked at first conversion
-        BaseImageConverter.__init__(self, *args, **kwargs)  # type: ignore
+        BaseImageConverter.__init__(self, *args, **kwargs)
 
     def match(self, node):
         # type: (nodes.Node) -> bool

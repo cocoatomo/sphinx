@@ -110,7 +110,7 @@ class SphinxComponentRegistry:
         self.source_parsers = {}        # type: Dict[str, Type[Parser]]
 
         #: source inputs; file type -> input class
-        self.source_inputs = {}         # type: Dict[str, Input]
+        self.source_inputs = {}         # type: Dict[str, Type[Input]]
 
         #: source suffix: suffix -> file type
         self.source_suffix = {}         # type: Dict[str, str]
@@ -325,7 +325,7 @@ class SphinxComponentRegistry:
             raise SphinxError(__('Source parser for %s not registered') % filetype)
 
     def get_source_parsers(self):
-        # type: () -> Dict[str, Parser]
+        # type: () -> Dict[str, Type[Parser]]
         return self.source_parsers
 
     def create_source_parser(self, app, filename):

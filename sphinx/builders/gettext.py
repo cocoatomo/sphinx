@@ -249,7 +249,7 @@ class MessageCatalogBuilder(I18nBuilder):
         for template in status_iterator(files, __('reading templates... '), "purple",
                                         len(files), self.app.verbosity):
             try:
-                with open(template, 'r', encoding='utf-8') as f:  # type: ignore
+                with open(template, 'r', encoding='utf-8') as f:
                     context = f.read()
                 for line, meth, msg in extract_translations(context):
                     origin = MsgOrigin(template, line)

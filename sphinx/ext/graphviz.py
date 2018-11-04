@@ -308,7 +308,7 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
             self.body.append('<p class="warning">%s</p>' % alt)
             self.body.append('</object></div>\n')
         else:
-            with open(outfn + '.map', 'r', encoding='utf-8') as mapfile:  # type: ignore
+            with open(outfn + '.map', 'r', encoding='utf-8') as mapfile:
                 imgmap = ClickableMapDefinition(outfn + '.map', mapfile.read(), dot=code)
                 if imgmap.clickable:
                     # has a map
