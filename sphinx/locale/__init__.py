@@ -22,7 +22,7 @@ from sphinx.deprecation import RemovedInSphinx30Warning
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterator, List, Tuple  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Tuple, Union  # NOQA
 
 
 class _TranslationProxy(UserString):
@@ -47,7 +47,7 @@ class _TranslationProxy(UserString):
         return object.__new__(cls)
 
     def __getnewargs__(self):
-        # type: () -> Tuple
+        # type: () -> Tuple[str]
         return (self._func,) + self._args  # type: ignore
 
     def __init__(self, func, *args):
@@ -106,7 +106,7 @@ class _TranslationProxy(UserString):
         # type: (str) -> str
         return self.data + other
 
-    def __radd__(self, other):  # type: ignore
+    def __radd__(self, other):
         # type: (str) -> str
         return other + self.data
 
@@ -122,16 +122,16 @@ class _TranslationProxy(UserString):
         # type: (Any) -> str
         return self.data * other
 
-    def __rmul__(self, other):  # type: ignore
+    def __rmul__(self, other):
         # type: (Any) -> str
         return other * self.data
 
     def __lt__(self, other):
-        # type: (str) -> bool
+        # type: (Union[str, UserString]) -> bool
         return self.data < other
 
     def __le__(self, other):
-        # type: (str) -> bool
+        # type: (Union[str, UserString]) -> bool
         return self.data <= other
 
     def __eq__(self, other):
@@ -139,11 +139,11 @@ class _TranslationProxy(UserString):
         return self.data == other
 
     def __gt__(self, other):
-        # type: (str) -> bool
+        # type: (Union[str, UserString]) -> bool
         return self.data > other
 
     def __ge__(self, other):
-        # type: (str) -> bool
+        # type: (Union[str, UserString]) -> bool
         return self.data >= other
 
     def __getattr__(self, name):
@@ -223,8 +223,7 @@ def init(locale_dirs, language, catalog='sphinx', namespace='general'):
     # loading
     for dir_ in locale_dirs:
         try:
-            trans = gettext.translation(catalog, localedir=dir_,  # type: ignore
-                                        languages=languages)
+            trans = gettext.translation(catalog, localedir=dir_, languages=languages)
             if translator is None:
                 translator = trans
             else:
@@ -274,7 +273,7 @@ def _lazy_translate(catalog, namespace, message):
     not bound yet at that time.
     """
     translator = get_translator(catalog, namespace)
-    return translator.gettext(message)  # type: ignore
+    return translator.gettext(message)
 
 
 def get_translation(catalog, namespace='general'):
@@ -309,9 +308,9 @@ def get_translation(catalog, namespace='general'):
         else:
             translator = get_translator(catalog, namespace)
             if len(args) <= 1:
-                return translator.gettext(message)  # type: ignore
+                return translator.gettext(message)
             else:  # support pluralization
-                return translator.ngettext(message, args[0], args[1])  # type: ignore
+                return translator.ngettext(message, args[0], args[1])
 
     return gettext
 

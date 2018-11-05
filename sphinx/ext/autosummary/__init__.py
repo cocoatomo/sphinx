@@ -643,7 +643,7 @@ def get_rst_suffix(app):
         if parser_class is None:
             return ('restructuredtext',)
         if isinstance(parser_class, string_types):
-            parser_class = import_object(parser_class, 'source parser')  # type: ignore
+            parser_class = import_object(parser_class, 'source parser')
         return parser_class.supported
 
     suffix = None  # type: str

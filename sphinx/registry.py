@@ -110,7 +110,7 @@ class SphinxComponentRegistry:
         self.source_parsers = {}        # type: Dict[str, Type[Parser]]
 
         #: source inputs; file type -> input class
-        self.source_inputs = {}         # type: Dict[str, Input]
+        self.source_inputs = {}         # type: Dict[str, Type[Input]]
 
         #: source suffix: suffix -> file type
         self.source_suffix = {}         # type: Dict[str, str]
@@ -237,7 +237,7 @@ class SphinxComponentRegistry:
                       ref_nodeclass, objname, doc_field_types))
 
         # create a subclass of GenericObject as the new directive
-        directive = type(directivename,  # type: ignore
+        directive = type(directivename,
                          (GenericObject, object),
                          {'indextemplate': indextemplate,
                           'parse_node': staticmethod(parse_node),
@@ -259,7 +259,7 @@ class SphinxComponentRegistry:
                      (directivename, rolename, indextemplate, ref_nodeclass, objname))
 
         # create a subclass of Target as the new directive
-        directive = type(directivename,  # type: ignore
+        directive = type(directivename,
                          (Target, object),
                          {'indextemplate': indextemplate})
 
@@ -325,7 +325,7 @@ class SphinxComponentRegistry:
             raise SphinxError(__('Source parser for %s not registered') % filetype)
 
     def get_source_parsers(self):
-        # type: () -> Dict[str, Parser]
+        # type: () -> Dict[str, Type[Parser]]
         return self.source_parsers
 
     def create_source_parser(self, app, filename):
@@ -430,7 +430,7 @@ class SphinxComponentRegistry:
     def add_js_file(self, filename, **attributes):
         # type: (str, **str) -> None
         logger.debug('[app] adding js_file: %r, %r', filename, attributes)
-        self.js_files.append((filename, attributes))  # type: ignore
+        self.js_files.append((filename, attributes))
 
     def add_latex_package(self, name, options):
         # type: (str, str) -> None

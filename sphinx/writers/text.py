@@ -335,7 +335,7 @@ class TextWrapper(textwrap.TextWrapper):
         """
         def split(t):
             # type: (str) -> List[str]
-            return textwrap.TextWrapper._split(self, t)  # type: ignore
+            return textwrap.TextWrapper._split(self, t)
         chunks = []  # type: List[str]
         for chunk in split(text):
             for w, g in groupby(chunk, column_width):

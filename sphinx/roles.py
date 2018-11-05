@@ -22,11 +22,11 @@ from sphinx.util.nodes import split_explicit_title, process_index_entry, \
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple, Type  # NOQA
+    from typing import Any, Callable, Dict, List, Tuple, Type  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-
+    from sphinx.util.typing import RoleFunction  # NOQA
 
 generic_docroles = {
     'command': addnodes.literal_strong,
@@ -99,7 +99,7 @@ class XRefRole:
     def __call__(self, typ, rawtext, text, lineno, inliner,
                  options={}, content=[]):
         # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
-        env = inliner.document.settings.env
+        env = inliner.document.settings.env  # type: ignore
         if not typ:
             typ = env.temp_data.get('default_role')
             if not typ:
@@ -120,8 +120,7 @@ class XRefRole:
             if self.fix_parens:
                 text, tgt = self._fix_parens(env, False, text, "")
             innernode = self.innernodeclass(rawtext, text, classes=classes)
-            return self.result_nodes(inliner.document, env, innernode,
-                                     is_ref=False)
+            return self.result_nodes(inliner.document, env, innernode, is_ref=False)
         # split title and target in role content
         has_explicit_title, title, target = split_explicit_title(text)
         title = utils.unescape(title)
@@ -182,7 +181,7 @@ class AnyXRefRole(XRefRole):
 def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
     """Role for PEP/RFC references that generate an index entry."""
-    env = inliner.document.settings.env
+    env = inliner.document.settings.env  # type: ignore
     if not typ:
         assert env.temp_data['default_role']
         typ = env.temp_data['default_role'].lower()
@@ -209,11 +208,10 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
         try:
             pepnum = int(target)
         except ValueError:
-            msg = inliner.reporter.error('invalid PEP number %s' % target,
-                                         line=lineno)
+            msg = inliner.reporter.error('invalid PEP number %s' % target, line=lineno)
             prb = inliner.problematic(rawtext, rawtext, msg)
             return [prb], [msg]
-        ref = inliner.document.settings.pep_base_url + 'pep-%04d' % pepnum
+        ref = inliner.document.settings.pep_base_url + 'pep-%04d' % pepnum  # type: ignore
         sn = nodes.strong(title, title)
         rn = nodes.reference('', '', internal=False, refuri=ref + anchor,
                              classes=[typ])
@@ -231,11 +229,10 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
         try:
             rfcnum = int(target)
         except ValueError:
-            msg = inliner.reporter.error('invalid RFC number %s' % target,
-                                         line=lineno)
+            msg = inliner.reporter.error('invalid RFC number %s' % target, line=lineno)
             prb = inliner.problematic(rawtext, rawtext, msg)
             return [prb], [msg]
-        ref = inliner.document.settings.rfc_base_url + inliner.rfc_url % rfcnum
+        ref = inliner.document.settings.rfc_base_url + inliner.rfc_url % rfcnum  # type: ignore
         sn = nodes.strong(title, title)
         rn = nodes.reference('', '', internal=False, refuri=ref + anchor,
                              classes=[typ])
@@ -250,7 +247,7 @@ _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
 def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
-    env = inliner.document.settings.env
+    env = inliner.document.settings.env  # type: ignore
     if not typ:
         assert env.temp_data['default_role']
         typ = env.temp_data['default_role'].lower()
@@ -289,7 +286,7 @@ parens_re = re.compile(r'(\\*{|\\*})')
 def emph_literal_role(typ, rawtext, text, lineno, inliner,
                       options={}, content=[]):
     # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
-    env = inliner.document.settings.env
+    env = inliner.document.settings.env  # type: ignore
     if not typ:
         assert env.temp_data['default_role']
         typ = env.temp_data['default_role'].lower()
@@ -355,7 +352,7 @@ def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
     # create new reference target
-    env = inliner.document.settings.env
+    env = inliner.document.settings.env  # type: ignore
     targetid = 'index-%s' % env.new_serialno('index')
     targetnode = nodes.target('', '', ids=[targetid])
     # split text and target in role content
@@ -395,7 +392,7 @@ specific_docroles = {
     'samp': emph_literal_role,
     'abbr': abbr_role,
     'index': index_role,
-}
+}  # type: Dict[str, RoleFunction]
 
 
 def setup(app):

@@ -272,7 +272,7 @@ class Config:
                 logger.warning("%s", exc)
         for name in config:
             if name in self.values:
-                self.__dict__[name] = config[name]  # type: ignore
+                self.__dict__[name] = config[name]
 
     def __getattr__(self, name):
         # type: (str) -> Any
@@ -304,7 +304,7 @@ class Config:
     def __iter__(self):
         # type: () -> Generator[ConfigValue, None, None]
         for name, value in self.values.items():
-            yield ConfigValue(name, getattr(self, name), value[1])  # type: ignore
+            yield ConfigValue(name, getattr(self, name), value[1])
 
     def add(self, name, default, rebuild, types):
         # type: (str, Any, Union[bool, str], Any) -> None
@@ -332,7 +332,7 @@ class Config:
 
         # create a picklable copy of values list
         __dict__['values'] = {}
-        for key, value in self.values.items():  # type: ignore
+        for key, value in self.values.items():
             real_value = getattr(self, key)
             if not is_serializable(real_value):
                 # omit unserializable value

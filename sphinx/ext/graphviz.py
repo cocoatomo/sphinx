@@ -141,7 +141,7 @@ class Graphviz(SphinxDirective):
             rel_filename, filename = self.env.relfn2path(argument)
             self.env.note_dependency(rel_filename)
             try:
-                with open(filename, 'r', encoding='utf-8') as fp:  # type: ignore
+                with open(filename, 'r', encoding='utf-8') as fp:
                     dotcode = fp.read()
             except (IOError, OSError):
                 return [document.reporter.warning(
@@ -308,7 +308,7 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
             self.body.append('<p class="warning">%s</p>' % alt)
             self.body.append('</object></div>\n')
         else:
-            with open(outfn + '.map', 'r', encoding='utf-8') as mapfile:  # type: ignore
+            with open(outfn + '.map', 'r', encoding='utf-8') as mapfile:
                 imgmap = ClickableMapDefinition(outfn + '.map', mapfile.read(), dot=code)
                 if imgmap.clickable:
                     # has a map

@@ -199,14 +199,14 @@ files can be built by specifying individual filenames.
     return parser
 
 
-def make_main(argv=sys.argv[1:]):  # type: ignore
+def make_main(argv=sys.argv[1:]):
     # type: (List[str]) -> int
     """Sphinx build "make mode" entry."""
     from sphinx.cmd import make_mode
     return make_mode.run_make_mode(argv[1:])
 
 
-def build_main(argv=sys.argv[1:]):  # type: ignore
+def build_main(argv=sys.argv[1:]):
     # type: (List[str]) -> int
     """Sphinx build "main" command-line entry."""
 
@@ -308,7 +308,7 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
         return 2
 
 
-def main(argv=sys.argv[1:]):  # type: ignore
+def main(argv=sys.argv[1:]):
     # type: (List[str]) -> int
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
@@ -320,4 +320,4 @@ def main(argv=sys.argv[1:]):  # type: ignore
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))  # type: ignore
+    sys.exit(main(sys.argv[1:]))
