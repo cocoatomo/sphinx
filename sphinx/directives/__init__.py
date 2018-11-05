@@ -199,9 +199,9 @@ class DefaultRole(SphinxDirective):
     def run(self):
         # type: () -> List[nodes.Node]
         if not self.arguments:
-            if '' in roles._roles:
+            if '' in roles._roles:  # type: ignore
                 # restore the "default" default role
-                del roles._roles['']
+                del roles._roles['']  # type: ignore
             return []
         role_name = self.arguments[0]
         role, messages = roles.role(role_name, self.state_machine.language,
@@ -212,7 +212,7 @@ class DefaultRole(SphinxDirective):
                 nodes.literal_block(self.block_text, self.block_text),
                 line=self.lineno)
             return messages + [error]
-        roles._roles[''] = role
+        roles._roles[''] = role  # type: ignore
         self.env.temp_data['default_role'] = role_name
         return messages
 

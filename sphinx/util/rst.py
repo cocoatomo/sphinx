@@ -42,10 +42,10 @@ def default_role(docname, name):
         dummy_reporter = Reporter('', 4, 4)
         role_fn, _ = roles.role(name, english, 0, dummy_reporter)
         if role_fn:
-            roles._roles[''] = role_fn
+            roles._roles[''] = role_fn  # type: ignore
         else:
             logger.warning(__('default role %s not found'), name, location=docname)
 
     yield
 
-    roles._roles.pop('', None)  # if a document has set a local default role
+    roles._roles.pop('', None)  # if a document has set a local default role  # type: ignore

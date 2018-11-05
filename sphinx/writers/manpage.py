@@ -91,23 +91,23 @@ class ManualPageTranslator(BaseTranslator):
         self.section_level = -1
 
         # docinfo set by man_pages config value
-        self._docinfo['title'] = self.document.settings.title
-        self._docinfo['subtitle'] = self.document.settings.subtitle
+        self._docinfo['title'] = self.document.settings.title  # type: ignore
+        self._docinfo['subtitle'] = self.document.settings.subtitle  # type: ignore
         if self.document.settings.authors:
             # don't set it if no author given
-            self._docinfo['author'] = self.document.settings.authors
-        self._docinfo['manual_section'] = self.document.settings.section
+            self._docinfo['author'] = self.document.settings.authors  # type: ignore
+        self._docinfo['manual_section'] = self.document.settings.section  # type: ignore
 
         # docinfo set by other config values
-        self._docinfo['title_upper'] = self._docinfo['title'].upper()
+        self._docinfo['title_upper'] = self._docinfo['title'].upper()  # type: ignore
         if builder.config.today:
-            self._docinfo['date'] = builder.config.today
+            self._docinfo['date'] = builder.config.today  # type: ignore
         else:
-            self._docinfo['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),
+            self._docinfo['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),  # type: ignore  # NOQA
                                                 language=builder.config.language)
-        self._docinfo['copyright'] = builder.config.copyright
-        self._docinfo['version'] = builder.config.version
-        self._docinfo['manual_group'] = builder.config.project
+        self._docinfo['copyright'] = builder.config.copyright  # type: ignore
+        self._docinfo['version'] = builder.config.version  # type: ignore
+        self._docinfo['manual_group'] = builder.config.project  # type: ignore
 
         # Overwrite admonition label translations with our own
         for label, translation in admonitionlabels.items():
@@ -120,7 +120,7 @@ class ManualPageTranslator(BaseTranslator):
                 " \"%(date)s\" \"%(version)s\" \"%(manual_group)s\"\n"
                 ".SH NAME\n"
                 "%(title)s \\- %(subtitle)s\n")
-        return tmpl % self._docinfo
+        return tmpl % self._docinfo  # type: ignore
 
     def visit_start_of_file(self, node):
         # type: (nodes.Node) -> None

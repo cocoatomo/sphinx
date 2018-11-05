@@ -52,13 +52,13 @@ def docutils_namespace():
     # type: () -> Generator[None, None, None]
     """Create namespace for reST parsers."""
     try:
-        _directives = copy(directives._directives)
-        _roles = copy(roles._roles)
+        _directives = copy(directives._directives)  # type: ignore
+        _roles = copy(roles._roles)  # type: ignore
 
         yield
     finally:
-        directives._directives = _directives
-        roles._roles = _roles
+        directives._directives = _directives  # type: ignore
+        roles._roles = _roles  # type: ignore
 
         for node in list(additional_nodes):
             unregister_node(node)
@@ -79,7 +79,7 @@ def register_node(node):
     inside ``docutils_namespace()`` to prevent side-effects.
     """
     if not hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
-        nodes._add_node_class_names([node.__name__])
+        nodes._add_node_class_names([node.__name__])  # type: ignore
         additional_nodes.add(node)
 
 

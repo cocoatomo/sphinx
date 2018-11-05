@@ -652,7 +652,7 @@ class Sphinx:
         """
         logger.debug('[app] adding directive: %r',
                      (name, obj, content, arguments, options))
-        if name in directives._directives and not override:
+        if name in directives._directives and not override:  # type: ignore
             logger.warning(__('directive %r is already registered, it will be overridden'),
                            name, type='app', subtype='add_directive')
 
@@ -675,7 +675,7 @@ class Sphinx:
            Add *override* keyword.
         """
         logger.debug('[app] adding role: %r', (name, role))
-        if name in roles._roles and not override:
+        if name in roles._roles and not override:  # type: ignore
             logger.warning(__('role %r is already registered, it will be overridden'),
                            name, type='app', subtype='add_role')
         roles.register_local_role(name, role)
@@ -694,7 +694,7 @@ class Sphinx:
         # Don't use ``roles.register_generic_role`` because it uses
         # ``register_canonical_role``.
         logger.debug('[app] adding generic role: %r', (name, nodeclass))
-        if name in roles._roles and not override:
+        if name in roles._roles and not override:  # type: ignore
             logger.warning(__('role %r is already registered, it will be overridden'),
                            name, type='app', subtype='add_generic_role')
         role = roles.GenericRole(name, nodeclass)

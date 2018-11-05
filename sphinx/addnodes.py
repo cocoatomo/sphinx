@@ -350,5 +350,5 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
 
 # make the new nodes known to docutils; needed because the HTML writer will
 # choke at some point if these are not added
-nodes._add_node_class_names(k for k in globals().keys()
+nodes._add_node_class_names(k for k in globals().keys()  # type: ignore
                             if k != 'nodes' and k[0] != '_')
