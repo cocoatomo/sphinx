@@ -116,7 +116,7 @@ class SphinxComponentRegistry:
         self.source_suffix = {}         # type: Dict[str, str]
 
         #: custom translators; builder name -> translator class
-        self.translators = {}           # type: Dict[str, nodes.NodeVisitor]
+        self.translators = {}           # type: Dict[str, Type[nodes.NodeVisitor]]
 
         #: custom handlers for translators
         #: a dict of builder name -> dict of node name -> visitor and departure functions
@@ -231,7 +231,7 @@ class SphinxComponentRegistry:
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname='',
                         doc_field_types=[], override=False):
-        # type: (str, str, str, Callable, nodes.Node, str, List, bool) -> None
+        # type: (str, str, str, Callable, Type[nodes.refernce], str, List, bool) -> None
         logger.debug('[app] adding object type: %r',
                      (directivename, rolename, indextemplate, parse_node,
                       ref_nodeclass, objname, doc_field_types))
