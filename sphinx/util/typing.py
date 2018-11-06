@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner

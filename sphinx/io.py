@@ -123,7 +123,7 @@ class SphinxI18nReader(SphinxBaseReader):
                   AutoNumbering, SortIds, RemoveTranslatableInline,
                   FilterSystemMessages, RefOnlyBulletListTransform,
                   UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink,
-                  SubstitutionDefinitionsRemover]
+                  SubstitutionDefinitionsRemover]  # type: List[Type[Transform]]
 
     def set_lineno_for_reporter(self, lineno):
         # type: (int) -> None
