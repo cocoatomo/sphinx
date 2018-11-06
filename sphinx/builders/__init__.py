@@ -68,7 +68,7 @@ class Builder:
 
     #: default translator class for the builder.  This can be overrided by
     #: :py:meth:`app.set_translator()`.
-    default_translator_class = None  # type: nodes.NodeVisitor
+    default_translator_class = None  # type: Type[nodes.NodeVisitor]
     # doctree versioning method
     versioning_method = 'none'
     versioning_compare = False

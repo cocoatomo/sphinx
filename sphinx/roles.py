@@ -98,7 +98,7 @@ class XRefRole:
 
     def __call__(self, typ, rawtext, text, lineno, inliner,
                  options={}, content=[]):
-        # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+        # type: (str, str, str, int, Inliner, Dict[str, Any], List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         env = inliner.document.settings.env  # type: ignore
         if not typ:
             typ = env.temp_data.get('default_role')
@@ -135,7 +135,7 @@ class XRefRole:
         refnode = self.nodeclass(rawtext, reftype=role, refdomain=domain,
                                  refexplicit=has_explicit_title)
         # we may need the line number for warnings
-        set_role_source_info(inliner, lineno, refnode)  # type: ignore
+        set_role_source_info(inliner, lineno, refnode)
         title, target = self.process_link(
             env, refnode, has_explicit_title, title, target)
         # now that the target and title are finally determined, set them
@@ -159,7 +159,7 @@ class XRefRole:
         return title, ws_re.sub(' ', target)
 
     def result_nodes(self, document, env, node, is_ref):
-        # type: (nodes.document, BuildEnvironment, nodes.Node, bool) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+        # type: (nodes.document, BuildEnvironment, nodes.Node, bool) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         """Called before returning the finished nodes.  *node* is the reference
         node if one was created (*is_ref* is then true), else the content node.
         This method can add other nodes and must return a ``(nodes, messages)``
@@ -179,7 +179,7 @@ class AnyXRefRole(XRefRole):
 
 
 def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+    # type: (str, str, str, int, Inliner, Dict[str, Any], List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     """Role for PEP/RFC references that generate an index entry."""
     env = inliner.document.settings.env  # type: ignore
     if not typ:
@@ -246,7 +246,7 @@ _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
 
 def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+    # type: (str, str, str, int, Inliner, Dict[str, Any], List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     env = inliner.document.settings.env  # type: ignore
     if not typ:
         assert env.temp_data['default_role']
@@ -285,7 +285,7 @@ parens_re = re.compile(r'(\\*{|\\*})')
 
 def emph_literal_role(typ, rawtext, text, lineno, inliner,
                       options={}, content=[]):
-    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+    # type: (str, str, str, int, Inliner, Dict[str, Any], List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     env = inliner.document.settings.env  # type: ignore
     if not typ:
         assert env.temp_data['default_role']
@@ -337,7 +337,7 @@ _abbr_re = re.compile(r'\((.*)\)$', re.S)
 
 
 def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+    # type: (str, str, str, int, Inliner, Dict[str, Any], List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     text = utils.unescape(text)
     m = _abbr_re.search(text)
     if m is None:
@@ -350,7 +350,7 @@ def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 
 
 def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+    # type: (str, str, str, int, Inliner, Dict[str, Any], List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     # create new reference target
     env = inliner.document.settings.env  # type: ignore
     targetid = 'index-%s' % env.new_serialno('index')
@@ -373,7 +373,7 @@ def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         entries = [('single', target, targetid, main, None)]
     indexnode = addnodes.index()
     indexnode['entries'] = entries
-    set_role_source_info(inliner, lineno, indexnode)  # type: ignore
+    set_role_source_info(inliner, lineno, indexnode)
     textnode = nodes.Text(title, title)
     return [indexnode, targetnode, textnode], []
 
