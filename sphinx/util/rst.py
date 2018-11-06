@@ -48,4 +48,4 @@ def default_role(docname, name):
 
     yield
 
-    roles._roles.pop('', None)  # if a document has set a local default role  # type: ignore
+    roles._roles.pop('', None)  # type: ignore  # if a document has set a local default role
