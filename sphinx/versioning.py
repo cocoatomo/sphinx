@@ -183,7 +183,7 @@ class UIDTransform(SphinxTransform):
 
 
 def prepare(document):
-    # type: (nodes.Node) -> None
+    # type: (nodes.document) -> None
     """Simple wrapper for UIDTransform."""
     warnings.warn('versioning.prepare() is deprecated. Use UIDTransform instead.',
                   RemovedInSphinx30Warning, stacklevel=2)
