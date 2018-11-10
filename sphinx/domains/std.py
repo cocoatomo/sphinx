@@ -415,8 +415,8 @@ class ProductionList(SphinxDirective):
     def run(self):
         # type: () -> List[nodes.Node]
         objects = self.env.domaindata['std']['objects']
-        node = addnodes.productionlist()  # type: nodes.Node
-        messages = []  # type: List[nodes.Node]
+        node = addnodes.productionlist()  # type: nodes.Element
+        messages = []  # type: List[nodes.Element]
         i = 0
 
         for rule in self.arguments[0].split('\n'):

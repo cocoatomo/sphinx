@@ -334,7 +334,7 @@ class SphinxDirective(Directive):
     def env(self):
         # type: () -> BuildEnvironment
         """Reference to the :class:`.BuildEnvironment` object."""
-        return self.state.document.settings.env
+        return self.state.document.settings.env  # type: ignore
 
     @property
     def config(self):

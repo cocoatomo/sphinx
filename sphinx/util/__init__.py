@@ -597,7 +597,7 @@ def import_object(objname, source=None):
 
 def encode_uri(uri):
     # type: (str) -> str
-    split = list(urlsplit(uri))  # type: Any
+    split = list(urlsplit(uri))  # type: List[str]
     split[1] = split[1].encode('idna').decode('ascii')
     split[2] = quote_plus(split[2].encode('utf-8'), '/').decode('ascii')
     query = list((q, quote_plus(v.encode('utf-8')))

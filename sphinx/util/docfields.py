@@ -23,7 +23,7 @@ if False:
 
 
 def _is_single_paragraph(node):
-    # type: (nodes.Node) -> bool
+    # type: (nodes.Element) -> bool
     """True if the node only contains one paragraph (and system messages)."""
     if len(node) == 0:
         return False
@@ -66,7 +66,7 @@ class Field:
                   rolename,       # type: str
                   domain,         # type: str
                   target,         # type: str
-                  innernode=addnodes.literal_emphasis,  # type: nodes.Node
+                  innernode=addnodes.literal_emphasis,  # type: Type[nodes.Node]
                   contnode=None,  # type: nodes.Node
                   env=None,       # type: BuildEnvironment
                   ):

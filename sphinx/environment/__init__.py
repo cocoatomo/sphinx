@@ -554,7 +554,7 @@ class BuildEnvironment:
 
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
                                 prune_toctrees=True, includehidden=False):
-        # type: (str, Builder, nodes.Node, bool, bool) -> nodes.Node
+        # type: (str, Builder, nodes.documents, bool, bool) -> nodes.Node
         """Read the doctree from the pickle, resolve cross-references and
         toctrees and return it.
         """
@@ -595,11 +595,11 @@ class BuildEnvironment:
                                      includehidden)
 
     def resolve_references(self, doctree, fromdocname, builder):
-        # type: (nodes.Node, str, Builder) -> None
+        # type: (nodes.document, str, Builder) -> None
         self.apply_post_transforms(doctree, fromdocname)
 
     def apply_post_transforms(self, doctree, docname):
-        # type: (nodes.Node, str) -> None
+        # type: (nodes.document, str) -> None
         """Apply all post-transforms."""
         try:
             # set env.docname during applying post-transforms
@@ -758,7 +758,7 @@ class BuildEnvironment:
 
     @classmethod
     def dumps(cls, env):
-        # type: (BuildEnvironment) -> str
+        # type: (BuildEnvironment) -> bytes
         warnings.warn('BuildEnvironment.dumps() is deprecated. '
                       'Please use pickle.dumps() instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
