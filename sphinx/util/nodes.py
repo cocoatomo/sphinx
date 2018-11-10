@@ -443,7 +443,7 @@ def set_source_info(directive, node):
 
 
 def set_role_source_info(inliner, lineno, node):
-    # type: (Any, str, nodes.Node) -> None
+    # type: (Any, int, nodes.Node) -> None
     node.source, node.line = inliner.reporter.get_source_and_line(lineno)
 
 

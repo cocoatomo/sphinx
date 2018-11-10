@@ -68,7 +68,7 @@ class XRefRole:
     * Subclassing and overwriting `process_link()` and/or `result_nodes()`.
     """
 
-    nodeclass = addnodes.pending_xref  # type: Type[nodes.reference]
+    nodeclass = addnodes.pending_xref  # type: Type[nodes.Element]
     innernodeclass = nodes.literal  # type: Type[nodes.TextElement]
 
     def __init__(self, fix_parens=False, lowercase=False,
@@ -150,7 +150,7 @@ class XRefRole:
     # methods that can be overwritten
 
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.reference, bool, str, str) -> Tuple[str, str]
+        # type: (BuildEnvironment, nodes.Element, bool, str, str) -> Tuple[str, str]
         """Called after parsing title and target text, and creating the
         reference node (given in *refnode*).  This method can alter the
         reference node and must return a new (or the same) ``(title, target)``
@@ -170,7 +170,7 @@ class XRefRole:
 
 class AnyXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.reference, bool, str, str) -> Tuple[str, str]
+        # type: (BuildEnvironment, nodes.Element, bool, str, str) -> Tuple[str, str]
         result = XRefRole.process_link(self, env, refnode, has_explicit_title,
                                        title, target)
         # add all possible context info (i.e. std:program, py:module etc.)

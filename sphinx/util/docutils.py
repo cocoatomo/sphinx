@@ -66,13 +66,13 @@ def docutils_namespace():
 
 
 def is_node_registered(node):
-    # type: (nodes.Node) -> bool
+    # type: (Type[nodes.Node]) -> bool
     """Check the *node* is already registered."""
     return hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__)
 
 
 def register_node(node):
-    # type: (nodes.Node) -> None
+    # type: (Type[nodes.Node]) -> None
     """Register a node to docutils.
 
     This modifies global state of some visitors.  So it is better to use this
@@ -84,7 +84,7 @@ def register_node(node):
 
 
 def unregister_node(node):
-    # type: (nodes.Node) -> None
+    # type: (Type[nodes.Node]) -> None
     """Unregister a node from docutils.
 
     This is inverse of ``nodes._add_nodes_class_names()``.

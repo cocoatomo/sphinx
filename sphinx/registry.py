@@ -254,7 +254,7 @@ class SphinxComponentRegistry:
 
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None, objname='', override=False):
-        # type: (str, str, str, nodes.Node, str, bool) -> None
+        # type: (str, str, str, Type[nodes.TextElement], str, bool) -> None
         logger.debug('[app] adding crossref type: %r',
                      (directivename, rolename, indextemplate, ref_nodeclass, objname))
 
@@ -363,7 +363,7 @@ class SphinxComponentRegistry:
         self.translators[name] = translator
 
     def add_translation_handlers(self, node, **kwargs):
-        # type: (nodes.Node, Any) -> None
+        # type: (Type[nodes.Node], Any) -> None
         logger.debug('[app] adding translation_handlers: %r, %r', node, kwargs)
         for builder_name, handlers in kwargs.items():
             translation_handlers = self.translation_handlers.setdefault(builder_name, {})
