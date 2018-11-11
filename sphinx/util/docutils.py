@@ -37,7 +37,7 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Generator, List, Optional, Set, Tuple, Type  # NOQA
+    from typing import Any, Callable, cast, Generator, IO, List, Optional, Set, Tuple, Type  # NOQA
     from docutils.statemachine import State, ViewList  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -248,7 +248,7 @@ class LoggingReporter(Reporter):
                  halt_level=Reporter.SEVERE_LEVEL, debug=False,
                  error_handler='backslashreplace'):
         # type: (str, int, int, bool, str) -> None
-        stream = WarningStream()
+        stream = cast(IO, WarningStream())
         Reporter.__init__(self, source, report_level, halt_level,
                           stream, debug, error_handler=error_handler)
 
