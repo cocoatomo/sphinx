@@ -18,6 +18,7 @@ from contextlib import contextmanager
 from copy import copy
 from distutils.version import LooseVersion
 from os import path
+from types import ModuleType
 
 import docutils
 from docutils import nodes
@@ -36,15 +37,16 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Generator, List, Set, Tuple  # NOQA
+    from typing import Any, Callable, Generator, List, Optional, Set, Tuple, Type  # NOQA
     from docutils.statemachine import State, ViewList  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.io import SphinxFileInput  # NOQA
+    from sphinx.util.typing import RoleFunction  # NOQA
 
 
 __version_info__ = tuple(LooseVersion(docutils.__version__).version)
-additional_nodes = set()  # type: Set[nodes.Node]
+additional_nodes = set()  # type: Set[Type[nodes.Node]]
 
 
 @contextmanager
@@ -179,7 +181,7 @@ class sphinx_domains:
         roles.role = self.role_func
 
     def lookup_domain_element(self, type, name):
-        # type: (str, str) -> Tuple[Any, List]
+        # type: (str, str) -> Tuple[Any, List[nodes.system_message]]
         """Lookup a markup element (directive or role), given its name which can
         be a full name (with domain).
         """
@@ -207,19 +209,19 @@ class sphinx_domains:
 
         raise ElementLookupError
 
-    def lookup_directive(self, name, lang_module, document):
-        # type: (str, str, nodes.document) -> Tuple[Any, List]
+    def lookup_directive(self, directive_name, language_module, document):
+        # type: (str, ModuleType, nodes.document) -> Tuple[Optional[Type[Directive]], List[nodes.system_message]]
         try:
-            return self.lookup_domain_element('directive', name)
+            return self.lookup_domain_element('directive', directive_name)
         except ElementLookupError:
-            return self.directive_func(name, lang_module, document)
+            return self.directive_func(directive_name, language_module, document)
 
-    def lookup_role(self, name, lang_module, lineno, reporter):
-        # type: (str, str, int, Any) -> Tuple[Any, List]
+    def lookup_role(self, role_name, language_module, lineno, reporter):
+        # type: (str, ModuleType, int, Reporter) -> Tuple[RoleFunction, List[nodes.system_message]]
         try:
-            return self.lookup_domain_element('role', name)
+            return self.lookup_domain_element('role', role_name)
         except ElementLookupError:
-            return self.role_func(name, lang_module, lineno, reporter)
+            return self.role_func(role_name, language_module, lineno, reporter)
 
 
 class WarningStream:
