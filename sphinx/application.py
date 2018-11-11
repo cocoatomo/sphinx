@@ -775,7 +775,7 @@ class Sphinx:
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname='',
                         doc_field_types=[], override=False):
-        # type: (str, str, str, Callable, Type[nodes.Node], str, List, bool) -> None
+        # type: (str, str, str, Callable, Type[nodes.TextElement], str, List, bool) -> None
         """Register a new object type.
 
         This method is a very convenient way to add a new :term:`object` type
@@ -841,7 +841,7 @@ class Sphinx:
 
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None, objname='', override=False):
-        # type: (str, str, str, nodes.Node, str, bool) -> None
+        # type: (str, str, str, Optional[Type[nodes.TextElement]], str, bool) -> None
         """Register a new crossref object type.
 
         This method is very similar to :meth:`add_object_type` except that the

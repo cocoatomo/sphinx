@@ -22,7 +22,7 @@ from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterable, List, Set, Tuple, Optional  # NOQA
+    from typing import Any, Callable, Iterable, List, MutableSequence, Optional, Set, Tuple, Type, Union  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.utils.tags import Tags  # NOQA
 
@@ -57,7 +57,7 @@ class NodeMatcher:
     """
 
     def __init__(self, *classes, **attrs):
-        # type: (nodes.Node, Any) -> None
+        # type: (Type[nodes.Node], Any) -> None
         self.classes = classes
         self.attrs = attrs
 
@@ -68,11 +68,11 @@ class NodeMatcher:
                 return False
 
             for key, value in self.attrs.items():
-                if key not in node:
+                if key not in node:  # type: ignore
                     return False
                 elif value is Any:
                     continue
-                elif node.get(key) != value:
+                elif node.get(key) != value:  # type: ignore
                     return False
             else:
                 return True
@@ -118,7 +118,7 @@ def repr_domxml(node, length=80):
 
 
 def apply_source_workaround(node):
-    # type: (nodes.Node) -> None
+    # type: (Union[nodes.Text, nodes.Element]) -> None
     # workaround: nodes.term have wrong rawsource if classifier is specified.
     # The behavior of docutils-0.11, 0.12 is:
     # * when ``term text : classifier1 : classifier2`` is specified,
@@ -249,7 +249,7 @@ META_TYPE_NODES = (
 def extract_messages(doctree):
     # type: (nodes.Node) -> Iterable[Tuple[nodes.Node, str]]
     """Extract translatable messages from a document tree."""
-    for node in doctree.traverse(is_translatable):
+    for node in doctree.traverse(is_translatable):  # type: nodes.Node
         if isinstance(node, addnodes.translatable):
             for msg in node.extract_original_messages():
                 yield node, msg
@@ -265,9 +265,9 @@ def extract_messages(doctree):
         elif isinstance(node, META_TYPE_NODES):
             msg = node.rawcontent
         elif is_pending_meta(node):
-            msg = node.details['nodes'][0].rawcontent
+            msg = node.details['nodes'][0].rawcontent  # type: ignore
         else:
-            msg = node.rawsource.replace('\n', ' ').strip()
+            msg = node.rawsource.replace('\n', ' ').strip()  # type: ignore
 
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
@@ -293,7 +293,7 @@ def traverse_parent(node, cls=None):
 def traverse_translatable_index(doctree):
     # type: (nodes.Node) -> Iterable[Tuple[nodes.Node, List[str]]]
     """Traverse translatable index node from a document tree."""
-    for node in doctree.traverse(NodeMatcher(addnodes.index, inline=False)):
+    for node in doctree.traverse(NodeMatcher(addnodes.index, inline=False)):  # type: addnodes.index  # NOQA
         if 'raw_entries' in node:
             entries = node['raw_entries']
         else:
@@ -322,13 +322,13 @@ def nested_parse_with_titles(state, content, node):
 
 
 def clean_astext(node):
-    # type: (nodes.Node) -> str
+    # type: (Union[nodes.Text, nodes.Element]) -> str
     """Like node.astext(), but ignore images."""
     node = node.deepcopy()
     for img in node.traverse(nodes.image):
         img['alt'] = ''
     for raw in node.traverse(nodes.raw):
-        raw.parent.remove(raw)
+        raw.parent.remove(raw)  # type: ignore
     return node.astext()
 
 
@@ -386,7 +386,7 @@ def process_index_entry(entry, targetid):
 
 
 def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed):
-    # type: (Builder, Set[str], str, nodes.Node, Callable, nodes.Node) -> nodes.Node
+    # type: (Builder, Set[str], str, nodes.Node, Callable, MutableSequence[str]) -> nodes.Node
     """Inline all toctrees in the *tree*.
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
@@ -463,7 +463,7 @@ def is_smartquotable(node):
     """Check the node is smart-quotable or not."""
     if isinstance(node.parent, NON_SMARTQUOTABLE_PARENT_NODES):
         return False
-    elif node.parent.get('support_smartquotes', None) is False:
+    elif node.parent.get('support_smartquotes', None) is False:  # type: ignore
         return False
     elif getattr(node, 'support_smartquotes', None) is False:
         return False
@@ -495,7 +495,7 @@ def process_only_nodes(document, tags):
 # monkey-patch Element.copy to copy the rawsource and line
 
 def _new_copy(self):
-    # type: (nodes.Node) -> nodes.Node
+    # type: (nodes.Element) -> nodes.Element
     newnode = self.__class__(self.rawsource, **self.attributes)
     if isinstance(self, nodes.Element):
         newnode.source = self.source
