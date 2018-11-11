@@ -141,7 +141,7 @@ class Domain:
     #: type (usually directive) name -> ObjType instance
     object_types = {}       # type: Dict[str, ObjType]
     #: directive name -> directive class
-    directives = {}         # type: Dict[str, Any]
+    directives = {}         # type: Dict[str, Type[Directive]]
     #: role name -> role callable
     roles = {}              # type: Dict[str, Union[RoleFunction, XRefRole]]
     #: a list of Index subclasses
