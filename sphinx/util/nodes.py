@@ -328,7 +328,7 @@ def clean_astext(node):
     for img in node.traverse(nodes.image):
         img['alt'] = ''
     for raw in node.traverse(nodes.raw):
-        raw.parent.remove(raw)  # type: ignore
+        raw.parent.remove(raw)
     return node.astext()
 
 
@@ -463,7 +463,7 @@ def is_smartquotable(node):
     """Check the node is smart-quotable or not."""
     if isinstance(node.parent, NON_SMARTQUOTABLE_PARENT_NODES):
         return False
-    elif node.parent.get('support_smartquotes', None) is False:  # type: ignore
+    elif node.parent.get('support_smartquotes', None) is False:
         return False
     elif getattr(node, 'support_smartquotes', None) is False:
         return False
