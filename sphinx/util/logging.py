@@ -504,7 +504,7 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
 
 
 def get_node_location(node):
-    # type: (nodes.Node) -> str
+    # type: (nodes.Element) -> str
     (source, line) = get_source_line(node)
     if source and line:
         return "%s:%s" % (source, line)
