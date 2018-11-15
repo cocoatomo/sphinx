@@ -284,7 +284,7 @@ class ManualPageTranslator(BaseTranslator):
         self.depart_admonition(node)
 
     def visit_productionlist(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         self.ensure_eol()
         names = []
         self.in_productionlist += 1

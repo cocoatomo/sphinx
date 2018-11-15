@@ -17,7 +17,7 @@ from sphinx import addnodes
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple, Type  # NOQA
     from sphinx.domains import Domain  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
@@ -84,7 +84,7 @@ class Field:
                    rolename,       # type: str
                    domain,         # type: str
                    target,         # type: str
-                   innernode=addnodes.literal_emphasis,  # type: nodes.Node
+                   innernode=addnodes.literal_emphasis,  # type: Type[nodes.Node]
                    contnode=None,  # type: nodes.Node
                    env=None,       # type: BuildEnvironment
                    ):
@@ -261,7 +261,7 @@ class DocFieldTransformer:
         return typemap
 
     def transform_all(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         """Transform all field list children of a node."""
         # don't traverse, only handle field lists that are immediate children
         for child in node:
@@ -269,7 +269,7 @@ class DocFieldTransformer:
                 self.transform(child)
 
     def transform(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         """Transform a single field list *node*."""
         typemap = self.typemap
 

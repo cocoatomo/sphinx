@@ -54,19 +54,19 @@ class SphinxTransform(Transform):
     def app(self):
         # type: () -> Sphinx
         """Reference to the :class:`.Sphinx` object."""
-        return self.document.settings.env.app
+        return self.document.settings.env.app  # type: ignore
 
     @property
     def env(self):
         # type: () -> BuildEnvironment
         """Reference to the :class:`.BuildEnvironment` object."""
-        return self.document.settings.env
+        return self.document.settings.env  # type: ignore
 
     @property
     def config(self):
         # type: () -> Config
         """Reference to the :class:`.Config` object."""
-        return self.document.settings.env.config
+        return self.document.settings.env.config  # type: ignore
 
 
 class SphinxTransformer(Transformer):
@@ -74,7 +74,7 @@ class SphinxTransformer(Transformer):
     A transformer for Sphinx.
     """
 
-    document = None  # type: nodes.Node
+    document = None  # type: nodes.document
     env = None  # type: BuildEnvironment
 
     def set_environment(self, env):
@@ -85,7 +85,7 @@ class SphinxTransformer(Transformer):
         # type: () -> None
         if isinstance(self.document, nodes.document):
             if not hasattr(self.document.settings, 'env') and self.env:
-                self.document.settings.env = self.env
+                self.document.settings.env = self.env  # type: ignore
 
             Transformer.apply_transforms(self)
         else:
@@ -93,7 +93,7 @@ class SphinxTransformer(Transformer):
             try:
                 document = new_document('')
                 if self.env:
-                    document.settings.env = self.env
+                    document.settings.env = self.env  # type: ignore
                 document += self.document
                 self.document = document
                 Transformer.apply_transforms(self)
@@ -240,7 +240,7 @@ class ApplySourceWorkaround(SphinxTransform):
 
     def apply(self):
         # type: () -> None
-        for n in self.document.traverse():
+        for n in self.document.traverse():  # type: nodes.Node
             if isinstance(n, (nodes.TextElement, nodes.image)):
                 apply_source_workaround(n)
 

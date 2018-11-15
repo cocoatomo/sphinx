@@ -30,7 +30,7 @@ from sphinx.util.nodes import clean_astext, make_refnode
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterator, List, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, cast, Dict, Iterator, List, Tuple, Type, Union  # NOQA
     from docutils.parsers.rst import Directive  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -93,7 +93,7 @@ class EnvVarXRefRole(XRefRole):
     """
 
     def result_nodes(self, document, env, node, is_ref):
-        # type: (nodes.Node, BuildEnvironment, nodes.Node, bool) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+        # type: (nodes.document, BuildEnvironment, nodes.Element, bool) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
         if not is_ref:
             return [node], []
         varname = node['reftarget']
@@ -227,7 +227,7 @@ class Program(SphinxDirective):
 
 class OptionXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.Node, bool, str, str) -> Tuple[str, str]
+        # type: (BuildEnvironment, nodes.Element, bool, str, str) -> Tuple[str, str]
         refnode['std:program'] = env.ref_context.get('std:program')
         return title, target
 
@@ -284,7 +284,7 @@ class Glossary(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[nodes.Element]
         node = addnodes.glossary()
         node.document = self.state.document
 
@@ -297,8 +297,8 @@ class Glossary(SphinxDirective):
         entries = []  # type: List[Tuple[List[Tuple[str, str, int]], StringList]]
         in_definition = True
         was_empty = True
-        messages = []
-        for line, (source, lineno) in zip(self.content, self.content.items):
+        messages = []  # type: List[nodes.Element]
+        for line, (source, lineno) in zip(cast(List[str], self.content), self.content.items):
             # empty line -> add to last definition
             if not line:
                 if in_definition and entries:
@@ -413,7 +413,7 @@ class ProductionList(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[nodes.Element]
         objects = self.env.domaindata['std']['objects']
         node = addnodes.productionlist()  # type: nodes.Element
         messages = []  # type: List[nodes.Element]
@@ -579,7 +579,7 @@ class StandardDomain(Domain):
                 self.data['anonlabels'][key] = data
 
     def process_doc(self, env, docname, document):
-        # type: (BuildEnvironment, str, nodes.Node) -> None
+        # type: (BuildEnvironment, str, nodes.document) -> None
         self.note_citations(env, docname, document)
         self.note_citation_refs(env, docname, document)
         self.note_labels(env, docname, document)
@@ -604,7 +604,7 @@ class StandardDomain(Domain):
                 citation_refs.append(docname)
 
     def note_labels(self, env, docname, document):
-        # type: (BuildEnvironment, str, nodes.Node) -> None
+        # type: (BuildEnvironment, str, nodes.document) -> None
         labels, anonlabels = self.data['labels'], self.data['anonlabels']
         for name, explicit in document.nametypes.items():
             if not explicit:
@@ -612,9 +612,9 @@ class StandardDomain(Domain):
             labelid = document.nameids[name]
             if labelid is None:
                 continue
-            node = document.ids[labelid]
+            node = cast(nodes.Element, document.ids[labelid])
             if node.tagname == 'target' and 'refid' in node:  # indirect hyperlink targets
-                node = document.ids.get(node['refid'])
+                node = cast(nodes.Element, document.ids.get(node['refid']))
                 labelid = node['names'][0]
             if (node.tagname == 'footnote' or
                     'refuri' in node or
@@ -927,10 +927,10 @@ class StandardDomain(Domain):
         return None
 
     def get_enumerable_node_type(self, node):
-        # type: (nodes.Node) -> str
+        # type: (nodes.Element) -> str
         """Get type of enumerable nodes."""
         def has_child(node, cls):
-            # type: (nodes.Node, Type) -> bool
+            # type: (nodes.Element, Type) -> bool
             return any(isinstance(child, cls) for child in node)
 
         if isinstance(node, nodes.section):
@@ -945,7 +945,7 @@ class StandardDomain(Domain):
             return figtype
 
     def get_figtype(self, node):
-        # type: (nodes.Node) -> str
+        # type: (nodes.Element) -> str
         """Get figure type of nodes.
 
         .. deprecated:: 1.8
@@ -956,7 +956,7 @@ class StandardDomain(Domain):
         return self.get_enumerable_node_type(node)
 
     def get_fignumber(self, env, builder, figtype, docname, target_node):
-        # type: (BuildEnvironment, Builder, str, str, nodes.Node) -> Tuple[int, ...]
+        # type: (BuildEnvironment, Builder, str, str, nodes.Element) -> Tuple[int, ...]
         if figtype == 'section':
             if builder.name == 'latex':
                 return tuple()
@@ -979,7 +979,7 @@ class StandardDomain(Domain):
                 raise ValueError
 
     def get_full_qualified_name(self, node):
-        # type: (nodes.Node) -> str
+        # type: (nodes.Element) -> str
         if node.get('reftype') == 'option':
             progname = node.get('std:program')
             command = ws_re.split(node.get('reftarget'))
