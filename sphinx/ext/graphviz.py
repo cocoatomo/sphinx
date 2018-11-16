@@ -92,7 +92,7 @@ class graphviz(nodes.General, nodes.Inline, nodes.Element):
 
 
 def figure_wrapper(directive, node, caption):
-    # type: (Directive, nodes.Node, str) -> nodes.figure
+    # type: (Directive, nodes.Element, str) -> nodes.figure
     figure_node = nodes.figure('', node)
     if 'align' in node:
         figure_node['align'] = node.attributes.pop('align')

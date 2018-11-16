@@ -57,7 +57,7 @@ def assert_startswith(thing, prefix):
 
 
 def assert_node(node, cls=None, xpath="", **kwargs):
-    # type: (nodes.Node, Any, str, Any) -> None
+    # type: (nodes.Element, Any, str, Any) -> None
     if cls:
         if isinstance(cls, list):
             assert_node(node, cls[0], xpath=xpath, **kwargs)

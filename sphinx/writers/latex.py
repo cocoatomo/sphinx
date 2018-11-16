@@ -823,7 +823,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         return LaTeXRenderer().render(template_name, variables)
 
     def visit_document(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         self.curfilestack.append(node.get('docname', ''))
         if self.first_document == 1:
             # the first document is all the regular content ...
@@ -1223,7 +1223,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.table = None
 
     def visit_colspec(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         self.table.colcount += 1
         if 'colwidth' in node:
             self.table.colwidths.append(node['colwidth'])
@@ -1405,7 +1405,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             return enumtype
 
         def get_nested_level(node):
-            # type: (nodes.Node) -> int
+            # type: (nodes.Element) -> int
             if node is None:
                 return 0
             elif isinstance(node, nodes.enumerated_list):
@@ -1666,7 +1666,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_figure(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         if self.table:
             # TODO: support align option
             if 'width' in node:
@@ -1778,7 +1778,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_target(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         def add_target(id):
             # type: (str) -> None
             # indexing uses standard LaTeX index markup, so the targets

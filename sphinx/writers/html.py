@@ -241,7 +241,7 @@ class HTMLTranslator(BaseTranslator):
 
     # overwritten
     def visit_reference(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         atts = {'class': 'reference'}
         if node.get('internal') or 'refuri' not in node:
             atts['class'] += ' internal'
@@ -563,7 +563,7 @@ class HTMLTranslator(BaseTranslator):
         pass
 
     def visit_download_reference(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         atts = {'class': 'reference download',
                 'download': ''}
 
@@ -588,7 +588,7 @@ class HTMLTranslator(BaseTranslator):
 
     # overwritten
     def visit_image(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         olduri = node['uri']
         # rewrite the URI if the environment knows about it
         if olduri in self.builder.images:

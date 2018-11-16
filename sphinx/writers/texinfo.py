@@ -572,7 +572,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
     # -- Visiting
 
     def visit_document(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         self.footnotestack.append(self.collect_footnotes(node))
         self.curfilestack.append(node.get('docname', ''))
         if 'docname' in node:
@@ -687,7 +687,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
     # -- References
 
     def visit_target(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         # postpone the labels until after the sectioning command
         parindex = node.parent.index(node)
         try:
