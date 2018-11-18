@@ -20,6 +20,7 @@ import time
 import warnings
 from collections import OrderedDict
 from os import path
+from urllib.parse import quote
 
 # try to import readline, unix specific enhancement
 try:
@@ -34,8 +35,7 @@ except ImportError:
     USE_LIBEDIT = False
 
 from docutils.utils import column_width
-from six import text_type, binary_type
-from six.moves.urllib.parse import quote as urlquote
+from six import text_type
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -386,7 +386,7 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
 
     d['PY3'] = True
     d['project_fn'] = make_filename(d['project'])
-    d['project_url'] = urlquote(d['project'].encode('idna'))
+    d['project_url'] = quote(d['project'].encode('idna'))
     d['project_manpage'] = d['project_fn'].lower()
     d['now'] = time.asctime()
     d['project_underline'] = column_width(d['project']) * '='
@@ -643,11 +643,6 @@ def main(argv=sys.argv[1:]):
         print()
         print('[Interrupted.]')
         return 130  # 128 + SIGINT
-
-    # decode values in d if value is a Python string literal
-    for key, value in d.items():
-        if isinstance(value, binary_type):
-            d[key] = term_decode(value)
 
     # handle use of CSV-style extension values
     d.setdefault('extensions', [])
