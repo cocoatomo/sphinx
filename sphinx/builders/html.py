@@ -580,7 +580,7 @@ class StandaloneHTMLBuilder(Builder):
             'logo': logo,
             'favicon': favicon,
             'html5_doctype': self.config.html_experimental_html5_writer and html5_ready,
-        }  # type: Dict[unicode, Any]
+        }  # type: Dict[str, Any]
         if self.theme:
             self.globalcontext.update(
                 ('theme_' + key, val) for (key, val) in

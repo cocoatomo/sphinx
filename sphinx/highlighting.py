@@ -46,7 +46,7 @@ lexers = {
     'pycon3': PythonConsoleLexer(python3=True, stripnl=False),
     'rest': RstLexer(stripnl=False),
     'c': CLexer(stripnl=False),
-}  # type: Dict[unicode, Lexer]
+}  # type: Dict[str, Lexer]
 for _lexer in lexers.values():
     _lexer.add_filter('raiseonerror')
 

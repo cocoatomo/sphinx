@@ -651,11 +651,11 @@ class StandardDomain(Domain):
             labels[name] = docname, labelid, sectname
 
     def add_object(self, objtype, name, docname, labelid):
-        # type: (unicode, unicode, unicode, unicode) -> None
+        # type: (str, str, str, str) -> None
         self.data['objects'][objtype, name] = (docname, labelid)
 
     def add_program_option(self, program, name, docname, labelid):
-        # type: (unicode, unicode, unicode, unicode) -> None
+        # type: (str, str, str, str) -> None
         self.data['progoptions'][program, name] = (docname, labelid)
 
     def check_consistency(self):

@@ -153,7 +153,7 @@ class Config:
         'smartquotes_excludes': ({'languages': ['ja'],
                                   'builders': ['man', 'text']},
                                  'env', []),
-    }  # type: Dict[unicode, Tuple]
+    }  # type: Dict[str, Tuple]
 
     def __init__(self, *args):
         # type: (Any) -> None
