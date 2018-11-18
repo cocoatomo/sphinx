@@ -49,7 +49,7 @@ class TocTree:
 
     def resolve(self, docname, builder, toctree, prune=True, maxdepth=0,
                 titles_only=False, collapse=False, includehidden=False):
-        # type: (str, Builder, addnodes.toctree, bool, int, bool, bool, bool) -> nodes.Node
+        # type: (str, Builder, addnodes.toctree, bool, int, bool, bool, bool) -> Optional[addnodes.compact_paragraph]  # NOQA
         """Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
         a new node.
@@ -271,7 +271,7 @@ class TocTree:
         return ancestors
 
     def _toctree_prune(self, node, depth, maxdepth, collapse=False):
-        # type: (nodes.Node, int, int, bool) -> None
+        # type: (nodes.Element, int, int, bool) -> None
         """Utility: Cut a TOC at a specified depth."""
         for subnode in node.children[:]:
             if isinstance(subnode, (addnodes.compact_paragraph,
@@ -312,7 +312,7 @@ class TocTree:
         # type: (str, Builder, bool, Any) -> nodes.Node
         """Return the global TOC nodetree."""
         doctree = self.env.get_doctree(self.env.config.master_doc)
-        toctrees = []
+        toctrees = []  # type: List[nodes.Element]
         if 'includehidden' not in kwds:
             kwds['includehidden'] = True
         if 'maxdepth' not in kwds:

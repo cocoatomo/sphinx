@@ -356,8 +356,8 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         # type: (nodes.document, List[nodes.footnote]) -> None
         self.appeared = set()       # type: Set[Tuple[str, nodes.footnote]]
         self.footnotes = footnotes  # type: List[nodes.footnote]
-        self.pendings = []          # type: List[nodes.Node]
-        self.table_footnotes = []   # type: List[nodes.Node]
+        self.pendings = []          # type: List[nodes.Element]
+        self.table_footnotes = []   # type: List[nodes.Element]
         self.restricted = None      # type: nodes.Node
         nodes.NodeVisitor.__init__(self, document)
 

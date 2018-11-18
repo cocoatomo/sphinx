@@ -247,7 +247,7 @@ META_TYPE_NODES = (
 
 
 def extract_messages(doctree):
-    # type: (nodes.Node) -> Iterable[Tuple[nodes.Node, str]]
+    # type: (nodes.Node) -> Iterable[Tuple[nodes.Element, str]]
     """Extract translatable messages from a document tree."""
     for node in doctree.traverse(is_translatable):  # type: nodes.Node
         if isinstance(node, addnodes.translatable):
@@ -386,7 +386,7 @@ def process_index_entry(entry, targetid):
 
 
 def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed):
-    # type: (Builder, Set[str], str, nodes.Node, Callable, MutableSequence[str]) -> nodes.Node
+    # type: (Builder, Set[str], str, nodes.Element, Callable, MutableSequence[str]) -> nodes.Element
     """Inline all toctrees in the *tree*.
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
@@ -463,7 +463,7 @@ def is_smartquotable(node):
     """Check the node is smart-quotable or not."""
     if isinstance(node.parent, NON_SMARTQUOTABLE_PARENT_NODES):
         return False
-    elif node.parent.get('support_smartquotes', None) is False:  # type: ignore
+    elif node.parent.get('support_smartquotes', None) is False:
         return False
     elif getattr(node, 'support_smartquotes', None) is False:
         return False

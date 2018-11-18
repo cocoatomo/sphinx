@@ -179,7 +179,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         return True
 
     def write_toc(self, node, indentlevel=4):
-        # type: (nodes.Node, int) -> List[str]
+        # type: (nodes.Element, int) -> List[str]
         # XXX this should return a Unicode string, not a bytestring
         parts = []  # type: List[str]
         if self.isdocnode(node):

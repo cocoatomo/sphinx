@@ -846,9 +846,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.curfilestack.append(node['docname'])
 
     def collect_footnotes(self, node):
-        # type: (nodes.Node) -> Dict[str, List[Union[collected_footnote, bool]]]
+        # type: (nodes.Element) -> Dict[str, List[Union[collected_footnote, bool]]]
         def footnotes_under(n):
-            # type: (nodes.Node) -> Iterator[nodes.Node]
+            # type: (nodes.Element) -> Iterator[nodes.footnote]
             if isinstance(n, nodes.footnote):
                 yield n
             else:

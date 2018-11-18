@@ -543,7 +543,7 @@ class BuildEnvironment:
     # --------- RESOLVING REFERENCES AND TOCTREES ------------------------------
 
     def get_doctree(self, docname):
-        # type: (str) -> nodes.Node
+        # type: (str) -> nodes.document
         """Read the doctree for a file from the pickle and return it."""
         filename = path.join(self.doctreedir, docname + '.doctree')
         with open(filename, 'rb') as f:

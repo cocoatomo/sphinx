@@ -147,7 +147,7 @@ class TocTreeCollector(EnvironmentCollector):
         env.toc_secnumbers = {}
 
         def _walk_toc(node, secnums, depth, titlenode=None):
-            # type: (nodes.Node, Dict, int, nodes.Node) -> None
+            # type: (nodes.Element, Dict, int, nodes.Node) -> None
             # titlenode is the title of the document, it will get assigned a
             # secnumber too, so that it shows up in next/prev/parent rellinks
             for subnode in node.children:
@@ -260,7 +260,7 @@ class TocTreeCollector(EnvironmentCollector):
             fignumbers[figure_id] = get_next_fignumber(figtype, secnum)
 
         def _walk_doctree(docname, doctree, secnum):
-            # type: (str, nodes.Node, Tuple[int, ...]) -> None
+            # type: (str, nodes.Element, Tuple[int, ...]) -> None
             for subnode in doctree.children:
                 if isinstance(subnode, nodes.section):
                     next_secnum = get_section_number(docname, subnode)

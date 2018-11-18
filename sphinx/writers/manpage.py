@@ -260,7 +260,7 @@ class ManualPageTranslator(BaseTranslator):
 
     # overwritten -- handle footnotes rubric
     def visit_rubric(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         self.ensure_eol()
         if len(node.children) == 1:
             rubtitle = node.children[0].astext()
@@ -399,7 +399,7 @@ class ManualPageTranslator(BaseTranslator):
         pass
 
     def visit_acks(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         self.ensure_eol()
         self.body.append(', '.join(n.astext()
                                    for n in node.children[0].children) + '.')

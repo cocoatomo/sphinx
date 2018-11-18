@@ -101,7 +101,7 @@ def figure_wrapper(directive, node, caption):
     directive.state.nested_parse(ViewList([caption], source=''),
                                  directive.content_offset, parsed)
     caption_node = nodes.caption(parsed[0].rawsource, '',
-                                 *parsed[0].children)
+                                 *parsed[0].children)  # type: ignore
     caption_node.source = parsed[0].source
     caption_node.line = parsed[0].line
     figure_node += caption_node
