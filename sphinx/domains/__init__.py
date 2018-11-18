@@ -17,7 +17,7 @@ from sphinx.locale import _
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterable, List, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.builders import Builder  # NOQA

@@ -249,8 +249,8 @@ class LoggingReporter(Reporter):
                  error_handler='backslashreplace'):
         # type: (str, int, int, bool, str) -> None
         stream = cast(IO, WarningStream())
-        Reporter.__init__(self, source, report_level, halt_level,
-                          stream, debug, error_handler=error_handler)
+        super(LoggingReporter, self).__init__(source, report_level, halt_level,
+                                              stream, debug, error_handler=error_handler)
 
 
 class NullReporter(Reporter):
@@ -258,7 +258,7 @@ class NullReporter(Reporter):
 
     def __init__(self):
         # type: () -> None
-        Reporter.__init__(self, '', 999, 4)
+        super(NullReporter, self).__init__('', 999, 4)
 
 
 def is_html5_writer_available():
@@ -309,7 +309,7 @@ class SphinxFileOutput(FileOutput):
     def __init__(self, **kwargs):
         # type: (Any) -> None
         self.overwrite_if_changed = kwargs.pop('overwrite_if_changed', False)
-        FileOutput.__init__(self, **kwargs)
+        super(SphinxFileOutput, self).__init__(**kwargs)
 
     def write(self, data):
         # type: (str) -> str
