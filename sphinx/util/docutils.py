@@ -18,7 +18,6 @@ from contextlib import contextmanager
 from copy import copy
 from distutils.version import LooseVersion
 from os import path
-from types import ModuleType
 
 import docutils
 from docutils import nodes
@@ -37,6 +36,7 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 
 if False:
     # For type annotation
+    from types import ModuleType
     from typing import Any, Callable, cast, Generator, IO, List, Optional, Set, Tuple, Type  # NOQA
     from docutils.statemachine import State, StringList  # NOQA
     from sphinx.config import Config  # NOQA
@@ -210,14 +210,14 @@ class sphinx_domains:
         raise ElementLookupError
 
     def lookup_directive(self, directive_name, language_module, document):
-        # type: (str, ModuleType, nodes.document) -> Tuple[Optional[Type[Directive]], List[nodes.system_message]]
+        # type: (str, ModuleType, nodes.document) -> Tuple[Optional[Type[Directive]], List[nodes.system_message]]  # NOQA
         try:
             return self.lookup_domain_element('directive', directive_name)
         except ElementLookupError:
             return self.directive_func(directive_name, language_module, document)
 
     def lookup_role(self, role_name, language_module, lineno, reporter):
-        # type: (str, ModuleType, int, Reporter) -> Tuple[RoleFunction, List[nodes.system_message]]
+        # type: (str, ModuleType, int, Reporter) -> Tuple[RoleFunction, List[nodes.system_message]]  # NOQA
         try:
             return self.lookup_domain_element('role', role_name)
         except ElementLookupError:

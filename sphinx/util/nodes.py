@@ -386,7 +386,7 @@ def process_index_entry(entry, targetid):
 
 
 def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed):
-    # type: (Builder, Set[str], str, nodes.Element, Callable, MutableSequence[str]) -> nodes.Element
+    # type: (Builder, Set[str], str, nodes.Element, Callable, MutableSequence[str]) -> nodes.Element  # NOQA
     """Inline all toctrees in the *tree*.
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
