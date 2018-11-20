@@ -50,7 +50,7 @@ from sphinx.util.matching import patfilter  # noqa
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Sequence, Set, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Optional, Pattern, Sequence, Set, Tuple, Union  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -373,7 +373,7 @@ def detect_encoding(readline):
         return orig_enc
 
     def find_cookie(line):
-        # type: (str) -> str
+        # type: (bytes) -> Optional[str]
         try:
             line_string = line.decode('ascii')
         except UnicodeDecodeError:
