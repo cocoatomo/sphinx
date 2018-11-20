@@ -799,7 +799,7 @@ class StandardDomain(Domain):
                             labelid, contnode)
 
     def _resolve_doc_xref(self, env, fromdocname, builder, typ, target, node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, str, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
+        # type: (BuildEnvironment, str, Builder, str, str, nodes.Element, nodes.Node) -> nodes.Node  # NOQA
         # directly reference to document by source name; can be absolute or relative
         refdoc = node.get('refdoc', fromdocname)
         docname = docname_join(refdoc, node['reftarget'])
@@ -815,7 +815,7 @@ class StandardDomain(Domain):
             return make_refnode(builder, fromdocname, docname, None, innernode)
 
     def _resolve_option_xref(self, env, fromdocname, builder, typ, target, node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, str, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
+        # type: (BuildEnvironment, str, Builder, str, str, nodes.Element, nodes.Node) -> nodes.Node  # NOQA
         progname = node.get('std:program')
         target = target.strip()
         docname, labelid = self.data['progoptions'].get((progname, target), ('', ''))

@@ -6716,7 +6716,7 @@ class CPPDomain(Domain):
 
     def _resolve_xref_inner(self, env, fromdocname, builder, typ,
                             target, node, contnode, emitWarnings=True):
-        # type: (BuildEnvironment, str, Builder, str, str, nodes.Node, nodes.Node, bool) -> nodes.Node  # NOQA
+        # type: (BuildEnvironment, str, Builder, str, str, nodes.Element, nodes.Node, bool) -> nodes.Node  # NOQA
 
         class Warner:
             def warn(self, msg):
@@ -6889,7 +6889,7 @@ class CPPDomain(Domain):
             yield (name, dispname, objectType, docname, newestId, 1)
 
     def get_full_qualified_name(self, node):
-        # type: (nodes.Node) -> str
+        # type: (nodes.Element) -> str
         target = node.get('reftarget', None)
         if target is None:
             return None

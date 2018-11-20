@@ -865,7 +865,7 @@ class PythonDomain(Domain):
 
     def resolve_xref(self, env, fromdocname, builder,
                      type, target, node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, str, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
+        # type: (BuildEnvironment, str, Builder, str, str, nodes.Element, nodes.Node) -> nodes.Node  # NOQA
         modname = node.get('py:module')
         clsname = node.get('py:class')
         searchmode = node.hasattr('refspecific') and 1 or 0
@@ -888,7 +888,7 @@ class PythonDomain(Domain):
 
     def resolve_any_xref(self, env, fromdocname, builder, target,
                          node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, nodes.Node, nodes.Node) -> List[Tuple[str, nodes.Node]]  # NOQA
+        # type: (BuildEnvironment, str, Builder, str, nodes.Element, nodes.Node) -> List[Tuple[str, nodes.Node]]  # NOQA
         modname = node.get('py:module')
         clsname = node.get('py:class')
         results = []  # type: List[Tuple[str, nodes.Node]]
@@ -929,7 +929,7 @@ class PythonDomain(Domain):
                 yield (refname, refname, type, docname, refname, 1)
 
     def get_full_qualified_name(self, node):
-        # type: (nodes.Node) -> str
+        # type: (nodes.Element) -> str
         modname = node.get('py:module')
         clsname = node.get('py:class')
         target = node.get('reftarget')

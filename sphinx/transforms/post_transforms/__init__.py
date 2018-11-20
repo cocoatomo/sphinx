@@ -119,7 +119,7 @@ class ReferencesResolver(SphinxTransform):
         return newnode
 
     def warn_missing_reference(self, refdoc, typ, target, node, domain):
-        # type: (str, str, str, nodes.Node, Domain) -> None
+        # type: (str, str, str, nodes.Element, Domain) -> None
         warn = node.get('refwarn')
         if self.config.nitpicky:
             warn = True

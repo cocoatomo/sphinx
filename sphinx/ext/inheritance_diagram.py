@@ -399,7 +399,7 @@ def html_visit_inheritance_diagram(self, node):
     graphviz_output_format = self.builder.env.config.graphviz_output_format.upper()
     current_filename = self.builder.current_docname + self.builder.out_suffix
     urls = {}
-    for child in node:
+    for child in node:  # type: nodes.Element
         if child.get('refuri') is not None:
             if graphviz_output_format == 'SVG':
                 urls[child['reftitle']] = "../" + child.get('refuri')
