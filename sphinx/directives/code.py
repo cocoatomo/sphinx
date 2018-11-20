@@ -93,7 +93,7 @@ def container_wrapper(directive, literal_node, caption):
     if isinstance(parsed[0], nodes.system_message):
         msg = __('Invalid caption: %s' % parsed[0].astext())
         raise ValueError(msg)
-    caption_node = nodes.caption(parsed[0].rawsource, '',
+    caption_node = nodes.caption(parsed[0].rawsource, '',  # type: ignore
                                  *parsed[0].children)  # type: ignore
     caption_node.source = literal_node.source
     caption_node.line = literal_node.line

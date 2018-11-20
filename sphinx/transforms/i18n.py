@@ -325,8 +325,8 @@ class Locale(SphinxTransform):
             # * use translated refname for section refname.
             # * inline reference "`Python <...>`_" has no 'refname'.
             is_refnamed_ref = NodeMatcher(nodes.reference, refname=Any)
-            old_refs = node.traverse(is_refnamed_ref)  # type: nodes.reference
-            new_refs = patch.traverse(is_refnamed_ref)  # type: nodes.reference
+            old_refs = node.traverse(is_refnamed_ref)  # type: List[nodes.reference]
+            new_refs = patch.traverse(is_refnamed_ref)  # type: List[nodes.reference]
             if len(old_refs) != len(new_refs):
                 old_ref_rawsources = [ref.rawsource for ref in old_refs]
                 new_ref_rawsources = [ref.rawsource for ref in new_refs]
@@ -371,8 +371,8 @@ class Locale(SphinxTransform):
 
             # citation should use original 'ids'.
             is_citation_ref = NodeMatcher(nodes.citation_reference, refname=Any)
-            old_cite_refs = node.traverse(is_citation_ref)  # type: nodes.citation_reference
-            new_cite_refs = patch.traverse(is_citation_ref)  # type: nodes.citation_reference
+            old_cite_refs = node.traverse(is_citation_ref)  # type: List[nodes.citation_reference]  # NOQA
+            new_cite_refs = patch.traverse(is_citation_ref)  # type: List[nodes.citation_reference]  # NOQA
             refname_ids_map = {}
             if len(old_cite_refs) != len(new_cite_refs):
                 old_cite_ref_rawsources = [ref.rawsource for ref in old_cite_refs]
@@ -391,8 +391,8 @@ class Locale(SphinxTransform):
             # Original pending_xref['reftarget'] contain not-translated
             # target name, new pending_xref must use original one.
             # This code restricts to change ref-targets in the translation.
-            old_refs = node.traverse(addnodes.pending_xref)
-            new_refs = patch.traverse(addnodes.pending_xref)
+            old_refs = node.traverse(addnodes.pending_xref)  # type: List[addnodes.pending_xref]  # NOQA
+            new_refs = patch.traverse(addnodes.pending_xref)  # type: List[addnodes.pending_xref]  # NOQA
             xref_reftarget_map = {}
             if len(old_refs) != len(new_refs):
                 old_ref_rawsources = [ref.rawsource for ref in old_refs]
