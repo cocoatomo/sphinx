@@ -130,7 +130,7 @@ class ChangeSetDomain(Domain):
         pass  # nothing to do here. All changesets are registered on calling directive.
 
     def note_changeset(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         version = node['version']
         module = self.env.ref_context.get('py:module')
         objname = self.env.temp_data.get('object')

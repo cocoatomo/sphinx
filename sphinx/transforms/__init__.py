@@ -27,7 +27,7 @@ from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if False:
     # For type annotation
-    from typing import Generator, List  # NOQA
+    from typing import Iterator, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.domain.std import StandardDomain  # NOQA
@@ -388,7 +388,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         return self.config.smartquotes_action
 
     def get_tokens(self, txtnodes):
-        # type: (List[nodes.Node]) -> Generator
+        # type: (List[nodes.Element]) -> Iterator[Tuple[str, str]]
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
 

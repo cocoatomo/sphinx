@@ -142,7 +142,7 @@ class PyXrefMixin:
                    domain,                    # type: str
                    target,                    # type: str
                    innernode=nodes.emphasis,  # type: nodes.Node
-                   contnode=None,             # type: nodes.Node
+                   contnode=None,             # type: Union[nodes.Text, nodes.Element]
                    env=None,                  # type: BuildEnvironment
                    ):
         # type: (...) -> List[nodes.Node]

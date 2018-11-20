@@ -668,9 +668,9 @@ class StandardDomain(Domain):
 
     def build_reference_node(self, fromdocname, builder, docname, labelid,
                              sectname, rolename, **options):
-        # type: (str, Builder, str, str, str, str, Any) -> nodes.Node
+        # type: (str, Builder, str, str, str, str, Any) -> nodes.TextElement
         nodeclass = options.pop('nodeclass', nodes.reference)
-        newnode = nodeclass('', '', internal=True, **options)
+        newnode = nodeclass('', '', internal=True, **options)  # type: nodes.TextElement
         innernode = nodes.inline(sectname, sectname)
         if innernode.get('classes') is not None:
             innernode['classes'].append('std')
@@ -711,7 +711,7 @@ class StandardDomain(Domain):
         return resolver(env, fromdocname, builder, typ, target, node, contnode)
 
     def _resolve_ref_xref(self, env, fromdocname, builder, typ, target, node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, str, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
+        # type: (BuildEnvironment, str, Builder, str, str, nodes.Element, nodes.Node) -> nodes.Node  # NOQA
         if node['refexplicit']:
             # reference to anonymous label; the reference uses
             # the supplied link caption
@@ -729,7 +729,7 @@ class StandardDomain(Domain):
                                          docname, labelid, sectname, 'ref')
 
     def _resolve_numref_xref(self, env, fromdocname, builder, typ, target, node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, str, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
+        # type: (BuildEnvironment, str, Builder, str, str, nodes.Node, Union[nodes.Text, nodes.Element]) -> Optional[Union[nodes.Text, nodes.Element]]  # NOQA
         if target in self.data['labels']:
             docname, labelid, figname = self.data['labels'].get(target, ('', '', ''))
         else:
