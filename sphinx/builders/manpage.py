@@ -99,11 +99,11 @@ class ManualPageBuilder(Builder):
             for pendingnode in largetree.traverse(addnodes.pending_xref):
                 pendingnode.replace_self(pendingnode.children)
 
-            largetree.settings = docsettings
-            largetree.settings.title = name
-            largetree.settings.subtitle = description
-            largetree.settings.authors = authors
-            largetree.settings.section = section
+            largetree.settings = docsettings  # type: ignore
+            largetree.settings.title = name  # type: ignore
+            largetree.settings.subtitle = description  # type: ignore
+            largetree.settings.authors = authors  # type: ignore
+            largetree.settings.section = section  # type: ignore
 
             docwriter.write(largetree, destination)
         logger.info('')
