@@ -82,7 +82,7 @@ def relative_uri(base, to):
 def ensuredir(path):
     # type: (str) -> None
     """Ensure that a path exists."""
-    os.makedirs(path, exist_ok=True)  # type: ignore
+    os.makedirs(path, exist_ok=True)
 
 
 def walk(top, topdown=True, followlinks=False):

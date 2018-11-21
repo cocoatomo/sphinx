@@ -207,7 +207,7 @@ class path(text_type):
         """
         Recursively create directories.
         """
-        os.makedirs(self, mode, exist_ok=exist_ok)  # type: ignore
+        os.makedirs(self, mode, exist_ok=exist_ok)
 
     def joinpath(self, *args):
         # type: (Any) -> path
