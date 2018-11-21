@@ -729,7 +729,7 @@ class StandardDomain(Domain):
                                          docname, labelid, sectname, 'ref')
 
     def _resolve_numref_xref(self, env, fromdocname, builder, typ, target, node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, str, nodes.Node, Union[nodes.Text, nodes.Element]) -> Optional[Union[nodes.Text, nodes.Element]]  # NOQA
+        # type: (BuildEnvironment, str, Builder, str, str, nodes.Element, Union[nodes.Text, nodes.Element]) -> Optional[Union[nodes.Text, nodes.Element]]  # NOQA
         if target in self.data['labels']:
             docname, labelid, figname = self.data['labels'].get(target, ('', '', ''))
         else:
@@ -837,7 +837,7 @@ class StandardDomain(Domain):
                             labelid, contnode)
 
     def _resolve_citation_xref(self, env, fromdocname, builder, typ, target, node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, str, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
+        # type: (BuildEnvironment, str, Builder, str, str, nodes.Element, nodes.Node) -> nodes.Node  # NOQA
         from sphinx.environment import NoUri
 
         docname, labelid, lineno = self.data['citations'].get(target, ('', '', 0))

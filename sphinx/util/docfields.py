@@ -159,7 +159,7 @@ class GroupedField(Field):
             listnode += nodes.list_item('', par)
 
         if len(items) == 1 and self.can_collapse:
-            fieldbody = nodes.field_body('', listnode[0][0])
+            fieldbody = nodes.field_body('', listnode[0][0])  # type: ignore
             return nodes.field('', fieldname, fieldbody)
 
         fieldbody = nodes.field_body('', listnode)

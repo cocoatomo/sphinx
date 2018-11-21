@@ -62,8 +62,8 @@ class VersionChange(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Node]
-        node = addnodes.versionmodified()  # type: nodes.Node
+        # type: () -> List[nodes.Element]
+        node = addnodes.versionmodified()  # type: nodes.Element
         node.document = self.state.document
         set_source_info(self, node)
         node['type'] = self.name
