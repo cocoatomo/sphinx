@@ -510,7 +510,7 @@ def check_primary_domain(app, config):
 
 
 def check_master_doc(app, env, added, changed, removed):
-    # type: (Sphinx, BuildEnvironment, Set[unicode], Set[unicode], Set[unicode]) -> Set[unicode]  # NOQA
+    # type: (Sphinx, BuildEnvironment, Set[str], Set[str], Set[str]) -> Set[str]  # NOQA
     """Adjust master_doc to 'contents' to support an old project which does not have
     no master_doc setting.
     """
