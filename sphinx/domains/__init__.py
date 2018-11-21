@@ -11,6 +11,7 @@
 """
 
 import copy
+from typing import NamedTuple
 
 from sphinx.errors import SphinxError
 from sphinx.locale import _
@@ -53,6 +54,15 @@ class ObjType:
         self.attrs.update(attrs)
 
 
+IndexEntry = NamedTuple('IndexEntry', [('name', str),
+                                       ('subtype', int),
+                                       ('docname', str),
+                                       ('anchor', str),
+                                       ('extra', str),
+                                       ('qualifier', str),
+                                       ('descr', str)])
+
+
 class Index:
     """
     An Index is the description for a domain-specific index.  To add an index to
@@ -80,7 +90,7 @@ class Index:
         self.domain = domain
 
     def generate(self, docnames=None):
-        # type: (Iterable[str]) -> Tuple[List[Tuple[str, List[List[Union[str, int]]]]], bool]  # NOQA
+        # type: (Iterable[str]) -> Tuple[List[Tuple[str, List[IndexEntry]]], bool]
         """Return entries for the index given by *name*.  If *docnames* is
         given, restrict to entries referring to these docnames.
 
