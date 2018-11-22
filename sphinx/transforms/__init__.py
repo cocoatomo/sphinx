@@ -327,13 +327,13 @@ class SphinxContentsFilter(ContentsFilter):
     within table-of-contents link nodes.
     """
     def visit_pending_xref(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.pending_xref) -> None
         text = node.astext()
         self.parent.append(nodes.literal(text, text))
         raise nodes.SkipNode
 
     def visit_image(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.image) -> None
         raise nodes.SkipNode
 
 
