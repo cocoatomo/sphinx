@@ -15,7 +15,6 @@ import sys
 import warnings
 
 from docutils.utils import get_source_line
-from six import string_types
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
@@ -27,6 +26,7 @@ if False:
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 def deprecate_source_parsers(app, config):
@@ -36,7 +36,7 @@ def deprecate_source_parsers(app, config):
                       'Please use app.add_source_parser() API instead.',
                       RemovedInSphinx30Warning)
         for suffix, parser in config.source_parsers.items():
-            if isinstance(parser, string_types):
+            if isinstance(parser, str):
                 parser = import_object(parser, 'source parser')
             app.add_source_parser(suffix, parser)
 
@@ -59,7 +59,8 @@ class IndexEntriesMigrator(SphinxTransform):
     """Migrating indexentries from old style (4columns) to new style (5columns)."""
     default_priority = 700
 
-    def apply(self):
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         for node in self.document.traverse(addnodes.index):
             for entries in node['entries']:
                 if len(entries) == 4:

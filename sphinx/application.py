@@ -60,7 +60,7 @@ if False:
     from sphinx.extension import Extension  # NOQA
     from sphinx.roles import XRefRole  # NOQA
     from sphinx.theming import Theme  # NOQA
-    from sphinx.util.typing import RoleFunction, TitleGetter  # NOQA
+    from sphinx.util.typing import RoleFunction, TitleGetter, unicode  # NOQA
 
 builtin_extensions = (
     'sphinx.builders.applehelp',
@@ -562,7 +562,7 @@ class Sphinx:
         self.registry.add_translation_handlers(node, **kwds)
 
     def add_enumerable_node(self, node, figtype, title_getter=None, override=False, **kwds):
-        # type: (Type[nodes.Node], str, TitleGetter, bool, Any) -> None
+        # type: (Type[nodes.Element], unicode, TitleGetter, bool, Any) -> None
         """Register a Docutils node class as a numfig target.
 
         Sphinx numbers the node automatically. And then the users can refer it
@@ -591,7 +591,7 @@ class Sphinx:
 
     @property
     def enumerable_nodes(self):
-        # type: () -> Dict[Type[nodes.Node], Tuple[str, TitleGetter]]
+        # type: () -> Dict[Type[nodes.Element], Tuple[unicode, TitleGetter]]
         warnings.warn('app.enumerable_nodes() is deprecated. '
                       'Use app.get_domain("std").enumerable_nodes instead.',
                       RemovedInSphinx30Warning, stacklevel=2)

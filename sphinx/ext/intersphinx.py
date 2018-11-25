@@ -35,7 +35,7 @@ from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
 from docutils.utils import relative_path
-from six import string_types, text_type
+from six import text_type
 
 import sphinx
 from sphinx.builders.html import INVENTORY_FILENAME
@@ -49,6 +49,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
     Inventory = Dict[text_type, Dict[text_type, Tuple[text_type, text_type, text_type, text_type]]]  # NOQA
 
@@ -217,7 +218,7 @@ def load_mappings(app):
         if isinstance(value, (list, tuple)):
             # new format
             name, (uri, inv) = key, value
-            if not isinstance(name, string_types):
+            if not isinstance(name, str):
                 logger.warning(__('intersphinx identifier %r is not string. Ignored'), name)
                 continue
         else:

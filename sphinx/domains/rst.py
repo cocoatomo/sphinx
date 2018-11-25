@@ -25,6 +25,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 dir_sig_re = re.compile(r'\.\. (.+?)::(.*)$')
@@ -144,7 +145,7 @@ class ReSTDomain(Domain):
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node,
                      contnode):
-        # type: (BuildEnvironment, str, Builder, str, str, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
         objects = self.data['objects']
         objtypes = self.objtypes_for_role(typ)
         for objtype in objtypes:
@@ -156,7 +157,7 @@ class ReSTDomain(Domain):
 
     def resolve_any_xref(self, env, fromdocname, builder, target,
                          node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, nodes.Node, nodes.Node) -> List[nodes.Node]  # NOQA
+        # type: (BuildEnvironment, unicode, Builder, unicode, addnodes.pending_xref, nodes.Element) -> List[nodes.Element]  # NOQA
         objects = self.data['objects']
         results = []
         for objtype in self.object_types:

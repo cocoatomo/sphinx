@@ -50,7 +50,8 @@ from sphinx.util.matching import patfilter  # noqa
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Optional, Pattern, Sequence, Set, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Sequence, Set, Tuple, Union  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -301,7 +302,9 @@ def get_module_source(modname):
             raise PycodeError('error getting filename for %r' % filename, err)
     if filename is None and loader:
         try:
-            return 'string', loader.get_source(modname)
+            filename = loader.get_source(modname)
+            if filename:
+                return 'string', filename
         except Exception as err:
             raise PycodeError('error getting source for %r' % modname, err)
     if filename is None:

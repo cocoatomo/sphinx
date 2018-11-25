@@ -31,6 +31,7 @@ if False:
     # For type annotation
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -258,7 +259,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             resourcedir = root.startswith((staticdir, imagesdir))
             for fn in sorted(files):
                 if (resourcedir and not fn.endswith('.js')) or fn.endswith('.html'):
-                    filename = posixpath.join(root, fn)[olen:]
+                    filename = path.join(root, fn)[olen:]
                     project_files.append(filename)
 
         return project_files

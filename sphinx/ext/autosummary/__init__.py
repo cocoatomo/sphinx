@@ -64,7 +64,6 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.states import RSTStateMachine, state_classes
 from docutils.statemachine import ViewList
-from six import string_types
 from six import text_type
 
 import sphinx
@@ -88,6 +87,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -642,7 +642,7 @@ def get_rst_suffix(app):
         parser_class = app.registry.get_source_parsers().get(suffix)
         if parser_class is None:
             return ('restructuredtext',)
-        if isinstance(parser_class, string_types):
+        if isinstance(parser_class, str):
             parser_class = import_object(parser_class, 'source parser')
         return parser_class.supported
 

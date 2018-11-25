@@ -17,7 +17,7 @@ from collections import OrderedDict
 from os import path, getenv
 from typing import Any, NamedTuple, Union
 
-from six import string_types, text_type, integer_types
+from six import text_type, integer_types
 
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError
@@ -33,6 +33,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.tags import Tags  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -183,7 +184,7 @@ class Config:
         self.setup = config.get('setup', None)  # type: Callable
 
         if 'extensions' in overrides:
-            if isinstance(overrides['extensions'], string_types):
+            if isinstance(overrides['extensions'], str):
                 config['extensions'] = overrides.pop('extensions').split(',')
             else:
                 config['extensions'] = overrides.pop('extensions')
@@ -210,8 +211,8 @@ class Config:
         check_unicode(self)
 
     def convert_overrides(self, name, value):
-        # type: (str, Any) -> Any
-        if not isinstance(value, string_types):
+        # type: (unicode, Any) -> Any
+        if not isinstance(value, str):
             return value
         else:
             defvalue = self.values[name][0]
@@ -231,7 +232,7 @@ class Config:
                                      (value, name))
             elif hasattr(defvalue, '__call__'):
                 return value
-            elif defvalue is not None and not isinstance(defvalue, string_types):
+            elif defvalue is not None and not isinstance(defvalue, str):
                 raise ValueError(__('cannot override config setting %r with unsupported '
                                     'type, ignoring') % name)
             else:
@@ -265,7 +266,7 @@ class Config:
                     logger.warning(__('unknown config value %r in override, ignoring'),
                                    valname)
                     continue
-                if isinstance(value, string_types):
+                if isinstance(value, str):
                     config[valname] = self.convert_overrides(valname, value)
                 else:
                     config[valname] = value
@@ -315,8 +316,8 @@ class Config:
             self.values[name] = (default, rebuild, types)
 
     def filter(self, rebuild):
-        # type: (Union[str, List[str]]) -> Iterator[ConfigValue]
-        if isinstance(rebuild, string_types):
+        # type: (Union[unicode, List[unicode]]) -> Iterator[ConfigValue]
+        if isinstance(rebuild, str):
             rebuild = [rebuild]
         return (value for value in self if value.rebuild in rebuild)
 
@@ -361,8 +362,7 @@ def eval_config_file(filename, tags):
         try:
             execfile_(filename, namespace)
         except SyntaxError as err:
-            msg = __("There is a syntax error in your configuration file: %s\n"
-                     "Did you change the syntax from 2.x to 3.x?")
+            msg = __("There is a syntax error in your configuration file: %s\n")
             raise ConfigError(msg % err)
         except SystemExit:
             msg = __("The configuration file (or one of the modules it imports) "
@@ -383,7 +383,7 @@ def convert_source_suffix(app, config):
     * new style: a dict which maps from fileext to filetype
     """
     source_suffix = config.source_suffix
-    if isinstance(source_suffix, string_types):
+    if isinstance(source_suffix, str):
         # if str, considers as default filetype (None)
         #
         # The default filetype is determined on later step.

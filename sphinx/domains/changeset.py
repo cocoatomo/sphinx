@@ -27,6 +27,7 @@ if False:
     from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 versionlabels = {
@@ -126,7 +127,7 @@ class ChangeSetDomain(Domain):
                     changes.append(changeset)
 
     def process_doc(self, env, docname, document):
-        # type: (BuildEnvironment, str, nodes.Node) -> None
+        # type: (BuildEnvironment, unicode, nodes.document) -> None
         pass  # nothing to do here. All changesets are registered on calling directive.
 
     def note_changeset(self, node):

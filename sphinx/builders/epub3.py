@@ -13,8 +13,6 @@
 from collections import namedtuple
 from os import path
 
-from six import string_types
-
 from sphinx import package_dir
 from sphinx.builders import _epub_base
 from sphinx.config import string_classes, ENUM
@@ -30,6 +28,7 @@ if False:
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -234,7 +233,7 @@ def convert_epub_css_files(app, config):
     """This converts string styled epub_css_files to tuple styled one."""
     epub_css_files = []  # type: List[Tuple[str, Dict]]
     for entry in config.epub_css_files:
-        if isinstance(entry, string_types):
+        if isinstance(entry, str):
             epub_css_files.append((entry, {}))
         else:
             try:

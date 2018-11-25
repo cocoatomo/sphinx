@@ -28,6 +28,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 # RE to split at word boundaries
@@ -295,7 +296,7 @@ class CDomain(Domain):
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, str, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
         # strip pointer asterisk
         target = target.rstrip(' *')
         # becase TypedField can generate xrefs
@@ -309,7 +310,7 @@ class CDomain(Domain):
 
     def resolve_any_xref(self, env, fromdocname, builder, target,
                          node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, nodes.Node, nodes.Node) -> List[Tuple[str, nodes.Node]]  # NOQA
+        # type: (BuildEnvironment, unicode, Builder, unicode, addnodes.pending_xref, nodes.Element) -> List[Tuple[unicode, nodes.Element]]  # NOQA
         # strip pointer asterisk
         target = target.rstrip(' *')
         if target not in self.data['objects']:

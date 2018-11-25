@@ -26,7 +26,8 @@ if False:
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import RoleFunction  # NOQA
+    from sphinx.util.typing import RoleFunction, unicode  # NOQA
+
 
 generic_docroles = {
     'command': addnodes.literal_strong,
@@ -68,8 +69,8 @@ class XRefRole:
     * Subclassing and overwriting `process_link()` and/or `result_nodes()`.
     """
 
-    nodeclass = addnodes.pending_xref  # type: Type[nodes.Element]
-    innernodeclass = nodes.literal  # type: Type[nodes.TextElement]
+    nodeclass = addnodes.pending_xref   # type: Type[nodes.Element]
+    innernodeclass = nodes.literal      # type: Type[nodes.TextElement]
 
     def __init__(self, fix_parens=False, lowercase=False,
                  nodeclass=None, innernodeclass=None, warn_dangling=False):
@@ -98,8 +99,8 @@ class XRefRole:
 
     def __call__(self, typ, rawtext, text, lineno, inliner,
                  options={}, content=[]):
-        # type: (str, str, str, int, Inliner, Dict[str, Any], List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
-        env = inliner.document.settings.env  # type: ignore
+        # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+        env = inliner.document.settings.env
         if not typ:
             typ = env.temp_data.get('default_role')
             if not typ:
@@ -179,7 +180,7 @@ class AnyXRefRole(XRefRole):
 
 
 def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (str, str, str, int, Inliner, Dict[str, Any], List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     """Role for PEP/RFC references that generate an index entry."""
     env = inliner.document.settings.env  # type: ignore
     if not typ:
@@ -246,8 +247,8 @@ _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
 
 def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (str, str, str, int, Inliner, Dict[str, Any], List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
-    env = inliner.document.settings.env  # type: ignore
+    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+    env = inliner.document.settings.env
     if not typ:
         assert env.temp_data['default_role']
         typ = env.temp_data['default_role'].lower()
@@ -285,8 +286,8 @@ parens_re = re.compile(r'(\\*{|\\*})')
 
 def emph_literal_role(typ, rawtext, text, lineno, inliner,
                       options={}, content=[]):
-    # type: (str, str, str, int, Inliner, Dict[str, Any], List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
-    env = inliner.document.settings.env  # type: ignore
+    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+    env = inliner.document.settings.env
     if not typ:
         assert env.temp_data['default_role']
         typ = env.temp_data['default_role'].lower()
@@ -337,7 +338,7 @@ _abbr_re = re.compile(r'\((.*)\)$', re.S)
 
 
 def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (str, str, str, int, Inliner, Dict[str, Any], List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     text = utils.unescape(text)
     m = _abbr_re.search(text)
     if m is None:
@@ -350,7 +351,7 @@ def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 
 
 def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (str, str, str, int, Inliner, Dict[str, Any], List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     # create new reference target
     env = inliner.document.settings.env  # type: ignore
     targetid = 'index-%s' % env.new_serialno('index')
