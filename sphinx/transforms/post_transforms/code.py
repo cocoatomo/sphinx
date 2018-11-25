@@ -24,6 +24,7 @@ if False:
     # For type annotation
     from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 HighlightSetting = NamedTuple('HighlightSetting', [('language', text_type),
@@ -40,7 +41,8 @@ class HighlightLanguageTransform(SphinxTransform):
     """
     default_priority = 400
 
-    def apply(self):
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         visitor = HighlightLanguageVisitor(self.document,
                                            self.config.highlight_language)
         self.document.walkabout(visitor)
@@ -105,7 +107,8 @@ class TrimDoctestFlagsTransform(SphinxTransform):
     """
     default_priority = HighlightLanguageTransform.default_priority + 1
 
-    def apply(self):
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         if not self.config.trim_doctest_flags:
             return
 

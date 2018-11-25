@@ -21,10 +21,11 @@ if False:
     from typing import Any, Callable, Dict, Iterable, List, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
+    from sphinx import addnodes  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.roles import XRefRole  # NOQA
-    from sphinx.util.typing import RoleFunction  # NOQA
+    from sphinx.util.typing import RoleFunction, unicode  # NOQA
 
 
 class ObjType:
@@ -159,7 +160,7 @@ class Domain:
     #: role name -> a warning message if reference is missing
     dangling_warnings = {}  # type: Dict[str, str]
     #: node_class -> (enum_node_type, title_getter)
-    enumerable_nodes = {}   # type: Dict[Type[nodes.Node], Tuple[str, Callable]]
+    enumerable_nodes = {}   # type: Dict[Type[nodes.Element], Tuple[unicode, Callable]]
 
     #: data value for a fresh environment
     initial_data = {}       # type: Dict
@@ -265,7 +266,7 @@ class Domain:
                                   self.__class__)
 
     def process_doc(self, env, docname, document):
-        # type: (BuildEnvironment, str, nodes.Node) -> None
+        # type: (BuildEnvironment, unicode, nodes.document) -> None
         """Process a document after it is read by the environment."""
         pass
 
@@ -283,7 +284,7 @@ class Domain:
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, str, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
         """Resolve the pending_xref *node* with the given *typ* and *target*.
 
         This method should return a new node, to replace the xref node,
@@ -300,7 +301,7 @@ class Domain:
         pass
 
     def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, nodes.Node, nodes.Node) -> List[Tuple[str, nodes.Node]]  # NOQA
+        # type: (BuildEnvironment, unicode, Builder, unicode, addnodes.pending_xref, nodes.Element) -> List[Tuple[unicode, nodes.Element]]  # NOQA
         """Resolve the pending_xref *node* with the given *target*.
 
         The reference comes from an "any" or similar role, which means that we

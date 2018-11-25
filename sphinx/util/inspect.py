@@ -18,14 +18,15 @@ import sys
 import typing
 from functools import partial
 
-from six import StringIO, string_types
+from six import StringIO
 
 from sphinx.util import logging
 from sphinx.util.pycompat import NoneType
 
 if False:
     # For type annotation
-    from typing import Any, Callable, List, Mapping, Tuple, Type  # NOQA
+    from typing import Any, Callable, Dict, List, Tuple, Type  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -381,8 +382,7 @@ class Signature:
                               param.KEYWORD_ONLY):
                 arg.write(param.name)
                 if param.annotation is not param.empty:
-                    if isinstance(param.annotation, string_types) and \
-                            param.name in self.annotations:
+                    if isinstance(param.annotation, str) and param.name in self.annotations:
                         arg.write(': ')
                         arg.write(self.format_annotation(self.annotations[param.name]))
                     else:
@@ -424,7 +424,7 @@ class Signature:
 
         Displaying complex types from ``typing`` relies on its private API.
         """
-        if isinstance(annotation, string_types):
+        if isinstance(annotation, str):
             return annotation
         elif isinstance(annotation, typing.TypeVar):  # type: ignore
             return annotation.__name__

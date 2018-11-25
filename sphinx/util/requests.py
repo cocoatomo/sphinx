@@ -17,7 +17,6 @@ from urllib.parse import urlsplit
 
 import pkg_resources
 import requests
-from six import string_types
 
 try:
     from requests.packages.urllib3.exceptions import SSLError
@@ -79,6 +78,7 @@ if False:
     # For type annotation
     from typing import Any, Generator, Union  # NOQA
     from sphinx.config import Config  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 useragent_header = [('User-Agent',
                      'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0')]
@@ -120,7 +120,7 @@ def _get_tls_cacert(url, config):
     certs = getattr(config, 'tls_cacerts', None)
     if not certs:
         return True
-    elif isinstance(certs, (string_types, tuple)):
+    elif isinstance(certs, (str, tuple)):
         return certs  # type: ignore
     else:
         hostname = urlsplit(url)[1]

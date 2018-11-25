@@ -36,11 +36,12 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Generator, List, Set, Tuple  # NOQA
+    from typing import Any, Callable, Generator, List, Set, Tuple, Type  # NOQA
     from docutils.statemachine import State, ViewList  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.io import SphinxFileInput  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 __version_info__ = tuple(LooseVersion(docutils.__version__).version)
@@ -66,13 +67,13 @@ def docutils_namespace():
 
 
 def is_node_registered(node):
-    # type: (nodes.Node) -> bool
+    # type: (Type[nodes.Element]) -> bool
     """Check the *node* is already registered."""
     return hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__)
 
 
 def register_node(node):
-    # type: (nodes.Node) -> None
+    # type: (Type[nodes.Element]) -> None
     """Register a node to docutils.
 
     This modifies global state of some visitors.  So it is better to use this
@@ -84,7 +85,7 @@ def register_node(node):
 
 
 def unregister_node(node):
-    # type: (nodes.Node) -> None
+    # type: (Type[nodes.Element]) -> None
     """Unregister a node from docutils.
 
     This is inverse of ``nodes._add_nodes_class_names()``.

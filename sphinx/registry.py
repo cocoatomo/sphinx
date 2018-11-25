@@ -43,7 +43,7 @@ if False:
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
-    from sphinx.util.typing import RoleFunction, TitleGetter  # NOQA
+    from sphinx.util.typing import RoleFunction, TitleGetter, unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +90,7 @@ class SphinxComponentRegistry:
 
         #: additional enumerable nodes
         #: a dict of node class -> tuple of figtype and title_getter function
-        self.enumerable_nodes = {}      # type: Dict[nodes.Node, Tuple[str, TitleGetter]]
+        self.enumerable_nodes = {}      # type: Dict[Type[nodes.Element], Tuple[unicode, TitleGetter]]  # NOQA
 
         #: HTML inline and block math renderers
         #: a dict of name -> tuple of visit function and depart function
@@ -110,7 +110,7 @@ class SphinxComponentRegistry:
         self.source_parsers = {}        # type: Dict[str, Type[Parser]]
 
         #: source inputs; file type -> input class
-        self.source_inputs = {}         # type: Dict[str, Type[Input]]
+        self.source_inputs = {}         # type: Dict[unicode, Type[Input]]
 
         #: source suffix: suffix -> file type
         self.source_suffix = {}         # type: Dict[str, str]
@@ -231,7 +231,7 @@ class SphinxComponentRegistry:
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname='',
                         doc_field_types=[], override=False):
-        # type: (str, str, str, Callable, Type[nodes.Node], str, List, bool) -> None
+        # type: (unicode, unicode, unicode, Callable, Type[nodes.TextElement], unicode, List, bool) -> None  # NOQA
         logger.debug('[app] adding object type: %r',
                      (directivename, rolename, indextemplate, parse_node,
                       ref_nodeclass, objname, doc_field_types))
@@ -254,7 +254,7 @@ class SphinxComponentRegistry:
 
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None, objname='', override=False):
-        # type: (str, str, str, nodes.Node, str, bool) -> None
+        # type: (unicode, unicode, unicode, Type[nodes.TextElement], unicode, bool) -> None
         logger.debug('[app] adding crossref type: %r',
                      (directivename, rolename, indextemplate, ref_nodeclass, objname))
 
@@ -325,7 +325,7 @@ class SphinxComponentRegistry:
             raise SphinxError(__('Source parser for %s not registered') % filetype)
 
     def get_source_parsers(self):
-        # type: () -> Dict[str, Type[Parser]]
+        # type: () -> Dict[unicode, Type[Parser]]
         return self.source_parsers
 
     def create_source_parser(self, app, filename):
@@ -363,7 +363,7 @@ class SphinxComponentRegistry:
         self.translators[name] = translator
 
     def add_translation_handlers(self, node, **kwargs):
-        # type: (nodes.Node, Any) -> None
+        # type: (Type[nodes.Element], Any) -> None
         logger.debug('[app] adding translation_handlers: %r, %r', node, kwargs)
         for builder_name, handlers in kwargs.items():
             translation_handlers = self.translation_handlers.setdefault(builder_name, {})
@@ -438,7 +438,7 @@ class SphinxComponentRegistry:
         self.latex_packages.append((name, options))
 
     def add_enumerable_node(self, node, figtype, title_getter=None, override=False):
-        # type: (nodes.Node, str, TitleGetter, bool) -> None
+        # type: (Type[nodes.Element], unicode, TitleGetter, bool) -> None
         logger.debug('[app] adding enumerable node: (%r, %r, %r)', node, figtype, title_getter)
         if node in self.enumerable_nodes and not override:
             raise ExtensionError(__('enumerable_node %r already registered') % node)

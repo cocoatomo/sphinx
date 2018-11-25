@@ -25,6 +25,7 @@ if False:
     # For type annotation
     from typing import Any  # NOQA
     from sphinx.builders import Builder  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -60,8 +61,8 @@ class NestedInlineTransform:
         # type: (nodes.document) -> None
         self.document = document
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         matcher = NodeMatcher(nodes.literal, nodes.emphasis, nodes.strong)
         for node in self.document.traverse(matcher):
             if any(matcher(subnode) for subnode in node):

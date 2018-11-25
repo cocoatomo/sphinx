@@ -18,7 +18,7 @@ import sys
 from distutils.cmd import Command
 from distutils.errors import DistutilsOptionError, DistutilsExecError
 
-from six import StringIO, string_types
+from six import StringIO
 
 from sphinx.application import Sphinx
 from sphinx.cmd.build import handle_exception
@@ -29,6 +29,7 @@ from sphinx.util.osutil import abspath
 if False:
     # For type annotation
     from typing import Any, Dict, List, Tuple  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class BuildDoc(Command):
@@ -129,7 +130,7 @@ class BuildDoc(Command):
         if val is None:
             setattr(self, option, default)
             return default
-        elif not isinstance(val, string_types):
+        elif not isinstance(val, str):
             raise DistutilsOptionError("'%s' must be a %s (got `%s`)"
                                        % (option, what, val))
         return val

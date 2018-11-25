@@ -25,7 +25,7 @@ from docutils.frontend import OptionParser
 from docutils.io import DocTreeInput, StringOutput
 from docutils.readers.doctree import Reader as DoctreeReader
 from docutils.utils import relative_path
-from six import text_type, string_types
+from six import text_type
 
 from sphinx import package_dir, __display_version__
 from sphinx.application import ENV_PICKLE_FILENAME
@@ -60,6 +60,7 @@ if False:
     from sphinx.config import Config  # NOQA
     from sphinx.domains import Domain, Index, IndexEntry  # NOQA
     from sphinx.util.tags import Tags  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 # Experimental HTML5 Writer
 if is_html5_writer_available():
@@ -359,6 +360,7 @@ class StandaloneHTMLBuilder(Builder):
         self.add_js_file('jquery.js')
         self.add_js_file('underscore.js')
         self.add_js_file('doctools.js')
+        self.add_js_file('language_data.js')
 
         for filename, attrs in self.app.registry.js_files:
             self.add_js_file(filename, **attrs)
@@ -531,7 +533,7 @@ class StandaloneHTMLBuilder(Builder):
         favicon = self.config.html_favicon and \
             path.basename(self.config.html_favicon) or ''
 
-        if not isinstance(self.config.html_use_opensearch, string_types):
+        if not isinstance(self.config.html_use_opensearch, str):
             logger.warning(__('html_use_opensearch config value must now be a string'))
 
         self.relations = self.env.collect_relations()
@@ -674,7 +676,7 @@ class StandaloneHTMLBuilder(Builder):
         doctree.settings = self.docsettings
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
-        self.fignumbers = self.env.toc_fignumbers.get(docname, {})  # type: Dict[str, Dict[str, Tuple[int, ...]]]  # NOQA
+        self.fignumbers = self.env.toc_fignumbers.get(docname, {})
         self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')  # type: str
         self.current_docname = docname
@@ -1533,7 +1535,7 @@ def convert_html_css_files(app, config):
     """This converts string styled html_css_files to tuple styled one."""
     html_css_files = []  # type: List[Tuple[str, Dict]]
     for entry in config.html_css_files:
-        if isinstance(entry, string_types):
+        if isinstance(entry, str):
             html_css_files.append((entry, {}))
         else:
             try:
@@ -1551,7 +1553,7 @@ def convert_html_js_files(app, config):
     """This converts string styled html_js_files to tuple styled one."""
     html_js_files = []  # type: List[Tuple[str, Dict]]
     for entry in config.html_js_files:
-        if isinstance(entry, string_types):
+        if isinstance(entry, str):
             html_js_files.append((entry, {}))
         else:
             try:
