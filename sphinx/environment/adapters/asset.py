@@ -21,7 +21,7 @@ class ImageAdapter:
         self.env = env
 
     def get_original_image_uri(self, name):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         """Get the original image URI."""
         while name in self.env.original_image_uri:
             name = self.env.original_image_uri[name]

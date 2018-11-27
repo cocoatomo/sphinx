@@ -80,7 +80,7 @@ MEDIA_TYPES = {
     '.otf': 'application/x-font-otf',
     '.ttf': 'application/x-font-ttf',
     '.woff': 'application/font-woff',
-}  # type: Dict[str, str]
+}  # type: Dict[unicode, unicode]
 
 VECTOR_GRAPHICS_EXTENSIONS = ('.svg',)
 
@@ -97,7 +97,7 @@ NavPoint = namedtuple('NavPoint', ['navpoint', 'playorder', 'text', 'refuri', 'c
 
 
 def sphinx_smarty_pants(t, language='en'):
-    # type: (str, str) -> str
+    # type: (unicode, str) -> unicode
     t = t.replace('&quot;', '"')
     t = smartquotes.educateDashesOldSchool(t)
     t = smartquotes.educateQuotes(t, language)
@@ -158,7 +158,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.link_suffix = '.xhtml'
         self.playorder = 0
         self.tocid = 0
-        self.id_cache = {}  # type: Dict[str, str]
+        self.id_cache = {}  # type: Dict[unicode, unicode]
         self.use_index = self.get_builder_config('use_index', 'epub')
 
     def create_build_info(self):
@@ -166,12 +166,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return BuildInfo(self.config, self.tags, ['html', 'epub'])
 
     def get_theme_config(self):
-        # type: () -> Tuple[str, Dict]
+        # type: () -> Tuple[unicode, Dict]
         return self.config.epub_theme, self.config.epub_theme_options
 
     # generic support functions
     def make_id(self, name):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         # id_cache is intentionally mutable
         """Return a unique id for name."""
         id = self.id_cache.get(name)
@@ -181,7 +181,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return id
 
     def esc(self, name):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         """Replace all characters not allowed in text an attribute values."""
         # Like cgi.escape, but also replace apostrophe
         name = name.replace('&', '&amp;')
@@ -192,7 +192,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return name
 
     def get_refnodes(self, doctree, result):
-        # type: (nodes.Element, List[Dict[str, Any]]) -> List[Dict[str, Any]]
+        # type: (nodes.Element, List[Dict[unicode, Any]]) -> List[Dict[unicode, Any]]
         """Collect section titles, their depth in the toc and the refuri."""
         # XXX: is there a better way than checking the attribute
         # toctree-l[1-8] on the parent node?
@@ -255,7 +255,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             })
 
     def fix_fragment(self, prefix, fragment):
-        # type: (str, str) -> str
+        # type: (unicode, unicode) -> unicode
         """Return a href/id attribute with colons replaced by hyphens."""
         return prefix + fragment.replace(':', '-')
 
@@ -291,11 +291,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
             node.attributes['ids'] = newids
 
     def add_visible_links(self, tree, show_urls='inline'):
-        # type: (nodes.Node, str) -> None
+        # type: (nodes.Node, unicode) -> None
         """Add visible link targets for external links"""
 
         def make_footnote_ref(doc, label):
-            # type: (nodes.Node, str) -> nodes.footnote_reference
+            # type: (nodes.Node, unicode) -> nodes.footnote_reference
             """Create a footnote_reference node with children"""
             footnote_ref = nodes.footnote_reference('[#]_')
             footnote_ref.append(nodes.Text(label))
@@ -303,7 +303,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             return footnote_ref
 
         def make_footnote(doc, label, uri):
-            # type: (nodes.Node, str, str) -> nodes.footnote
+            # type: (nodes.Node, unicode, unicode) -> nodes.footnote
             """Create a footnote node with children"""
             footnote = nodes.footnote(uri)
             para = nodes.paragraph()
@@ -364,7 +364,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     fn_idx += 1
 
     def write_doc(self, docname, doctree):
-        # type: (str, nodes.Node) -> None
+        # type: (unicode, nodes.Node) -> None
         """Write one document file.
 
         This method is overwritten in order to fix fragment identifiers
@@ -394,7 +394,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                                                 self.fix_fragment(m.group(1), m.group(2)))
 
     def is_vector_graphics(self, filename):
-        # type: (str) -> bool
+        # type: (unicode) -> bool
         """Does the filename extension indicate a vector graphic format?"""
         ext = path.splitext(filename)[-1]
         return ext in VECTOR_GRAPHICS_EXTENSIONS
@@ -459,7 +459,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
     def handle_page(self, pagename, addctx, templatename='page.html',
                     outfilename=None, event_arg=None):
-        # type: (str, Dict, str, str, Any) -> None
+        # type: (unicode, Dict, unicode, unicode, Any) -> None
         """Create a rendered page.
 
         This method is overwritten for genindex pages in order to fix href link
@@ -474,14 +474,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
                                           outfilename, event_arg)
 
     def build_mimetype(self, outdir, outname):
-        # type: (str, str) -> None
+        # type: (unicode, unicode) -> None
         """Write the metainfo file mimetype."""
         logger.info(__('writing %s file...'), outname)
         copy_asset_file(path.join(self.template_dir, 'mimetype'),
                         path.join(outdir, outname))
 
     def build_container(self, outdir, outname):
-        # type: (str, str) -> None
+        # type: (unicode, unicode) -> None
         """Write the metainfo file META-INF/container.xml."""
         logger.info(__('writing %s file...'), outname)
         filename = path.join(outdir, outname)
@@ -489,11 +489,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
         copy_asset_file(path.join(self.template_dir, 'container.xml'), filename)
 
     def content_metadata(self):
-        # type: () -> Dict[str, Any]
+        # type: () -> Dict[unicode, Any]
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
-        metadata = {}  # type: Dict[str, Any]
+        metadata = {}  # type: Dict[unicode, Any]
         metadata['title'] = self.esc(self.config.epub_title)
         metadata['author'] = self.esc(self.config.epub_author)
         metadata['uid'] = self.esc(self.config.epub_uid)
@@ -509,7 +509,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return metadata
 
     def build_content(self, outdir, outname):
-        # type: (str, str) -> None
+        # type: (unicode, unicode) -> None
         """Write the metainfo file content.opf It contains bibliographic data,
         a file list and the spine (the reading order).
         """
@@ -520,7 +520,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         if not outdir.endswith(os.sep):
             outdir += os.sep
         olen = len(outdir)
-        self.files = []  # type: List[str]
+        self.files = []  # type: List[unicode]
         self.ignored_files = ['.buildinfo', 'mimetype', 'content.opf',
                               'toc.ncx', 'META-INF/container.xml',
                               'Thumbs.db', 'ehthumbs.db', '.DS_Store',
@@ -678,11 +678,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return navstack[0].children
 
     def toc_metadata(self, level, navpoints):
-        # type: (int, List[NavPoint]) -> Dict[str, Any]
+        # type: (int, List[NavPoint]) -> Dict[unicode, Any]
         """Create a dictionary with all metadata for the toc.ncx file
         properly escaped.
         """
-        metadata = {}  # type: Dict[str, Any]
+        metadata = {}  # type: Dict[unicode, Any]
         metadata['uid'] = self.config.epub_uid
         metadata['title'] = self.esc(self.config.epub_title)
         metadata['level'] = level
@@ -690,7 +690,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return metadata
 
     def build_toc(self, outdir, outname):
-        # type: (str, str) -> None
+        # type: (unicode, unicode) -> None
         """Write the metainfo file toc.ncx."""
         logger.info(__('writing %s file...'), outname)
 
@@ -711,7 +711,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                         self.toc_metadata(level, navpoints))
 
     def build_epub(self, outdir, outname):
-        # type: (str, str) -> None
+        # type: (unicode, unicode) -> None
         """Write the epub file.
 
         It is a zip file with the mimetype file stored uncompressed as the first

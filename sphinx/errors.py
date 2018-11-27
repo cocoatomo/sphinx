@@ -54,7 +54,7 @@ class ExtensionError(SphinxError):
     category = 'Extension error'
 
     def __init__(self, message, orig_exc=None):
-        # type: (str, Exception) -> None
+        # type: (unicode, Exception) -> None
         super(ExtensionError, self).__init__(message)
         self.message = message
         self.orig_exc = orig_exc

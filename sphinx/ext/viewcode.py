@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 def _get_full_modname(app, modname, attribute):
-    # type: (Sphinx, str, str) -> str
+    # type: (Sphinx, str, unicode) -> unicode
     try:
         return get_full_modname(modname, attribute)
     except AttributeError:
@@ -97,7 +97,7 @@ def doctree_read(app, doctree):
     for objnode in doctree.traverse(addnodes.desc):
         if objnode.get('domain') != 'py':
             continue
-        names = set()  # type: Set[str]
+        names = set()  # type: Set[unicode]
         for signode in objnode:
             if not isinstance(signode, addnodes.desc_signature):
                 continue
@@ -132,7 +132,7 @@ def doctree_read(app, doctree):
 
 
 def env_merge_info(app, env, docnames, other):
-    # type: (Sphinx, BuildEnvironment, Iterable[str], BuildEnvironment) -> None
+    # type: (Sphinx, BuildEnvironment, Iterable[unicode], BuildEnvironment) -> None
     if not hasattr(other, '_viewcode_modules'):
         return
     # create a _viewcode_modules dict on the main environment
@@ -151,7 +151,7 @@ def missing_reference(app, env, node, contnode):
 
 
 def collect_pages(app):
-    # type: (Sphinx) -> Iterator[Tuple[str, Dict[str, Any], str]]
+    # type: (Sphinx) -> Iterator[Tuple[unicode, Dict[unicode, Any], unicode]]
     env = app.builder.env
     if not hasattr(env, '_viewcode_modules'):
         return
@@ -216,7 +216,7 @@ def collect_pages(app):
             'title': modname,
             'body': (_('<h1>Source code for %s</h1>') % modname +
                      '\n'.join(lines)),
-        }  # type: Dict[str, Any]
+        }  # type: Dict[unicode, Any]
         yield (pagename, context, 'page.html')
 
     if not modnames:
@@ -257,7 +257,7 @@ def migrate_viewcode_import(app, config):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_config_value('viewcode_import', None, False)
     app.add_config_value('viewcode_enable_epub', False, False)
     app.add_config_value('viewcode_follow_imported_members', True, False)

@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 class Extension:
     def __init__(self, name, module, **kwargs):
-        # type: (str, Any, Any) -> None
+        # type: (unicode, Any, Any) -> None
         self.name = name
         self.module = module
         self.metadata = kwargs
@@ -63,7 +63,7 @@ def verify_needs_extensions(app, config):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.connect('config-inited', verify_needs_extensions)
 
     return {

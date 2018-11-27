@@ -58,35 +58,35 @@ class SphinxComponentRegistry:
     def __init__(self):
         # type: () -> None
         #: special attrgetter for autodoc; class object -> attrgetter
-        self.autodoc_attrgettrs = {}    # type: Dict[Type, Callable[[Any, str, Any], Any]]
+        self.autodoc_attrgettrs = {}    # type: Dict[Type, Callable[[Any, unicode, Any], Any]]
 
         #: builders; a dict of builder name -> bulider class
-        self.builders = {}              # type: Dict[str, Type[Builder]]
+        self.builders = {}              # type: Dict[unicode, Type[Builder]]
 
         #: autodoc documenters; a dict of documenter name -> documenter class
-        self.documenters = {}           # type: Dict[str, Type[Documenter]]
+        self.documenters = {}           # type: Dict[unicode, Type[Documenter]]
 
         #: css_files; a list of tuple of filename and attributes
-        self.css_files = []             # type: List[Tuple[str, Dict[str, str]]]
+        self.css_files = []             # type: List[Tuple[unicode, Dict[unicode, unicode]]]
 
         #: domains; a dict of domain name -> domain class
-        self.domains = {}               # type: Dict[str, Type[Domain]]
+        self.domains = {}               # type: Dict[unicode, Type[Domain]]
 
         #: additional directives for domains
         #: a dict of domain name -> dict of directive name -> directive
-        self.domain_directives = {}     # type: Dict[str, Dict[str, Any]]
+        self.domain_directives = {}     # type: Dict[unicode, Dict[unicode, Any]]
 
         #: additional indices for domains
         #: a dict of domain name -> list of index class
-        self.domain_indices = {}        # type: Dict[str, List[Type[Index]]]
+        self.domain_indices = {}        # type: Dict[unicode, List[Type[Index]]]
 
         #: additional object types for domains
         #: a dict of domain name -> dict of objtype name -> objtype
-        self.domain_object_types = {}   # type: Dict[str, Dict[str, ObjType]]
+        self.domain_object_types = {}   # type: Dict[unicode, Dict[unicode, ObjType]]
 
         #: additional roles for domains
         #: a dict of domain name -> dict of role name -> role impl.
-        self.domain_roles = {}          # type: Dict[str, Dict[str, Union[RoleFunction, XRefRole]]]  # NOQA
+        self.domain_roles = {}          # type: Dict[unicode, Dict[unicode, Union[RoleFunction, XRefRole]]]  # NOQA
 
         #: additional enumerable nodes
         #: a dict of node class -> tuple of figtype and title_getter function
@@ -94,33 +94,33 @@ class SphinxComponentRegistry:
 
         #: HTML inline and block math renderers
         #: a dict of name -> tuple of visit function and depart function
-        self.html_inline_math_renderers = {}    # type: Dict[str, Tuple[Callable, Callable]]
-        self.html_block_math_renderers = {}     # type: Dict[str, Tuple[Callable, Callable]]
+        self.html_inline_math_renderers = {}    # type: Dict[unicode, Tuple[Callable, Callable]]  # NOQA
+        self.html_block_math_renderers = {}     # type: Dict[unicode, Tuple[Callable, Callable]]  # NOQA
 
         #: js_files; list of JS paths or URLs
-        self.js_files = []              # type: List[Tuple[str, Dict[str, str]]]
+        self.js_files = []              # type: List[Tuple[unicode, Dict[unicode, unicode]]]
 
         #: LaTeX packages; list of package names and its options
-        self.latex_packages = []        # type: List[Tuple[str, str]]
+        self.latex_packages = []        # type: List[Tuple[unicode, unicode]]
 
         #: post transforms; list of transforms
         self.post_transforms = []       # type: List[Type[Transform]]
 
         #: source paresrs; file type -> parser class
-        self.source_parsers = {}        # type: Dict[str, Type[Parser]]
+        self.source_parsers = {}        # type: Dict[unicode, Type[Parser]]
 
         #: source inputs; file type -> input class
         self.source_inputs = {}         # type: Dict[unicode, Type[Input]]
 
         #: source suffix: suffix -> file type
-        self.source_suffix = {}         # type: Dict[str, str]
+        self.source_suffix = {}         # type: Dict[unicode, unicode]
 
         #: custom translators; builder name -> translator class
-        self.translators = {}           # type: Dict[str, Type[nodes.NodeVisitor]]
+        self.translators = {}           # type: Dict[unicode, Type[nodes.NodeVisitor]]
 
         #: custom handlers for translators
         #: a dict of builder name -> dict of node name -> visitor and departure functions
-        self.translation_handlers = {}  # type: Dict[str, Dict[str, Tuple[Callable, Callable]]]
+        self.translation_handlers = {}  # type: Dict[unicode, Dict[unicode, Tuple[Callable, Callable]]]  # NOQA
 
         #: additional transforms; list of transforms
         self.transforms = []            # type: List[Type[Transform]]
@@ -136,7 +136,7 @@ class SphinxComponentRegistry:
         self.builders[builder.name] = builder
 
     def preload_builder(self, app, name):
-        # type: (Sphinx, str) -> None
+        # type: (Sphinx, unicode) -> None
         if name is None:
             return
 
@@ -151,7 +151,7 @@ class SphinxComponentRegistry:
             self.load_extension(app, entry_point.module_name)
 
     def create_builder(self, app, name):
-        # type: (Sphinx, str) -> Builder
+        # type: (Sphinx, unicode) -> Builder
         if name not in self.builders:
             raise SphinxError(__('Builder name %s not registered') % name)
 
@@ -165,7 +165,7 @@ class SphinxComponentRegistry:
         self.domains[domain.name] = domain
 
     def has_domain(self, domain):
-        # type: (str) -> bool
+        # type: (unicode) -> bool
         return domain in self.domains
 
     def create_domains(self, env):
@@ -191,7 +191,7 @@ class SphinxComponentRegistry:
 
     def add_directive_to_domain(self, domain, name, obj, has_content=None, argument_spec=None,
                                 override=False, **option_spec):
-        # type: (str, str, Any, bool, Any, bool, Any) -> None
+        # type: (unicode, unicode, Any, bool, Any, bool, Any) -> None
         logger.debug('[app] adding directive to domain: %r',
                      (domain, name, obj, has_content, argument_spec, option_spec))
         if domain not in self.domains:
@@ -207,7 +207,7 @@ class SphinxComponentRegistry:
             directives[name] = obj
 
     def add_role_to_domain(self, domain, name, role, override=False):
-        # type: (str, str, Union[RoleFunction, XRefRole], bool) -> None
+        # type: (unicode, unicode, Union[RoleFunction, XRefRole], bool) -> None
         logger.debug('[app] adding role to domain: %r', (domain, name, role))
         if domain not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain)
@@ -218,7 +218,7 @@ class SphinxComponentRegistry:
         roles[name] = role
 
     def add_index_to_domain(self, domain, index, override=False):
-        # type: (str, Type[Index], bool) -> None
+        # type: (unicode, Type[Index], bool) -> None
         logger.debug('[app] adding index to domain: %r', (domain, index))
         if domain not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain)
@@ -273,7 +273,7 @@ class SphinxComponentRegistry:
         object_types[directivename] = ObjType(objname or directivename, rolename)
 
     def add_source_suffix(self, suffix, filetype, override=False):
-        # type: (str, str, bool) -> None
+        # type: (unicode, unicode, bool) -> None
         logger.debug('[app] adding source_suffix: %r, %r', suffix, filetype)
         if suffix in self.source_suffix and not override:
             raise ExtensionError(__('source_suffix %r is already registered') % suffix)
@@ -285,7 +285,7 @@ class SphinxComponentRegistry:
         logger.debug('[app] adding search source_parser: %r', args)
         if len(args) == 1:
             # new sytle arguments: (source_parser)
-            suffix = None       # type: str
+            suffix = None       # type: unicode
             parser = args[0]    # type: Type[Parser]
         else:
             # old style arguments: (suffix, source_parser)
@@ -318,7 +318,7 @@ class SphinxComponentRegistry:
             self.source_parsers[suffix] = parser
 
     def get_source_parser(self, filetype):
-        # type: (str) -> Type[Parser]
+        # type: (unicode) -> Type[Parser]
         try:
             return self.source_parsers[filetype]
         except KeyError:
@@ -329,7 +329,7 @@ class SphinxComponentRegistry:
         return self.source_parsers
 
     def create_source_parser(self, app, filename):
-        # type: (Sphinx, str) -> Parser
+        # type: (Sphinx, unicode) -> Parser
         parser_class = self.get_source_parser(filename)
         parser = parser_class()
         if isinstance(parser, SphinxParser):
@@ -345,7 +345,7 @@ class SphinxComponentRegistry:
             self.source_inputs[filetype] = input_class
 
     def get_source_input(self, filetype):
-        # type: (str) -> Type[Input]
+        # type: (unicode) -> Type[Input]
         try:
             return self.source_inputs[filetype]
         except KeyError:
@@ -356,7 +356,7 @@ class SphinxComponentRegistry:
                 raise SphinxError(__('source_input for %s not registered') % filetype)
 
     def add_translator(self, name, translator, override=False):
-        # type: (str, Type[nodes.NodeVisitor], bool) -> None
+        # type: (unicode, Type[nodes.NodeVisitor], bool) -> None
         logger.debug('[app] Change of translator for the %s builder.' % name)
         if name in self.translators and not override:
             raise ExtensionError(__('Translator for %r already exists') % name)
@@ -417,23 +417,23 @@ class SphinxComponentRegistry:
         return self.post_transforms
 
     def add_documenter(self, objtype, documenter):
-        # type: (str, Type[Documenter]) -> None
+        # type: (unicode, Type[Documenter]) -> None
         self.documenters[objtype] = documenter
 
     def add_autodoc_attrgetter(self, typ, attrgetter):
-        # type: (Type, Callable[[Any, str, Any], Any]) -> None
+        # type: (Type, Callable[[Any, unicode, Any], Any]) -> None
         self.autodoc_attrgettrs[typ] = attrgetter
 
     def add_css_files(self, filename, **attributes):
         self.css_files.append((filename, attributes))
 
     def add_js_file(self, filename, **attributes):
-        # type: (str, **str) -> None
+        # type: (unicode, **unicode) -> None
         logger.debug('[app] adding js_file: %r, %r', filename, attributes)
         self.js_files.append((filename, attributes))
 
     def add_latex_package(self, name, options):
-        # type: (str, str) -> None
+        # type: (unicode, unicode) -> None
         logger.debug('[app] adding latex package: %r', name)
         self.latex_packages.append((name, options))
 
@@ -445,7 +445,7 @@ class SphinxComponentRegistry:
         self.enumerable_nodes[node] = (figtype, title_getter)
 
     def add_html_math_renderer(self, name, inline_renderers, block_renderers):
-        # type: (str, Tuple[Callable, Callable], Tuple[Callable, Callable]) -> None
+        # type: (unicode, Tuple[Callable, Callable], Tuple[Callable, Callable]) -> None
         logger.debug('[app] adding html_math_renderer: %s, %r, %r',
                      name, inline_renderers, block_renderers)
         if name in self.html_inline_math_renderers:
@@ -455,7 +455,7 @@ class SphinxComponentRegistry:
         self.html_block_math_renderers[name] = block_renderers
 
     def load_extension(self, app, extname):
-        # type: (Sphinx, str) -> None
+        # type: (Sphinx, unicode) -> None
         """Load a Sphinx extension."""
         if extname in app.extensions:  # alread loaded
             return
@@ -477,7 +477,7 @@ class SphinxComponentRegistry:
             if not hasattr(mod, 'setup'):
                 logger.warning(__('extension %r has no setup() function; is it really '
                                   'a Sphinx extension module?'), extname)
-                metadata = {}  # type: Dict[str, Any]
+                metadata = {}  # type: Dict[unicode, Any]
             else:
                 try:
                     metadata = mod.setup(app)
@@ -500,7 +500,7 @@ class SphinxComponentRegistry:
             app.extensions[extname] = Extension(extname, mod, **metadata)
 
     def get_envversion(self, app):
-        # type: (Sphinx) -> Dict[str, str]
+        # type: (Sphinx) -> Dict[unicode, unicode]
         from sphinx.environment import ENV_VERSION
         envversion = {ext.name: ext.metadata['env_version'] for ext in app.extensions.values()
                       if ext.metadata.get('env_version')}
@@ -524,7 +524,7 @@ def merge_source_suffix(app, config):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.connect('config-inited', merge_source_suffix)
 
     return {

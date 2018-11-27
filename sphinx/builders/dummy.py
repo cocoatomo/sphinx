@@ -32,19 +32,19 @@ class DummyBuilder(Builder):
         pass
 
     def get_outdated_docs(self):
-        # type: () -> Set[str]
+        # type: () -> Set[unicode]
         return self.env.found_docs
 
     def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
+        # type: (unicode, unicode) -> unicode
         return ''
 
     def prepare_writing(self, docnames):
-        # type: (Set[str]) -> None
+        # type: (Set[unicode]) -> None
         pass
 
     def write_doc(self, docname, doctree):
-        # type: (str, nodes.Node) -> None
+        # type: (unicode, nodes.Node) -> None
         pass
 
     def finish(self):
@@ -53,7 +53,7 @@ class DummyBuilder(Builder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(DummyBuilder)
 
     return {

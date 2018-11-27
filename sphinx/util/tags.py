@@ -49,29 +49,29 @@ class BooleanParser(Parser):
 
 class Tags:
     def __init__(self, tags=None):
-        # type: (List[str]) -> None
+        # type: (List[unicode]) -> None
         self.tags = dict.fromkeys(tags or [], True)
 
     def has(self, tag):
-        # type: (str) -> bool
+        # type: (unicode) -> bool
         return tag in self.tags
 
     __contains__ = has
 
     def __iter__(self):
-        # type: () -> Iterator[str]
+        # type: () -> Iterator[unicode]
         return iter(self.tags)
 
     def add(self, tag):
-        # type: (str) -> None
+        # type: (unicode) -> None
         self.tags[tag] = True
 
     def remove(self, tag):
-        # type: (str) -> None
+        # type: (unicode) -> None
         self.tags.pop(tag, None)
 
     def eval_condition(self, condition):
-        # type: (str) -> bool
+        # type: (unicode) -> bool
         # exceptions are handled by the caller
         parser = BooleanParser(env, condition, state='variable')
         expr = parser.parse_expression()

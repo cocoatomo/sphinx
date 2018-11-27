@@ -52,7 +52,7 @@ class BaseSplitter:
         self.options = options
 
     def split(self, input):
-        # type: (str) -> List[str]
+        # type: (unicode) -> List[unicode]
         """
 
         :param str input:
@@ -75,7 +75,7 @@ class MecabSplitter(BaseSplitter):
         self.dict_encode = options.get('dic_enc', 'utf-8')
 
     def split(self, input):
-        # type: (str) -> List[str]
+        # type: (unicode) -> List[unicode]
         if native_module:
             result = self.native.parse(input)
         else:
@@ -151,7 +151,7 @@ class JanomeSplitter(BaseSplitter):
         self.tokenizer = janome.tokenizer.Tokenizer(udic=self.user_dict, udic_enc=self.user_dict_enc)
 
     def split(self, input):
-        # type: (str) -> List[str]
+        # type: (unicode) -> List[unicode]
         result = u' '.join(token.surface for token in self.tokenizer.tokenize(input))
         return result.split(u' ')
 
@@ -428,7 +428,7 @@ class DefaultSplitter(BaseSplitter):
 
     # ctype_
     def ctype_(self, char):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         for pattern, value in self.patterns_.items():
             if pattern.match(char):
                 return value
@@ -436,14 +436,14 @@ class DefaultSplitter(BaseSplitter):
 
     # ts_
     def ts_(self, dict, key):
-        # type: (Dict[str, int], str) -> int
+        # type: (Dict[unicode, int], unicode) -> int
         if key in dict:
             return dict[key]
         return 0
 
     # segment
     def split(self, input):
-        # type: (str) -> List[str]
+        # type: (unicode) -> List[unicode]
         if not input:
             return []
 
@@ -568,13 +568,13 @@ class SearchJapanese(SearchLanguage):
                                  dotted_path)
 
     def split(self, input):
-        # type: (str) -> List[str]
+        # type: (unicode) -> List[unicode]
         return self.splitter.split(input)
 
     def word_filter(self, stemmed_word):
-        # type: (str) -> bool
+        # type: (unicode) -> bool
         return len(stemmed_word) > 1
 
     def stem(self, word):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         return word

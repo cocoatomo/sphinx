@@ -29,12 +29,12 @@ class SearchRomanian(SearchLanguage):
     language_name = 'Romanian'
     js_stemmer_rawcode = 'romanian-stemmer.js'
     js_stemmer_code = js_stemmer
-    stopwords = set()  # type: Set[str]
+    stopwords = set()  # type: Set[unicode]
 
     def init(self, options):
         # type: (Dict) -> None
         self.stemmer = snowballstemmer.stemmer('romanian')
 
     def stem(self, word):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         return self.stemmer.stemWord(word.lower())

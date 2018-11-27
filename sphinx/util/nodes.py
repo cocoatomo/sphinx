@@ -98,7 +98,7 @@ def get_full_module_name(node):
 
 
 def repr_domxml(node, length=80):
-    # type: (nodes.Node, Optional[int]) -> str
+    # type: (nodes.Node, Optional[int]) -> unicode
     """
     return DOM XML representation of the specified node like:
     '<paragraph translatable="False"><inline classes="versionmodified">New in version...'
@@ -267,9 +267,9 @@ def extract_messages(doctree):
         elif isinstance(node, META_TYPE_NODES):
             msg = node.rawcontent
         elif is_pending_meta(node):
-            msg = node.details['nodes'][0].rawcontent  # type: ignore
+            msg = node.details['nodes'][0].rawcontent
         else:
-            msg = node.rawsource.replace('\n', ' ').strip()  # type: ignore
+            msg = node.rawsource.replace('\n', ' ').strip()
 
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
@@ -277,7 +277,7 @@ def extract_messages(doctree):
 
 
 def find_source_node(node):
-    # type: (nodes.Node) -> str
+    # type: (nodes.Node) -> unicode
     for pnode in traverse_parent(node):
         if pnode.source:
             return pnode.source
@@ -305,7 +305,7 @@ def traverse_translatable_index(doctree):
 
 
 def nested_parse_with_titles(state, content, node):
-    # type: (Any, List[str], nodes.Node) -> str
+    # type: (Any, List[unicode], nodes.Node) -> unicode
     """Version of state.nested_parse() that allows titles and does not require
     titles to have the same decoration as the calling document.
 
@@ -336,7 +336,7 @@ def clean_astext(node):
 
 
 def split_explicit_title(text):
-    # type: (str) -> Tuple[bool, str, str]
+    # type: (unicode) -> Tuple[bool, unicode, unicode]
     """Split role content into title and target, if given."""
     match = explicit_title_re.match(text)
     if match:
@@ -350,10 +350,10 @@ indextypes = [
 
 
 def process_index_entry(entry, targetid):
-    # type: (str, str) -> List[Tuple[str, str, str, str, str]]
+    # type: (unicode, unicode) -> List[Tuple[unicode, unicode, unicode, unicode, unicode]]
     from sphinx.domains.python import pairindextypes
 
-    indexentries = []  # type: List[Tuple[str, str, str, str, str]]
+    indexentries = []  # type: List[Tuple[unicode, unicode, unicode, unicode, unicode]]
     entry = entry.strip()
     oentry = entry
     main = ''
@@ -389,7 +389,7 @@ def process_index_entry(entry, targetid):
 
 
 def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed):
-    # type: (Builder, Set[str], str, nodes.Element, Callable, MutableSequence[str]) -> nodes.Element  # NOQA
+    # type: (Builder, Set[unicode], unicode, nodes.Element, Callable, MutableSequence[unicode]) -> nodes.Element  # NOQA
     """Inline all toctrees in the *tree*.
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
@@ -422,7 +422,7 @@ def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed
 
 
 def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
-    # type: (Builder, str, str, str, nodes.Node, str) -> nodes.reference
+    # type: (Builder, unicode, unicode, unicode, nodes.Node, unicode) -> nodes.reference
     """Shortcut to create a reference node."""
     node = nodes.reference('', '', internal=True)
     if fromdocname == todocname and targetid:

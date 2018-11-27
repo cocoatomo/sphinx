@@ -207,13 +207,13 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             self.lcid, self.encoding = locale
 
     def open_file(self, outdir, basename, mode='w'):
-        # type: (str, str, str) -> IO
+        # type: (unicode, unicode, unicode) -> IO
         # open a file with the correct encoding for the selected language
         return open(path.join(outdir, basename), mode,
                     encoding=self.encoding, errors='xmlcharrefreplace')
 
     def update_page_context(self, pagename, templatename, ctx, event_arg):
-        # type: (str, str, Dict, str) -> None
+        # type: (unicode, unicode, Dict, unicode) -> None
         ctx['encoding'] = self.encoding
 
     def handle_finish(self):
@@ -221,7 +221,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         self.build_hhx(self.outdir, self.config.htmlhelp_basename)
 
     def write_doc(self, docname, doctree):
-        # type: (str, nodes.Node) -> None
+        # type: (unicode, nodes.Node) -> None
         for node in doctree.traverse(nodes.reference):
             # add ``target=_blank`` attributes to external links
             if node.get('internal') is None and 'refuri' in node:
@@ -230,7 +230,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         StandaloneHTMLBuilder.write_doc(self, docname, doctree)
 
     def build_hhx(self, outdir, outname):
-        # type: (str, str) -> None
+        # type: (unicode, unicode) -> None
         logger.info(__('dumping stopword list...'))
         with self.open_file(outdir, outname + '.stp') as f:
             for word in sorted(stopwords):
@@ -307,9 +307,9 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             f.write('<UL>\n')
 
             def write_index(title, refs, subitems):
-                # type: (str, List[Tuple[str, str]], List[Tuple[str, List[Tuple[str, str]]]]) -> None  # NOQA
+                # type: (unicode, List[Tuple[unicode, unicode]], List[Tuple[unicode, List[Tuple[unicode, unicode]]]]) -> None  # NOQA
                 def write_param(name, value):
-                    # type: (str, str) -> None
+                    # type: (unicode, unicode) -> None
                     item = '    <param name="%s" value="%s">\n' % \
                         (name, value)
                     f.write(item)
@@ -338,7 +338,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(HTMLHelpBuilder)
 

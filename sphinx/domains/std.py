@@ -51,11 +51,11 @@ class GenericObject(ObjectDescription):
     """
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
-    indextemplate = ''
-    parse_node = None  # type: Callable[[GenericObject, BuildEnvironment, str, addnodes.desc_signature], str]  # NOQA
+    indextemplate = ''  # type: unicode
+    parse_node = None  # type: Callable[[GenericObject, BuildEnvironment, unicode, addnodes.desc_signature], unicode]  # NOQA
 
     def handle_signature(self, sig, signode):
-        # type: (str, addnodes.desc_signature) -> str
+        # type: (unicode, addnodes.desc_signature) -> unicode
         if self.parse_node:
             name = self.parse_node(self.env, sig, signode)
         else:
@@ -66,7 +66,7 @@ class GenericObject(ObjectDescription):
         return name
 
     def add_target_and_index(self, name, sig, signode):
-        # type: (str, str, addnodes.desc_signature) -> None
+        # type: (unicode, unicode, addnodes.desc_signature) -> None
         targetname = '%s-%s' % (self.objtype, name)
         signode['ids'].append(targetname)
         self.state.document.note_explicit_target(signode)
@@ -156,10 +156,10 @@ class Cmdoption(ObjectDescription):
     """
 
     def handle_signature(self, sig, signode):
-        # type: (str, addnodes.desc_signature) -> str
+        # type: (unicode, addnodes.desc_signature) -> unicode
         """Transform an option description into RST nodes."""
         count = 0
-        firstname = ''
+        firstname = ''  # type: unicode
         for potential_option in sig.split(', '):
             potential_option = potential_option.strip()
             m = option_desc_re.match(potential_option)
@@ -185,7 +185,7 @@ class Cmdoption(ObjectDescription):
         return firstname
 
     def add_target_and_index(self, firstname, sig, signode):
-        # type: (str, str, addnodes.desc_signature) -> None
+        # type: (unicode, unicode, addnodes.desc_signature) -> None
         currprogram = self.env.ref_context.get('std:program')
         for optname in signode.get('allnames', []):
             targetname = optname.replace('/', '-')
@@ -233,20 +233,20 @@ class Program(SphinxDirective):
 
 class OptionXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.Element, bool, str, str) -> Tuple[str, str]
+        # type: (BuildEnvironment, nodes.Element, bool, unicode, unicode) -> Tuple[unicode, unicode]
         refnode['std:program'] = env.ref_context.get('std:program')
         return title, target
 
 
 def split_term_classifiers(line):
-    # type: (str) -> List[Union[str, None]]
+    # type: (unicode) -> List[Union[unicode, None]]
     # split line into a term and classifiers. if no classifier, None is used..
     parts = re.split(' +: +', line) + [None]
     return parts
 
 
 def make_glossary_term(env, textnodes, index_key, source, lineno, new_id=None):
-    # type: (BuildEnvironment, List[nodes.Node], str, str, int, str) -> nodes.term
+    # type: (BuildEnvironment, List[nodes.Node], unicode, unicode, int, unicode) -> nodes.term
     # get a text-only representation of the term and register it
     # as a cross-reference target
     term = nodes.term('', '', *textnodes)
@@ -300,11 +300,11 @@ class Glossary(SphinxDirective):
         # be* a definition list.
 
         # first, collect single entries
-        entries = []  # type: List[Tuple[List[Tuple[str, str, int]], StringList]]
+        entries = []  # type: List[Tuple[List[Tuple[unicode, unicode, int]], StringList]]
         in_definition = True
         was_empty = True
         messages = []  # type: List[nodes.Element]
-        for line, (source, lineno) in zip(cast(List[str], self.content), self.content.items):
+        for line, (source, lineno) in zip(cast(List[unicode], self.content), self.content.items):
             # empty line -> add to last definition
             if not line:
                 if in_definition and entries:
@@ -352,7 +352,7 @@ class Glossary(SphinxDirective):
         # now, parse all the entries into a big definition list
         items = []
         for terms, definition in entries:
-            termtexts = []          # type: List[str]
+            termtexts = []          # type: List[unicode]
             termnodes = []          # type: List[nodes.Node]
             system_messages = []    # type: List[nodes.Node]
             for line, source, lineno in terms:
@@ -390,7 +390,7 @@ class Glossary(SphinxDirective):
 
 
 def token_xrefs(text):
-    # type: (str) -> List[nodes.Node]
+    # type: (unicode) -> List[nodes.Node]
     retnodes = []  # type: List[nodes.Node]
     pos = 0
     for m in token_re.finditer(text):
@@ -464,7 +464,7 @@ class StandardDomain(Domain):
         'envvar': ObjType(_('environment variable'), 'envvar'),
         'cmdoption': ObjType(_('program option'), 'option'),
         'doc': ObjType(_('document'), 'doc', searchprio=-1)
-    }  # type: Dict[str, ObjType]
+    }  # type: Dict[unicode, ObjType]
 
     directives = {
         'program': Program,
@@ -473,7 +473,7 @@ class StandardDomain(Domain):
         'envvar': EnvVar,
         'glossary': Glossary,
         'productionlist': ProductionList,
-    }  # type: Dict[str, Type[Directive]]
+    }  # type: Dict[unicode, Type[Directive]]
     roles = {
         'option':  OptionXRefRole(warn_dangling=True),
         'envvar':  EnvVarXRefRole(),
@@ -492,7 +492,7 @@ class StandardDomain(Domain):
         'keyword': XRefRole(warn_dangling=True),
         # links to documents
         'doc':     XRefRole(warn_dangling=True, innernodeclass=nodes.inline),
-    }  # type: Dict[str, Union[RoleFunction, XRefRole]]
+    }  # type: Dict[unicode, Union[RoleFunction, XRefRole]]
 
     initial_data = {
         'progoptions': {},      # (program, name) -> docname, labelid
@@ -526,7 +526,7 @@ class StandardDomain(Domain):
         nodes.figure: ('figure', None),
         nodes.table: ('table', None),
         nodes.container: ('code-block', None),
-    }  # type: Dict[Type[nodes.Node], Tuple[str, Callable]]
+    }  # type: Dict[Type[nodes.Node], Tuple[unicode, Callable]]
 
     def __init__(self, env):
         # type: (BuildEnvironment) -> None
@@ -538,7 +538,7 @@ class StandardDomain(Domain):
             self.enumerable_nodes[node] = settings
 
     def clear_doc(self, docname):
-        # type: (str) -> None
+        # type: (unicode) -> None
         for key, (fn, _l) in list(self.data['progoptions'].items()):
             if fn == docname:
                 del self.data['progoptions'][key]
@@ -561,7 +561,7 @@ class StandardDomain(Domain):
                 del self.data['anonlabels'][key]
 
     def merge_domaindata(self, docnames, otherdata):
-        # type: (List[str], Dict) -> None
+        # type: (List[unicode], Dict) -> None
         # XXX duplicates?
         for key, data in otherdata['progoptions'].items():
             if data[0] in docnames:
@@ -651,11 +651,11 @@ class StandardDomain(Domain):
             labels[name] = docname, labelid, sectname
 
     def add_object(self, objtype, name, docname, labelid):
-        # type: (str, str, str, str) -> None
+        # type: (unicode, unicode, unicode, unicode) -> None
         self.data['objects'][objtype, name] = (docname, labelid)
 
     def add_program_option(self, program, name, docname, labelid):
-        # type: (str, str, str, str) -> None
+        # type: (unicode, unicode, unicode, unicode) -> None
         self.data['progoptions'][program, name] = (docname, labelid)
 
     def check_consistency(self):
@@ -668,7 +668,7 @@ class StandardDomain(Domain):
 
     def build_reference_node(self, fromdocname, builder, docname, labelid,
                              sectname, rolename, **options):
-        # type: (str, Builder, str, str, str, str, Any) -> nodes.TextElement
+        # type: (unicode, Builder, unicode, unicode, unicode, unicode, Any) -> nodes.TextElement
         nodeclass = options.pop('nodeclass', nodes.reference)
         newnode = nodeclass('', '', internal=True, **options)  # type: nodes.TextElement
         innernode = nodes.inline(sectname, sectname)
@@ -896,7 +896,7 @@ class StandardDomain(Domain):
         return results
 
     def get_objects(self):
-        # type: () -> Iterator[Tuple[str, str, str, str, str, int]]
+        # type: () -> Iterator[Tuple[unicode, unicode, unicode, unicode, unicode, int]]
         # handle the special 'doc' reference here
         for doc in self.env.all_docs:
             yield (doc, clean_astext(self.env.titles[doc]), 'doc', doc, '', -1)
@@ -918,7 +918,7 @@ class StandardDomain(Domain):
                 yield (name, name, 'label', info[0], info[1], -1)
 
     def get_type_name(self, type, primary=False):
-        # type: (ObjType, bool) -> str
+        # type: (ObjType, bool) -> unicode
         # never prepend "Default"
         return type.lname
 
@@ -927,7 +927,7 @@ class StandardDomain(Domain):
         return node.__class__ in self.enumerable_nodes
 
     def get_numfig_title(self, node):
-        # type: (nodes.Node) -> str
+        # type: (nodes.Node) -> unicode
         """Get the title of enumerable nodes to refer them using its title"""
         if self.is_enumerable_node(node):
             _, title_getter = self.enumerable_nodes.get(node.__class__, (None, None))
@@ -941,7 +941,7 @@ class StandardDomain(Domain):
         return None
 
     def get_enumerable_node_type(self, node):
-        # type: (nodes.Element) -> str
+        # type: (nodes.Element) -> unicode
         """Get type of enumerable nodes."""
         def has_child(node, cls):
             # type: (nodes.Element, Type) -> bool
@@ -959,7 +959,7 @@ class StandardDomain(Domain):
             return figtype
 
     def get_figtype(self, node):
-        # type: (nodes.Element) -> str
+        # type: (nodes.Element) -> unicode
         """Get figure type of nodes.
 
         .. deprecated:: 1.8
@@ -970,7 +970,7 @@ class StandardDomain(Domain):
         return self.get_enumerable_node_type(node)
 
     def get_fignumber(self, env, builder, figtype, docname, target_node):
-        # type: (BuildEnvironment, Builder, str, str, nodes.Element) -> Tuple[int, ...]
+        # type: (BuildEnvironment, Builder, unicode, unicode, nodes.Element) -> Tuple[int, ...]
         if figtype == 'section':
             if builder.name == 'latex':
                 return tuple()
@@ -993,7 +993,7 @@ class StandardDomain(Domain):
                 raise ValueError
 
     def get_full_qualified_name(self, node):
-        # type: (nodes.Element) -> str
+        # type: (nodes.Element) -> unicode
         if node.get('reftype') == 'option':
             progname = node.get('std:program')
             command = ws_re.split(node.get('reftarget'))
@@ -1009,7 +1009,7 @@ class StandardDomain(Domain):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_domain(StandardDomain)
 
     return {

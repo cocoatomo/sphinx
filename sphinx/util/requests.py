@@ -108,7 +108,7 @@ def ignore_insecure_warning(**kwargs):
 
 
 def _get_tls_cacert(url, config):
-    # type: (str, Config) -> Union[str, bool]
+    # type: (unicode, Config) -> Union[unicode, bool]
     """Get additional CA cert for a specific URL.
 
     This also returns ``False`` if verification is disabled.
@@ -131,7 +131,7 @@ def _get_tls_cacert(url, config):
 
 
 def get(url, **kwargs):
-    # type: (str, Any) -> requests.Response
+    # type: (unicode, Any) -> requests.Response
     """Sends a GET request like requests.get().
 
     This sets up User-Agent header and TLS verification automatically."""
@@ -145,7 +145,7 @@ def get(url, **kwargs):
 
 
 def head(url, **kwargs):
-    # type: (str, Any) -> requests.Response
+    # type: (unicode, Any) -> requests.Response
     """Sends a HEAD request like requests.head().
 
     This sets up User-Agent header and TLS verification automatically."""

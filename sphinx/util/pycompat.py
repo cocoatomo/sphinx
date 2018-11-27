@@ -44,14 +44,14 @@ sys_encoding = sys.getdefaultencoding()
 
 # terminal_safe(): safely encode a string for printing to the terminal
 def terminal_safe(s):
-    # type: (str) -> str
+    # type: (unicode) -> unicode
     return s.encode('ascii', 'backslashreplace').decode('ascii')
 
 
 # convert_with_2to3():
 # support for running 2to3 over config files
 def convert_with_2to3(filepath):
-    # type: (str) -> str
+    # type: (unicode) -> unicode
     from lib2to3.refactor import RefactoringTool, get_fixers_from_package
     from lib2to3.pgen2.parse import ParseError
     fixers = get_fixers_from_package('lib2to3.fixes')
@@ -76,7 +76,7 @@ class UnicodeMixin:
 
 
 def execfile_(filepath, _globals, open=open):
-    # type: (str, Any, Callable) -> None
+    # type: (unicode, Any, Callable) -> None
     from sphinx.util.osutil import fs_encoding
     with open(filepath, 'rb') as f:
         source = f.read()

@@ -43,7 +43,7 @@ class AnchorCheckParser(HTMLParser):
     """Specialized HTML parser that looks for a specific anchor."""
 
     def __init__(self, search_anchor):
-        # type: (str) -> None
+        # type: (unicode) -> None
         super(AnchorCheckParser, self).__init__()
 
         self.search_anchor = search_anchor
@@ -58,7 +58,7 @@ class AnchorCheckParser(HTMLParser):
 
 
 def check_anchor(response, anchor):
-    # type: (Response, str) -> bool
+    # type: (Response, unicode) -> bool
     """Reads HTML data from a response object `response` searching for `anchor`.
     Returns True if anchor was found, False otherwise.
     """
@@ -86,9 +86,9 @@ class CheckExternalLinksBuilder(Builder):
         self.to_ignore = [re.compile(x) for x in self.app.config.linkcheck_ignore]
         self.anchors_ignore = [re.compile(x)
                                for x in self.app.config.linkcheck_anchors_ignore]
-        self.good = set()       # type: Set[str]
-        self.broken = {}        # type: Dict[str, str]
-        self.redirected = {}    # type: Dict[str, Tuple[str, int]]
+        self.good = set()       # type: Set[unicode]
+        self.broken = {}        # type: Dict[unicode, unicode]
+        self.redirected = {}    # type: Dict[unicode, Tuple[unicode, int]]
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
         # create output file
@@ -116,7 +116,7 @@ class CheckExternalLinksBuilder(Builder):
             kwargs['timeout'] = self.app.config.linkcheck_timeout
 
         def check_uri():
-            # type: () -> Tuple[str, str, int]
+            # type: () -> Tuple[unicode, unicode, int]
             # split off anchor
             if '#' in uri:
                 req_url, anchor = uri.split('#', 1)
@@ -180,7 +180,7 @@ class CheckExternalLinksBuilder(Builder):
                     return 'redirected', new_url, 0
 
         def check():
-            # type: () -> Tuple[str, str, int]
+            # type: () -> Tuple[unicode, unicode, int]
             # check for various conditions without bothering the network
             if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'ftp:')):
                 return 'unchecked', '', 0
@@ -219,7 +219,7 @@ class CheckExternalLinksBuilder(Builder):
             self.rqueue.put((uri, docname, lineno, status, info, code))
 
     def process_result(self, result):
-        # type: (Tuple[str, str, int, str, str, int]) -> None
+        # type: (Tuple[unicode, unicode, int, unicode, unicode, int]) -> None
         uri, docname, lineno, status, info, code = result
         if status == 'unchecked':
             return
@@ -257,11 +257,11 @@ class CheckExternalLinksBuilder(Builder):
             logger.info(color('redirect  ') + uri + color(' - ' + text + ' to ' + info))
 
     def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
+        # type: (unicode, unicode) -> unicode
         return ''
 
     def get_outdated_docs(self):
-        # type: () -> Set[str]
+        # type: () -> Set[unicode]
         return self.env.found_docs
 
     def prepare_writing(self, docnames):
@@ -269,7 +269,7 @@ class CheckExternalLinksBuilder(Builder):
         return
 
     def write_doc(self, docname, doctree):
-        # type: (str, nodes.Node) -> None
+        # type: (unicode, nodes.Node) -> None
         logger.info('')
         n = 0
         for node in doctree.traverse(nodes.reference):
@@ -293,7 +293,7 @@ class CheckExternalLinksBuilder(Builder):
             self.app.statuscode = 1
 
     def write_entry(self, what, docname, line, uri):
-        # type: (str, str, int, str) -> None
+        # type: (unicode, unicode, int, unicode) -> None
         with open(path.join(self.outdir, 'output.txt'), 'a', encoding='utf-8') as output:
             output.write("%s:%s: [%s] %s\n" % (self.env.doc2path(docname, None),
                                                line, what, uri))
@@ -305,7 +305,7 @@ class CheckExternalLinksBuilder(Builder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(CheckExternalLinksBuilder)
 
     app.add_config_value('linkcheck_ignore', [], None)

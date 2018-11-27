@@ -70,7 +70,7 @@ class InventoryAdapter:
 
     @property
     def cache(self):
-        # type: () -> Dict[str, Tuple[str, int, Inventory]]
+        # type: () -> Dict[unicode, Tuple[unicode, int, Inventory]]
         return self.env.intersphinx_cache  # type: ignore
 
     @property
@@ -80,7 +80,7 @@ class InventoryAdapter:
 
     @property
     def named_inventory(self):
-        # type: () -> Dict[str, Inventory]
+        # type: () -> Dict[unicode, Inventory]
         return self.env.intersphinx_named_inventory  # type: ignore
 
     def clear(self):
@@ -90,7 +90,7 @@ class InventoryAdapter:
 
 
 def _strip_basic_auth(url):
-    # type: (str) -> str
+    # type: (unicode) -> unicode
     """Returns *url* with basic auth credentials removed. Also returns the
     basic auth username and password if they're present in *url*.
 
@@ -112,7 +112,7 @@ def _strip_basic_auth(url):
 
 
 def _read_from_url(url, config=None):
-    # type: (str, Config) -> IO
+    # type: (unicode, Config) -> IO
     """Reads data from *url* with an HTTP *GET*.
 
     This function supports fetching from resources which use basic HTTP auth as
@@ -138,7 +138,7 @@ def _read_from_url(url, config=None):
 
 
 def _get_safe_url(url):
-    # type: (str) -> str
+    # type: (unicode) -> unicode
     """Gets version of *url* with basic auth passwords obscured. This function
     returns results suitable for printing and logging.
 
@@ -164,7 +164,7 @@ def _get_safe_url(url):
 
 
 def fetch_inventory(app, uri, inv):
-    # type: (Sphinx, str, Any) -> Any
+    # type: (Sphinx, unicode, Any) -> Any
     """Fetch, parse and return an intersphinx inventory file."""
     # both *uri* (base URI of the links to generate) and *inv* (actual
     # location of the inventory file) can be local or remote URIs
@@ -211,9 +211,9 @@ def load_mappings(app):
     inventories = InventoryAdapter(app.builder.env)
     update = False
     for key, value in app.config.intersphinx_mapping.items():
-        name = None  # type: str
-        uri = None   # type: str
-        inv = None   # type: Union[str, Tuple[str, ...]]
+        name = None  # type: unicode
+        uri = None   # type: unicode
+        inv = None   # type: Union[unicode, Tuple[unicode, ...]]
 
         if isinstance(value, (list, tuple)):
             # new format
@@ -291,7 +291,7 @@ def missing_reference(app, env, node, contnode):
     """Attempt to resolve a missing reference via intersphinx references."""
     target = node['reftarget']
     inventories = InventoryAdapter(env)
-    objtypes = None  # type: List[str]
+    objtypes = None  # type: List[unicode]
     if node['reftype'] == 'any':
         # we search anything!
         objtypes = ['%s:%s' % (domain.name, objtype)
@@ -363,7 +363,7 @@ def missing_reference(app, env, node, contnode):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_config_value('intersphinx_mapping', {}, True)
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.add_config_value('intersphinx_timeout', None, False)
@@ -377,7 +377,7 @@ def setup(app):
 
 
 def inspect_main(argv):
-    # type: (List[str]) -> None
+    # type: (List[unicode]) -> None
     """Debug functionality to print out an inventory"""
     if len(argv) < 1:
         print("Print out an inventory file.\n"
@@ -394,7 +394,7 @@ def inspect_main(argv):
         config = MockConfig()
 
         def warn(self, msg):
-            # type: (str) -> None
+            # type: (unicode) -> None
             print(msg, file=sys.stderr)
 
     try:

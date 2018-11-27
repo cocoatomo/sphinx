@@ -80,7 +80,7 @@ class Builder:
 
     #: The list of MIME types of image formats supported by the builder.
     #: Image files are searched in the order in which they appear here.
-    supported_image_types = []  # type: List[str]
+    supported_image_types = []  # type: List[unicode]
     #: The builder supports remote images or not.
     supported_remote_images = False
     #: The builder supports data URIs or not.
@@ -104,7 +104,7 @@ class Builder:
         self.tags.add("builder_%s" % self.name)
 
         # images that need to be copied over (source -> dest)
-        self.images = {}  # type: Dict[str, str]
+        self.images = {}  # type: Dict[unicode, unicode]
         # basename of images directory
         self.imagedir = ""
         # relative path to image directory from current docname (used at writing docs)
@@ -154,7 +154,7 @@ class Builder:
             self.templates = BuiltinTemplateLoader()
 
     def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
+        # type: (unicode, unicode) -> unicode
         """Return the target URI for a document name.
 
         *typ* can be used to qualify the link characteristic for individual
@@ -163,7 +163,7 @@ class Builder:
         raise NotImplementedError
 
     def get_relative_uri(self, from_, to, typ=None):
-        # type: (str, str, str) -> str
+        # type: (unicode, unicode, unicode) -> unicode
         """Return a relative URI between two source filenames.
 
         May raise environment.NoUri if there's no way to return a sensible URI.
@@ -172,7 +172,7 @@ class Builder:
                             self.get_target_uri(to, typ))
 
     def get_outdated_docs(self):
-        # type: () -> Union[str, Iterable[str]]
+        # type: () -> Union[unicode, Iterable[unicode]]
         """Return an iterable of output files that are outdated, or a string
         describing what an update build will build.
 
@@ -183,7 +183,7 @@ class Builder:
         raise NotImplementedError
 
     def get_asset_paths(self):
-        # type: () -> List[str]
+        # type: () -> List[unicode]
         """Return list of paths for assets (ex. templates, CSS, etc.)."""
         return []
 
@@ -222,12 +222,12 @@ class Builder:
     # compile po methods
 
     def compile_catalogs(self, catalogs, message):
-        # type: (Set[CatalogInfo], str) -> None
+        # type: (Set[CatalogInfo], unicode) -> None
         if not self.config.gettext_auto_build:
             return
 
         def cat2relpath(cat):
-            # type: (CatalogInfo) -> str
+            # type: (CatalogInfo) -> unicode
             return relpath(cat.mo_path, self.env.srcdir).replace(path.sep, SEP)
 
         logger.info(bold(__('building [mo]: ')) + message)
@@ -248,9 +248,9 @@ class Builder:
         self.compile_catalogs(catalogs, message)
 
     def compile_specific_catalogs(self, specified_files):
-        # type: (List[str]) -> None
+        # type: (List[unicode]) -> None
         def to_domain(fpath):
-            # type: (str) -> str
+            # type: (unicode) -> unicode
             docname = self.env.path2doc(path.abspath(fpath))
             if docname:
                 return find_catalog(docname, self.config.gettext_compact)
@@ -286,13 +286,13 @@ class Builder:
         self.build(None, summary=__('all source files'), method='all')
 
     def build_specific(self, filenames):
-        # type: (List[str]) -> None
+        # type: (List[unicode]) -> None
         """Only rebuild as much as needed for changes in the *filenames*."""
         # bring the filenames to the canonical format, that is,
         # relative to the source directory and without source_suffix.
         dirlen = len(self.srcdir) + 1
         to_write = []
-        suffixes = None  # type: Tuple[str]
+        suffixes = None  # type: Tuple[unicode]
         suffixes = tuple(self.config.source_suffix)  # type: ignore
         for filename in filenames:
             filename = path.normpath(path.abspath(filename))
@@ -328,7 +328,7 @@ class Builder:
                        len(to_build))
 
     def build(self, docnames, summary=None, method='update'):
-        # type: (Iterable[str], str, str) -> None
+        # type: (Iterable[unicode], unicode, unicode) -> None
         """Main build method.
 
         First updates the environment, and then calls :meth:`write`.
@@ -399,7 +399,7 @@ class Builder:
         self.finish_tasks.join()
 
     def read(self):
-        # type: () -> List[str]
+        # type: () -> List[unicode]
         """(Re-)read all files new or changed since last update.
 
         Store all environment docnames in the canonical format (ie using SEP as
@@ -462,7 +462,7 @@ class Builder:
         return sorted(docnames)
 
     def _read_serial(self, docnames):
-        # type: (List[str]) -> None
+        # type: (List[unicode]) -> None
         for docname in status_iterator(docnames, 'reading sources... ', "purple",
                                        len(docnames), self.app.verbosity):
             # remove all inventory entries for that file
@@ -471,14 +471,14 @@ class Builder:
             self.read_doc(docname)
 
     def _read_parallel(self, docnames, nproc):
-        # type: (List[str], int) -> None
+        # type: (List[unicode], int) -> None
         # clear all outdated docs at once
         for docname in docnames:
             self.app.emit('env-purge-doc', self.env, docname)
             self.env.clear_doc(docname)
 
         def read_process(docs):
-            # type: (List[str]) -> bytes
+            # type: (List[unicode]) -> bytes
             self.env.app = self.app
             for docname in docs:
                 self.read_doc(docname)
@@ -486,7 +486,7 @@ class Builder:
             return pickle.dumps(self.env, pickle.HIGHEST_PROTOCOL)
 
         def merge(docs, otherenv):
-            # type: (List[str], bytes) -> None
+            # type: (List[unicode], bytes) -> None
             env = pickle.loads(otherenv)
             self.env.merge_info_from(docs, env, self.app)
 
@@ -502,7 +502,7 @@ class Builder:
         tasks.join()
 
     def read_doc(self, docname):
-        # type: (str) -> None
+        # type: (unicode) -> None
         """Parse a file and add/update inventory entries for the doctree."""
         self.env.prepare_settings(docname)
 
@@ -528,7 +528,7 @@ class Builder:
         self.write_doctree(docname, doctree)
 
     def write_doctree(self, docname, doctree):
-        # type: (str, nodes.Node) -> None
+        # type: (unicode, nodes.Node) -> None
         """Write the doctree to a file."""
         # make it picklable
         doctree.reporter = None
@@ -543,7 +543,7 @@ class Builder:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
 
     def write(self, build_docnames, updated_docnames, method='update'):
-        # type: (Iterable[str], Sequence[str], str) -> None
+        # type: (Iterable[unicode], Sequence[unicode], unicode) -> None
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
             build_docnames = self.env.found_docs
@@ -574,7 +574,7 @@ class Builder:
             self._write_serial(sorted(docnames))
 
     def _write_serial(self, docnames):
-        # type: (Sequence[str]) -> None
+        # type: (Sequence[unicode]) -> None
         with logging.pending_warnings():
             for docname in status_iterator(docnames, __('writing output... '), "darkgreen",
                                            len(docnames), self.app.verbosity):
@@ -585,9 +585,9 @@ class Builder:
                 self.write_doc(docname, doctree)
 
     def _write_parallel(self, docnames, nproc):
-        # type: (Sequence[str], int) -> None
+        # type: (Sequence[unicode], int) -> None
         def write_process(docs):
-            # type: (List[Tuple[str, nodes.Node]]) -> None
+            # type: (List[Tuple[unicode, nodes.Node]]) -> None
             self.app.phase = BuildPhase.WRITING
             for docname, doctree in docs:
                 self.write_doc(docname, doctree)
@@ -618,17 +618,17 @@ class Builder:
         tasks.join()
 
     def prepare_writing(self, docnames):
-        # type: (Set[str]) -> None
+        # type: (Set[unicode]) -> None
         """A place where you can add logic before :meth:`write_doc` is run"""
         raise NotImplementedError
 
     def write_doc(self, docname, doctree):
-        # type: (str, nodes.Node) -> None
+        # type: (unicode, nodes.Node) -> None
         """Where you actually write something to the filesystem."""
         raise NotImplementedError
 
     def write_doc_serialized(self, docname, doctree):
-        # type: (str, nodes.Node) -> None
+        # type: (unicode, nodes.Node) -> None
         """Handle parts of write_doc that must be called in the main process
         if parallel build is active.
         """
@@ -651,7 +651,7 @@ class Builder:
         pass
 
     def get_builder_config(self, option, default):
-        # type: (str, str) -> Any
+        # type: (unicode, unicode) -> Any
         """Return a builder specific option.
 
         This method allows customization of common builder settings by

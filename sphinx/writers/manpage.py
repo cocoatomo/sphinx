@@ -116,7 +116,7 @@ class ManualPageTranslator(BaseTranslator):
 
     # overwritten -- added quotes around all .TH arguments
     def header(self):
-        # type: () -> str
+        # type: () -> unicode
         tmpl = (".TH \"%(title_upper)s\" \"%(manual_section)s\""
                 " \"%(date)s\" \"%(version)s\" \"%(manual_group)s\"\n"
                 ".SH NAME\n"

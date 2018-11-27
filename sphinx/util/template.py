@@ -33,23 +33,23 @@ class BaseRenderer:
         self.env.install_gettext_translations(get_translator())  # type: ignore
 
     def render(self, template_name, context):
-        # type: (str, Dict) -> str
+        # type: (unicode, Dict) -> unicode
         return self.env.get_template(template_name).render(context)
 
     def render_string(self, source, context):
-        # type: (str, Dict) -> str
+        # type: (unicode, Dict) -> unicode
         return self.env.from_string(source).render(context)
 
 
 class FileRenderer(BaseRenderer):
     def __init__(self, search_path):
-        # type: (str) -> None
+        # type: (unicode) -> None
         loader = SphinxFileSystemLoader(search_path)
         super(FileRenderer, self).__init__(loader)
 
     @classmethod
     def render_from_file(cls, filename, context):
-        # type: (str, Dict) -> str
+        # type: (unicode, Dict) -> unicode
         dirname = os.path.dirname(filename)
         basename = os.path.basename(filename)
         return cls(dirname).render(basename, context)
@@ -57,14 +57,14 @@ class FileRenderer(BaseRenderer):
 
 class SphinxRenderer(FileRenderer):
     def __init__(self, template_path=None):
-        # type: (str) -> None
+        # type: (unicode) -> None
         if template_path is None:
             template_path = os.path.join(package_dir, 'templates')
         super(SphinxRenderer, self).__init__(template_path)
 
     @classmethod
     def render_from_file(cls, filename, context):
-        # type: (str, Dict) -> str
+        # type: (unicode, Dict) -> unicode
         return FileRenderer.render_from_file(filename, context)
 
 

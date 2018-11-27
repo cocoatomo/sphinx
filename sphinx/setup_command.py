@@ -97,14 +97,14 @@ class BuildDoc(Command):
         # type: () -> None
         self.fresh_env = self.all_files = False
         self.pdb = False
-        self.source_dir = self.build_dir = None  # type: str
+        self.source_dir = self.build_dir = None  # type: unicode
         self.builder = 'html'
         self.warning_is_error = False
         self.project = ''
         self.version = ''
         self.release = ''
         self.today = ''
-        self.config_dir = None  # type: str
+        self.config_dir = None  # type: unicode
         self.link_index = False
         self.copyright = ''
         self.verbosity = 0
@@ -112,7 +112,7 @@ class BuildDoc(Command):
         self.nitpicky = False
 
     def _guess_source_dir(self):
-        # type: () -> str
+        # type: () -> unicode
         for guess in ('doc', 'docs'):
             if not os.path.isdir(guess):
                 continue
@@ -125,7 +125,7 @@ class BuildDoc(Command):
     # unicode, causing finalize_options to fail if invoked again. Workaround
     # for https://bugs.python.org/issue19570
     def _ensure_stringlike(self, option, what, default=None):
-        # type: (str, str, Any) -> Any
+        # type: (unicode, unicode, Any) -> Any
         val = getattr(self, option)
         if val is None:
             setattr(self, option, default)
@@ -156,7 +156,7 @@ class BuildDoc(Command):
 
         self.builder_target_dirs = [
             (builder, os.path.join(self.build_dir, builder))
-            for builder in self.builder]  # type: List[Tuple[str, str]]
+            for builder in self.builder]  # type: List[Tuple[str, unicode]]
 
     def run(self):
         # type: () -> None
@@ -166,7 +166,7 @@ class BuildDoc(Command):
             status_stream = StringIO()
         else:
             status_stream = sys.stdout  # type: ignore
-        confoverrides = {}  # type: Dict[str, Any]
+        confoverrides = {}  # type: Dict[unicode, Any]
         if self.project:
             confoverrides['project'] = self.project
         if self.version:

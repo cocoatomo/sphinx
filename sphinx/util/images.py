@@ -43,7 +43,7 @@ mime_suffixes = OrderedDict([
     ('.pdf', 'application/pdf'),
     ('.svg', 'image/svg+xml'),
     ('.svgz', 'image/svg+xml'),
-])
+])  # type: Dict[unicode, unicode]
 
 DataURI = NamedTuple('DataURI', [('mimetype', text_type),
                                  ('charset', text_type),
@@ -51,7 +51,7 @@ DataURI = NamedTuple('DataURI', [('mimetype', text_type),
 
 
 def get_image_size(filename):
-    # type: (str) -> Tuple[int, int]
+    # type: (unicode) -> Tuple[int, int]
     try:
         size = imagesize.get(filename)
         if size[0] == -1:
@@ -71,7 +71,7 @@ def get_image_size(filename):
 
 
 def guess_mimetype_for_stream(stream, default=None):
-    # type: (IO, str) -> str
+    # type: (IO, unicode) -> unicode
     imgtype = imghdr.what(stream)  # type: ignore
     if imgtype:
         return 'image/' + imgtype
@@ -80,7 +80,7 @@ def guess_mimetype_for_stream(stream, default=None):
 
 
 def guess_mimetype(filename='', content=None, default=None):
-    # type: (str, bytes, str) -> str
+    # type: (unicode, bytes, unicode) -> unicode
     _, ext = path.splitext(filename.lower())
     if ext in mime_suffixes:
         return mime_suffixes[ext]
@@ -96,7 +96,7 @@ def guess_mimetype(filename='', content=None, default=None):
 
 
 def get_image_extension(mimetype):
-    # type: (str) -> str
+    # type: (unicode) -> unicode
     for ext, _mimetype in mime_suffixes.items():
         if mimetype == _mimetype:
             return ext
@@ -105,7 +105,7 @@ def get_image_extension(mimetype):
 
 
 def parse_data_uri(uri):
-    # type: (str) -> DataURI
+    # type: (unicode) -> DataURI
     if not uri.startswith('data:'):
         return None
 
@@ -127,7 +127,7 @@ def parse_data_uri(uri):
 
 
 def test_svg(h, f):
-    # type: (bytes, IO) -> str
+    # type: (bytes, IO) -> unicode
     """An additional imghdr library helper; test the header is SVG's or not."""
     try:
         if '<svg' in h.decode('utf-8').lower():

@@ -60,22 +60,22 @@ class TexinfoBuilder(Builder):
 
     def init(self):
         # type: () -> None
-        self.docnames = []       # type: Iterable[str]
-        self.document_data = []  # type: List[Tuple[str, str, str, str, str, str, str, bool]]  # NOQA
+        self.docnames = []       # type: Iterable[unicode]
+        self.document_data = []  # type: List[Tuple[unicode, unicode, unicode, unicode, unicode, unicode, unicode, bool]]  # NOQA
 
     def get_outdated_docs(self):
-        # type: () -> Union[str, List[str]]
+        # type: () -> Union[unicode, List[unicode]]
         return 'all documents'  # for now
 
     def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
+        # type: (unicode, unicode) -> unicode
         if docname not in self.docnames:
             raise NoUri
         else:
             return '%' + docname
 
     def get_relative_uri(self, from_, to, typ=None):
-        # type: (str, str, str) -> str
+        # type: (unicode, unicode, unicode) -> unicode
         # ignore source path
         return self.get_target_uri(to, typ)
 
@@ -87,7 +87,7 @@ class TexinfoBuilder(Builder):
                               'will be written'))
             return
         # assign subdirs to titles
-        self.titles = []  # type: List[Tuple[str, str]]
+        self.titles = []  # type: List[Tuple[unicode, unicode]]
         for entry in preliminary_document_data:
             docname = entry[0]
             if docname not in self.env.all_docs:
@@ -138,7 +138,7 @@ class TexinfoBuilder(Builder):
             logger.info(__("done"))
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
-        # type: (str, bool, List[str]) -> nodes.Node
+        # type: (unicode, bool, List[unicode]) -> nodes.Node
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=1)
         tree = self.env.get_doctree(indexfile)
@@ -211,7 +211,7 @@ class TexinfoBuilder(Builder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(TexinfoBuilder)
 
     app.add_config_value('texinfo_documents',

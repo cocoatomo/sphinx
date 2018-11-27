@@ -29,6 +29,6 @@ def create_nojekyll(app, env):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.connect('env-updated', create_nojekyll)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

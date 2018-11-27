@@ -23,14 +23,14 @@ if TYPE_CHECKING:
     from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
-EXCLUDE_PATHS = ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
+EXCLUDE_PATHS = ['**/_sources', '.#*', '**/.#*', '*.lproj/**']  # type: List[unicode]
 
 
 class Project(object):
     """A project is source code set of Sphinx document."""
 
     def __init__(self, srcdir, source_suffix):
-        # type: (str, Dict[str, str]) -> None
+        # type: (unicode, Dict[unicode, unicode]) -> None
         #: Source directory.
         self.srcdir = srcdir
 
@@ -38,7 +38,7 @@ class Project(object):
         self.source_suffix = source_suffix
 
         #: The name of documents belongs to this project.
-        self.docnames = set()  # type: Set[str]
+        self.docnames = set()  # type: Set[unicode]
 
     def restore(self, other):
         # type: (Project) -> None
@@ -46,7 +46,7 @@ class Project(object):
         self.docnames = other.docnames
 
     def discover(self, exclude_paths=[]):
-        # type: (List[str]) -> Set[str]
+        # type: (List[unicode]) -> Set[unicode]
         """Find all document files in the source directory and put them in
         :attr:`docnames`.
         """
@@ -63,7 +63,7 @@ class Project(object):
         return self.docnames
 
     def path2doc(self, filename):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         """Return the docname for the filename if the file is document.
 
         *filename* should be absolute or relative to the source directory.
@@ -78,7 +78,7 @@ class Project(object):
         return None
 
     def doc2path(self, docname, basedir=True):
-        # type: (str, bool) -> str
+        # type: (unicode, bool) -> unicode
         """Return the filename for the document name.
 
         If *basedir* is True, return as an absolute path.

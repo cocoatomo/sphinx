@@ -55,7 +55,7 @@ class Field:
 
     def __init__(self, name, names=(), label=None, has_arg=True, rolename=None,
                  bodyrolename=None):
-        # type: (str, Tuple[str, ...], str, bool, str, str) -> None
+        # type: (unicode, Tuple[unicode, ...], unicode, bool, unicode, unicode) -> None
         self.name = name
         self.names = names
         self.label = label
@@ -64,9 +64,9 @@ class Field:
         self.bodyrolename = bodyrolename
 
     def make_xref(self,
-                  rolename,       # type: str
-                  domain,         # type: str
-                  target,         # type: str
+                  rolename,       # type: unicode
+                  domain,         # type: unicode
+                  target,         # type: unicode
                   innernode=addnodes.literal_emphasis,  # type: Type[nodes.Node]
                   contnode=None,  # type: nodes.Node
                   env=None,       # type: BuildEnvironment
@@ -82,9 +82,9 @@ class Field:
         return refnode
 
     def make_xrefs(self,
-                   rolename,       # type: str
-                   domain,         # type: str
-                   target,         # type: str
+                   rolename,       # type: unicode
+                   domain,         # type: unicode
+                   target,         # type: unicode
                    innernode=addnodes.literal_emphasis,  # type: Type[nodes.Node]
                    contnode=None,  # type: nodes.Node
                    env=None,       # type: BuildEnvironment
@@ -93,12 +93,12 @@ class Field:
         return [self.make_xref(rolename, domain, target, innernode, contnode, env)]
 
     def make_entry(self, fieldarg, content):
-        # type: (List, str) -> Tuple[List, str]
+        # type: (List, unicode) -> Tuple[List, unicode]
         return (fieldarg, content)
 
     def make_field(self,
-                   types,     # type: Dict[str, List[nodes.Node]]
-                   domain,    # type: str
+                   types,     # type: Dict[unicode, List[nodes.Node]]
+                   domain,    # type: unicode
                    item,      # type: Tuple
                    env=None,  # type: BuildEnvironment
                    ):
@@ -138,13 +138,13 @@ class GroupedField(Field):
 
     def __init__(self, name, names=(), label=None, rolename=None,
                  can_collapse=False):
-        # type: (str, Tuple[str, ...], str, str, bool) -> None
+        # type: (unicode, Tuple[unicode, ...], unicode, unicode, bool) -> None
         super(GroupedField, self).__init__(name, names, label, True, rolename)
         self.can_collapse = can_collapse
 
     def make_field(self,
-                   types,     # type: Dict[str, List[nodes.Node]]
-                   domain,    # type: str
+                   types,     # type: Dict[unicode, List[nodes.Node]]
+                   domain,    # type: unicode
                    items,     # type: Tuple
                    env=None,  # type: BuildEnvironment
                    ):
@@ -190,20 +190,20 @@ class TypedField(GroupedField):
 
     def __init__(self, name, names=(), typenames=(), label=None,
                  rolename=None, typerolename=None, can_collapse=False):
-        # type: (str, Tuple[str, ...], Tuple[str, ...], str, str, str, bool) -> None  # NOQA
+        # type: (unicode, Tuple[unicode, ...], Tuple[unicode, ...], unicode, unicode, unicode, bool) -> None  # NOQA
         super(TypedField, self).__init__(name, names, label, rolename, can_collapse)
         self.typenames = typenames
         self.typerolename = typerolename
 
     def make_field(self,
-                   types,     # type: Dict[str, List[nodes.Node]]
-                   domain,    # type: str
+                   types,     # type: Dict[unicode, List[nodes.Node]]
+                   domain,    # type: unicode
                    items,     # type: Tuple
                    env=None,  # type: BuildEnvironment
                    ):
         # type: (...) -> nodes.field
         def handle_item(fieldarg, content):
-            # type: (str, str) -> nodes.paragraph
+            # type: (unicode, unicode) -> nodes.paragraph
             par = nodes.paragraph()
             par.extend(self.make_xrefs(self.rolename, domain, fieldarg,
                                        addnodes.literal_strong, env=env))
@@ -251,7 +251,7 @@ class DocFieldTransformer:
         self.typemap = directive._doc_field_type_map
 
     def preprocess_fieldtypes(self, types):
-        # type: (List) -> Dict[str, Tuple[Any, bool]]
+        # type: (List) -> Dict[unicode, Tuple[Any, bool]]
         typemap = {}
         for fieldtype in types:
             for name in fieldtype.names:
@@ -275,8 +275,8 @@ class DocFieldTransformer:
         typemap = self.typemap
 
         entries = []
-        groupindices = {}  # type: Dict[str, int]
-        types = {}  # type: Dict[str, Dict]
+        groupindices = {}  # type: Dict[unicode, int]
+        types = {}  # type: Dict[unicode, Dict]
 
         # step 1: traverse all fields and collect field types and content
         for field in node:

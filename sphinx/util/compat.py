@@ -71,7 +71,7 @@ class IndexEntriesMigrator(SphinxTransform):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_transform(IndexEntriesMigrator)
     app.connect('config-inited', deprecate_source_parsers)
     app.connect('builder-inited', register_application_for_autosummary)

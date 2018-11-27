@@ -34,7 +34,7 @@ versionlabels = {
     'versionadded':   _('New in version %s'),
     'versionchanged': _('Changed in version %s'),
     'deprecated':     _('Deprecated since version %s'),
-}  # type: Dict[str, str]
+}  # type: Dict[unicode, unicode]
 
 locale.versionlabels = DeprecatedDict(
     versionlabels,
@@ -111,14 +111,14 @@ class ChangeSetDomain(Domain):
     }  # type: Dict
 
     def clear_doc(self, docname):
-        # type: (str) -> None
+        # type: (unicode) -> None
         for version, changes in self.data['changes'].items():
             for changeset in changes[:]:
                 if changeset.docname == docname:
                     changes.remove(changeset)
 
     def merge_domaindata(self, docnames, otherdata):
-        # type: (List[str], Dict) -> None
+        # type: (List[unicode], Dict) -> None
         # XXX duplicates?
         for version, otherchanges in otherdata['changes'].items():
             changes = self.data['changes'].setdefault(version, [])
@@ -135,17 +135,17 @@ class ChangeSetDomain(Domain):
         version = node['version']
         module = self.env.ref_context.get('py:module')
         objname = self.env.temp_data.get('object')
-        changeset = ChangeSet(node['type'], self.env.docname, node.line,  # type: ignore
+        changeset = ChangeSet(node['type'], self.env.docname, node.line,
                               module, objname, node.astext())
         self.data['changes'].setdefault(version, []).append(changeset)
 
     def get_changesets_for(self, version):
-        # type: (str) -> List[ChangeSet]
+        # type: (unicode) -> List[ChangeSet]
         return self.data['changes'].get(version, [])
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_domain(ChangeSetDomain)
     app.add_directive('deprecated', VersionChange)
     app.add_directive('versionadded', VersionChange)

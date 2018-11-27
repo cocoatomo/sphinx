@@ -94,7 +94,7 @@ class SphinxTransformer(Transformer):
             try:
                 document = new_document('')
                 if self.env:
-                    document.settings.env = self.env  # type: ignore
+                    document.settings.env = self.env
                 document += self.document
                 self.document = document
                 Transformer.apply_transforms(self)
@@ -381,7 +381,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
 
     @property
     def smartquotes_action(self):
-        # type: () -> str
+        # type: () -> unicode
         """A smartquotes_action setting for SmartQuotes.
 
         Users can change this setting through :confval:`smartquotes_action`.
@@ -389,7 +389,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         return self.config.smartquotes_action
 
     def get_tokens(self, txtnodes):
-        # type: (List[nodes.Element]) -> Iterator[Tuple[str, str]]
+        # type: (List[nodes.Element]) -> Generator[Tuple[unicode, unicode], None, None]
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
 

@@ -28,18 +28,18 @@ if False:
 
 class ModuleAnalyzer:
     # cache for analyzer objects -- caches both by module and file name
-    cache = {}  # type: Dict[Tuple[str, str], Any]
+    cache = {}  # type: Dict[Tuple[unicode, unicode], Any]
 
     @classmethod
     def for_string(cls, string, modname, srcname='<string>'):
-        # type: (str, str, str) -> ModuleAnalyzer
+        # type: (unicode, unicode, unicode) -> ModuleAnalyzer
         if isinstance(string, bytes):
             return cls(BytesIO(string), modname, srcname)
         return cls(StringIO(string), modname, srcname, decoded=True)
 
     @classmethod
     def for_file(cls, filename, modname):
-        # type: (str, str) -> ModuleAnalyzer
+        # type: (unicode, unicode) -> ModuleAnalyzer
         if ('file', filename) in cls.cache:
             return cls.cache['file', filename]
         try:
@@ -55,7 +55,7 @@ class ModuleAnalyzer:
 
     @classmethod
     def for_egg(cls, filename, modname):
-        # type: (str, str) -> ModuleAnalyzer
+        # type: (unicode, unicode) -> ModuleAnalyzer
         eggpath, relpath = re.split('(?<=\\.egg)/', filename)
         try:
             with ZipFile(eggpath) as egg:
@@ -86,7 +86,7 @@ class ModuleAnalyzer:
         return obj
 
     def __init__(self, source, modname, srcname, decoded=False):
-        # type: (IO, str, str, bool) -> None
+        # type: (IO, unicode, unicode, bool) -> None
         self.modname = modname  # name of the module
         self.srcname = srcname  # name of the source file
 
@@ -101,9 +101,9 @@ class ModuleAnalyzer:
             self.code = source.read()
 
         # will be filled by parse()
-        self.attr_docs = None   # type: Dict[Tuple[str, str], List[str]]
-        self.tagorder = None    # type: Dict[str, int]
-        self.tags = None        # type: Dict[str, Tuple[str, int, int]]
+        self.attr_docs = None   # type: Dict[Tuple[unicode, unicode], List[unicode]]
+        self.tagorder = None    # type: Dict[unicode, int]
+        self.tags = None        # type: Dict[unicode, Tuple[unicode, int, int]]
 
     def parse(self):
         # type: () -> None
@@ -125,7 +125,7 @@ class ModuleAnalyzer:
             raise PycodeError('parsing %r failed: %r' % (self.srcname, exc))
 
     def find_attr_docs(self):
-        # type: () -> Dict[Tuple[str, str], List[str]]
+        # type: () -> Dict[Tuple[unicode, unicode], List[unicode]]
         """Find class and module-level attributes and their documentation."""
         if self.attr_docs is None:
             self.parse()
@@ -133,7 +133,7 @@ class ModuleAnalyzer:
         return self.attr_docs
 
     def find_tags(self):
-        # type: () -> Dict[str, Tuple[str, int, int]]
+        # type: () -> Dict[unicode, Tuple[unicode, int, int]]
         """Find class, function and method definitions and their location."""
         if self.tags is None:
             self.parse()

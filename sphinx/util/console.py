@@ -89,7 +89,7 @@ def coloron():
 
 
 def colorize(name, text, input_mode=False):
-    # type: (str, str, bool) -> str
+    # type: (str, unicode, bool) -> unicode
     def escseq(name):
         # Wrap escape sequence with ``\1`` and ``\2`` to let readline know
         # it is non-printable characters
@@ -113,7 +113,7 @@ def strip_colors(s):
 def create_color_func(name):
     # type: (str) -> None
     def inner(text):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         return colorize(name, text)
     globals()[name] = inner
 

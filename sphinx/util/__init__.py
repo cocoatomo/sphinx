@@ -64,13 +64,13 @@ url_re = re.compile(r'(?P<schema>.+)://.*')     # type: Pattern
 # High-level utility functions.
 
 def docname_join(basedocname, docname):
-    # type: (str, str) -> str
+    # type: (unicode, unicode) -> unicode
     return posixpath.normpath(
         posixpath.join('/' + basedocname, '..', docname))[1:]
 
 
 def path_stabilize(filepath):
-    # type: (str) -> str
+    # type: (unicode) -> unicode
     "normalize path separater and unicode string"
     newpath = filepath.replace(os.path.sep, SEP)
     if isinstance(newpath, text_type):
@@ -79,7 +79,7 @@ def path_stabilize(filepath):
 
 
 def get_matching_files(dirname, exclude_matchers=()):
-    # type: (str, Tuple[Callable[[str], bool], ...]) -> Iterable[str]
+    # type: (unicode, Tuple[Callable[[unicode], bool], ...]) -> Iterable[unicode]
     """Get all file names in a directory, recursively.
 
     Exclude files and dirs matching some matcher in *exclude_matchers*.
@@ -92,9 +92,9 @@ def get_matching_files(dirname, exclude_matchers=()):
         relativeroot = root[dirlen:]
 
         qdirs = enumerate(path_stabilize(path.join(relativeroot, dn))
-                          for dn in dirs)  # type: Iterable[Tuple[int, str]]
+                          for dn in dirs)  # type: Iterable[Tuple[int, unicode]]
         qfiles = enumerate(path_stabilize(path.join(relativeroot, fn))
-                           for fn in files)  # type: Iterable[Tuple[int, str]]
+                           for fn in files)  # type: Iterable[Tuple[int, unicode]]
         for matcher in exclude_matchers:
             qdirs = [entry for entry in qdirs if not matcher(entry[1])]
             qfiles = [entry for entry in qfiles if not matcher(entry[1])]
@@ -106,7 +106,7 @@ def get_matching_files(dirname, exclude_matchers=()):
 
 
 def get_matching_docs(dirname, suffixes, exclude_matchers=()):
-    # type: (str, List[str], Tuple[Callable[[str], bool], ...]) -> Iterable[str]
+    # type: (unicode, List[unicode], Tuple[Callable[[unicode], bool], ...]) -> Iterable[unicode]  # NOQA
     """Get all file names (without suffixes) matching a suffix in a directory,
     recursively.
 
@@ -130,10 +130,10 @@ class FilenameUniqDict(dict):
     """
     def __init__(self):
         # type: () -> None
-        self._existing = set()  # type: Set[str]
+        self._existing = set()  # type: Set[unicode]
 
     def add_file(self, docname, newfile):
-        # type: (str, str) -> str
+        # type: (unicode, unicode) -> unicode
         if newfile in self:
             self[newfile][0].add(docname)
             return self[newfile][1]
@@ -148,7 +148,7 @@ class FilenameUniqDict(dict):
         return uniquename
 
     def purge_doc(self, docname):
-        # type: (str) -> None
+        # type: (unicode) -> None
         for filename, (docs, unique) in list(self.items()):
             docs.discard(docname)
             if not docs:
@@ -156,17 +156,17 @@ class FilenameUniqDict(dict):
                 self._existing.discard(unique)
 
     def merge_other(self, docnames, other):
-        # type: (Set[str], Dict[str, Tuple[Set[str], Any]]) -> None
+        # type: (Set[unicode], Dict[unicode, Tuple[Set[unicode], Any]]) -> None
         for filename, (docs, unique) in other.items():
             for doc in docs & set(docnames):
                 self.add_file(doc, filename)
 
     def __getstate__(self):
-        # type: () -> Set[str]
+        # type: () -> Set[unicode]
         return self._existing
 
     def __setstate__(self, state):
-        # type: (Set[str]) -> None
+        # type: (Set[unicode]) -> None
         self._existing = state
 
 
@@ -178,7 +178,7 @@ class DownloadFiles(dict):
     """
 
     def add_file(self, docname, filename):
-        # type: (str, str) -> None
+        # type: (unicode, unicode) -> None
         if filename not in self:
             digest = md5(filename.encode('utf-8')).hexdigest()
             dest = '%s/%s' % (digest, os.path.basename(filename))
@@ -188,14 +188,14 @@ class DownloadFiles(dict):
         return self[filename][1]
 
     def purge_doc(self, docname):
-        # type: (str) -> None
+        # type: (unicode) -> None
         for filename, (docs, dest) in list(self.items()):
             docs.discard(docname)
             if not docs:
                 del self[filename]
 
     def merge_other(self, docnames, other):
-        # type: (Set[str], Dict[str, Tuple[Set[str], Any]]) -> None
+        # type: (Set[unicode], Dict[unicode, Tuple[Set[unicode], Any]]) -> None
         for filename, (docs, dest) in other.items():
             for docname in docs & set(docnames):
                 self.add_file(docname, filename)
@@ -203,7 +203,7 @@ class DownloadFiles(dict):
 
 def copy_static_entry(source, targetdir, builder, context={},
                       exclude_matchers=(), level=0):
-    # type: (str, str, Any, Dict, Tuple[Callable, ...], int) -> None
+    # type: (unicode, unicode, Any, Dict, Tuple[Callable, ...], int) -> None
     """[DEPRECATED] Copy a HTML builder static_path entry from source to targetdir.
 
     Handles all possible cases of files, directories and subdirectories.
@@ -243,7 +243,7 @@ _DEBUG_HEADER = '''\
 
 
 def save_traceback(app):
-    # type: (Any) -> str
+    # type: (Any) -> unicode
     """Save the current exception's traceback in a temporary file."""
     import sphinx
     import jinja2
@@ -281,7 +281,7 @@ def save_traceback(app):
 
 
 def get_module_source(modname):
-    # type: (str) -> Tuple[str, str]
+    # type: (str) -> Tuple[unicode, unicode]
     """Try to find the source code for a module.
 
     Can return ('file', 'filename') in which case the source is in the given
@@ -329,7 +329,7 @@ def get_module_source(modname):
 
 
 def get_full_modname(modname, attribute):
-    # type: (str, str) -> str
+    # type: (str, unicode) -> unicode
     if modname is None:
         # Prevents a TypeError: if the last getattr() call will return None
         # then it's better to return it directly
@@ -352,11 +352,11 @@ _coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 
 
 def detect_encoding(readline):
-    # type: (Callable) -> str
+    # type: (Callable) -> unicode
     """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
 
     def read_or_stop():
-        # type: () -> str
+        # type: () -> unicode
         try:
             return readline()
         except StopIteration:
@@ -375,7 +375,7 @@ def detect_encoding(readline):
         return orig_enc
 
     def find_cookie(line):
-        # type: (bytes) -> Optional[str]
+        # type: (bytes) -> Optional[unicode]
         try:
             line_string = line.decode('ascii')
         except UnicodeDecodeError:
@@ -417,7 +417,7 @@ class Tee:
         self.stream2 = stream2
 
     def write(self, text):
-        # type: (str) -> None
+        # type: (unicode) -> None
         self.stream1.write(text)
         self.stream2.write(text)
 
@@ -430,7 +430,7 @@ class Tee:
 
 
 def parselinenos(spec, total):
-    # type: (str, int) -> List[int]
+    # type: (unicode, int) -> List[int]
     """Parse a line number spec (such as "1,2,4-6") and return a list of
     wanted line numbers.
     """
@@ -458,7 +458,7 @@ def parselinenos(spec, total):
 
 
 def force_decode(string, encoding):
-    # type: (str, str) -> str
+    # type: (unicode, unicode) -> unicode
     """Forcibly get a unicode string out of a bytestring."""
     warnings.warn('force_decode() is deprecated.',
                   RemovedInSphinx40Warning, stacklevel=2)
@@ -477,20 +477,20 @@ def force_decode(string, encoding):
 
 class attrdict(dict):
     def __getattr__(self, key):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         return self[key]
 
     def __setattr__(self, key, val):
-        # type: (str, str) -> None
+        # type: (unicode, unicode) -> None
         self[key] = val
 
     def __delattr__(self, key):
-        # type: (str) -> None
+        # type: (unicode) -> None
         del self[key]
 
 
 def rpartition(s, t):
-    # type: (str, str) -> Tuple[str, str]
+    # type: (unicode, unicode) -> Tuple[unicode, unicode]
     """Similar to str.rpartition from 2.5, but doesn't return the separator."""
     i = s.rfind(t)
     if i != -1:
@@ -499,7 +499,7 @@ def rpartition(s, t):
 
 
 def split_into(n, type, value):
-    # type: (int, str, str) -> List[str]
+    # type: (int, unicode, unicode) -> List[unicode]
     """Split an index entry into a given number of parts at semicolons."""
     parts = [x.strip() for x in value.split(';', n - 1)]
     if sum(1 for part in parts if part) < n:
@@ -508,7 +508,7 @@ def split_into(n, type, value):
 
 
 def split_index_msg(type, value):
-    # type: (str, str) -> List[str]
+    # type: (unicode, unicode) -> List[unicode]
     # new entry types must be listed in directives/other.py!
     if type == 'single':
         try:
@@ -530,11 +530,11 @@ def split_index_msg(type, value):
 
 
 def format_exception_cut_frames(x=1):
-    # type: (int) -> str
+    # type: (int) -> unicode
     """Format an exception with traceback, but only the last x frames."""
     typ, val, tb = sys.exc_info()
     # res = ['Traceback (most recent call last):\n']
-    res = []  # type: List[str]
+    res = []  # type: List[unicode]
     tbres = traceback.format_tb(tb)
     res += tbres[-x:]
     res += traceback.format_exception_only(typ, val)
@@ -580,7 +580,7 @@ class PeekableIterator:
 
 
 def import_object(objname, source=None):
-    # type: (str, str) -> Any
+    # type: (str, unicode) -> Any
     try:
         module, name = objname.rsplit('.', 1)
     except ValueError as err:
@@ -600,8 +600,8 @@ def import_object(objname, source=None):
 
 
 def encode_uri(uri):
-    # type: (str) -> str
-    split = list(urlsplit(uri))  # type: List[str]
+    # type: (unicode) -> unicode
+    split = list(urlsplit(uri))  # type: List[unicode]
     split[1] = split[1].encode('idna').decode('ascii')
     split[2] = quote_plus(split[2].encode('utf-8'), '/').decode('ascii')
     query = list((q, quote_plus(v.encode('utf-8')))
@@ -611,7 +611,7 @@ def encode_uri(uri):
 
 
 def display_chunk(chunk):
-    # type: (Any) -> str
+    # type: (Any) -> unicode
     if isinstance(chunk, (list, tuple)):
         if len(chunk) == 1:
             return text_type(chunk[0])
@@ -620,7 +620,7 @@ def display_chunk(chunk):
 
 
 def old_status_iterator(iterable, summary, color="darkgreen", stringify_func=display_chunk):
-    # type: (Iterable, str, str, Callable[[Any], str]) -> Iterator
+    # type: (Iterable, unicode, str, Callable[[Any], unicode]) -> Iterator
     l = 0
     for item in iterable:
         if l == 0:
@@ -636,7 +636,7 @@ def old_status_iterator(iterable, summary, color="darkgreen", stringify_func=dis
 # new version with progress info
 def status_iterator(iterable, summary, color="darkgreen", length=0, verbosity=0,
                     stringify_func=display_chunk):
-    # type: (Iterable, str, str, int, int, Callable[[Any], str]) -> Iterable
+    # type: (Iterable, str, unicode, int, int, Callable[[Any], unicode]) -> Iterable
     if length == 0:
         for item in old_status_iterator(iterable, summary, color, stringify_func):
             yield item
@@ -657,7 +657,7 @@ def status_iterator(iterable, summary, color="darkgreen", length=0, verbosity=0,
 
 
 def epoch_to_rfc1123(epoch):
-    # type: (float) -> str
+    # type: (float) -> unicode
     """Convert datetime format epoch to RFC1123."""
     from babel.dates import format_datetime
 
@@ -690,7 +690,7 @@ def xmlname_checker():
     ]
 
     def convert(entries, splitter=u'|'):
-        # type: (Any, str) -> str
+        # type: (Any, unicode) -> unicode
         results = []
         for entry in entries:
             if isinstance(entry, list):

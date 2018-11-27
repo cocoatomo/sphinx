@@ -68,11 +68,11 @@ class ENUM:
         app.add_config_value('latex_show_urls', 'no', None, ENUM('no', 'footnote', 'inline'))
     """
     def __init__(self, *candidates):
-        # type: (str) -> None
+        # type: (unicode) -> None
         self.candidates = candidates
 
     def match(self, value):
-        # type: (Union[str, List, Tuple]) -> bool
+        # type: (Union[unicode, List, Tuple]) -> bool
         if isinstance(value, (list, tuple)):
             return all(item in self.candidates for item in value)
         else:
@@ -155,7 +155,7 @@ class Config:
         'smartquotes_excludes': ({'languages': ['ja'],
                                   'builders': ['man', 'text']},
                                  'env', []),
-    }  # type: Dict[str, Tuple]
+    }  # type: Dict[unicode, Tuple]
 
     def __init__(self, *args):
         # type: (Any) -> None
@@ -166,7 +166,7 @@ class Config:
                           RemovedInSphinx30Warning, stacklevel=2)
             dirname, filename, overrides, tags = args
             if dirname is None:
-                config = {}  # type: Dict[str, Any]
+                config = {}  # type: Dict[unicode, Any]
             else:
                 config = eval_config_file(path.join(dirname, filename), tags)
         else:
@@ -188,11 +188,11 @@ class Config:
                 config['extensions'] = overrides.pop('extensions').split(',')
             else:
                 config['extensions'] = overrides.pop('extensions')
-        self.extensions = config.get('extensions', [])  # type: List[str]
+        self.extensions = config.get('extensions', [])  # type: List[unicode]
 
     @classmethod
     def read(cls, confdir, overrides=None, tags=None):
-        # type: (str, Dict, Tags) -> Config
+        # type: (unicode, Dict, Tags) -> Config
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)
         namespace = eval_config_file(filename, tags)
@@ -277,7 +277,7 @@ class Config:
                 self.__dict__[name] = config[name]
 
     def __getattr__(self, name):
-        # type: (str) -> Any
+        # type: (unicode) -> Any
         if name.startswith('_'):
             raise AttributeError(name)
         if name not in self.values:
@@ -288,19 +288,19 @@ class Config:
         return default
 
     def __getitem__(self, name):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         return getattr(self, name)
 
     def __setitem__(self, name, value):
-        # type: (str, Any) -> None
+        # type: (unicode, Any) -> None
         setattr(self, name, value)
 
     def __delitem__(self, name):
-        # type: (str) -> None
+        # type: (unicode) -> None
         delattr(self, name)
 
     def __contains__(self, name):
-        # type: (str) -> bool
+        # type: (unicode) -> bool
         return name in self.values
 
     def __iter__(self):
@@ -309,7 +309,7 @@ class Config:
             yield ConfigValue(name, getattr(self, name), value[1])
 
     def add(self, name, default, rebuild, types):
-        # type: (str, Any, Union[bool, str], Any) -> None
+        # type: (unicode, Any, Union[bool, unicode], Any) -> None
         if name in self.values:
             raise ExtensionError(__('Config value %r already present') % name)
         else:
@@ -351,9 +351,9 @@ class Config:
 
 
 def eval_config_file(filename, tags):
-    # type: (str, Tags) -> Dict[str, Any]
+    # type: (unicode, Tags) -> Dict[unicode, Any]
     """Evaluate a config file."""
-    namespace = {}  # type: Dict[str, Any]
+    namespace = {}  # type: Dict[unicode, Any]
     namespace['__file__'] = filename
     namespace['tags'] = tags
 
@@ -510,7 +510,7 @@ def check_primary_domain(app, config):
 
 
 def check_master_doc(app, env, added, changed, removed):
-    # type: (Sphinx, BuildEnvironment, Set[str], Set[str], Set[str]) -> Set[str]  # NOQA
+    # type: (Sphinx, BuildEnvironment, Set[unicode], Set[unicode], Set[unicode]) -> Set[unicode]  # NOQA
     """Adjust master_doc to 'contents' to support an old project which does not have
     no master_doc setting.
     """
@@ -525,7 +525,7 @@ def check_master_doc(app, env, added, changed, removed):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.connect('config-inited', convert_source_suffix)
     app.connect('config-inited', init_numfig_format)
     app.connect('config-inited', correct_copyright_year)
