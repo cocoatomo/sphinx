@@ -233,7 +233,7 @@ class Program(SphinxDirective):
 
 class OptionXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.Element, bool, unicode, unicode) -> Tuple[unicode, unicode]
+        # type: (BuildEnvironment, nodes.Element, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
         refnode['std:program'] = env.ref_context.get('std:program')
         return title, target
 
@@ -304,7 +304,8 @@ class Glossary(SphinxDirective):
         in_definition = True
         was_empty = True
         messages = []  # type: List[nodes.Element]
-        for line, (source, lineno) in zip(cast(List[unicode], self.content), self.content.items):
+        for line, (source, lineno) in zip(cast(List[unicode], self.content),
+                                          self.content.items):
             # empty line -> add to last definition
             if not line:
                 if in_definition and entries:
@@ -668,7 +669,7 @@ class StandardDomain(Domain):
 
     def build_reference_node(self, fromdocname, builder, docname, labelid,
                              sectname, rolename, **options):
-        # type: (unicode, Builder, unicode, unicode, unicode, unicode, Any) -> nodes.TextElement
+        # type: (unicode, Builder, unicode, unicode, unicode, unicode, Any) -> nodes.TextElement  # NOQA
         nodeclass = options.pop('nodeclass', nodes.reference)
         newnode = nodeclass('', '', internal=True, **options)  # type: nodes.TextElement
         innernode = nodes.inline(sectname, sectname)

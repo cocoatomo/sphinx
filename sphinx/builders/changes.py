@@ -63,7 +63,7 @@ class ChangesBuilder(Builder):
         domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
         libchanges = {}     # type: Dict[unicode, List[Tuple[unicode, unicode, int]]]
         apichanges = []     # type: List[Tuple[unicode, unicode, int]]
-        otherchanges = {}   # type: Dict[Tuple[unicode, unicode], List[Tuple[unicode, unicode, int]]]
+        otherchanges = {}   # type: Dict[Tuple[unicode, unicode], List[Tuple[unicode, unicode, int]]]  # NOQA
         if version not in self.env.versionchanges:
             logger.info(bold(__('no changes in version %s.') % version))
             return

@@ -36,7 +36,7 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Generator, List, Set, Tuple, Type  # NOQA
+    from typing import Any, Callable, cast, Generator, IO, List, Set, Tuple, Type  # NOQA
     from docutils.statemachine import State, ViewList  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
