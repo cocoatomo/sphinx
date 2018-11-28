@@ -92,7 +92,7 @@ else:
 
 # function to get input from terminal -- overridden by the test suite
 def term_input(prompt):
-    # type: (str) -> str
+    # type: (unicode) -> unicode
     if sys.platform == 'win32':
         # Important: On windows, readline is not enabled by default.  In these
         #            environment, escape sequences have been broken.  To avoid the
@@ -108,7 +108,7 @@ class ValidationError(Exception):
 
 
 def is_path(x):
-    # type: (str) -> str
+    # type: (unicode) -> unicode
     x = path.expanduser(x)
     if not path.isdir(x):
         raise ValidationError(__("Please enter a valid path name."))
@@ -116,21 +116,21 @@ def is_path(x):
 
 
 def allow_empty(x):
-    # type: (str) -> str
+    # type: (unicode) -> unicode
     return x
 
 
 def nonempty(x):
-    # type: (str) -> str
+    # type: (unicode) -> unicode
     if not x:
         raise ValidationError(__("Please enter some text."))
     return x
 
 
 def choice(*l):
-    # type: (str) -> Callable[[str], str]
+    # type: (unicode) -> Callable[[unicode], unicode]
     def val(x):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         if x not in l:
             raise ValidationError(__('Please enter one of %s.') % ', '.join(l))
         return x
@@ -138,14 +138,14 @@ def choice(*l):
 
 
 def boolean(x):
-    # type: (str) -> bool
+    # type: (unicode) -> bool
     if x.upper() not in ('Y', 'YES', 'N', 'NO'):
         raise ValidationError(__("Please enter either 'y' or 'n'."))
     return x.upper() in ('Y', 'YES')
 
 
 def suffix(x):
-    # type: (str) -> str
+    # type: (unicode) -> unicode
     if not (x[0:1] == '.' and len(x) > 1):
         raise ValidationError(__("Please enter a file suffix, "
                                  "e.g. '.rst' or '.txt'."))
@@ -153,12 +153,12 @@ def suffix(x):
 
 
 def ok(x):
-    # type: (str) -> str
+    # type: (unicode) -> unicode
     return x
 
 
 def term_decode(text):
-    # type: (Union[bytes, str]) -> str
+    # type: (Union[bytes, unicode]) -> unicode
     if isinstance(text, text_type):
         return text
 
@@ -180,7 +180,7 @@ def term_decode(text):
 
 
 def do_prompt(text, default=None, validator=nonempty):
-    # type: (str, str, Callable[[str], Any]) -> Union[str, bool]
+    # type: (unicode, unicode, Callable[[unicode], Any]) -> Union[unicode, bool]
     while True:
         if default is not None:
             prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)
@@ -207,7 +207,7 @@ def do_prompt(text, default=None, validator=nonempty):
 
 
 def convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
-    # type: (str, Pattern) -> str
+    # type: (unicode, Pattern) -> unicode
     # remove Unicode literal prefixes
     warnings.warn('convert_python_source() is deprecated.',
                   RemovedInSphinx40Warning)
@@ -216,12 +216,12 @@ def convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
 
 class QuickstartRenderer(SphinxRenderer):
     def __init__(self, templatedir):
-        # type: (str) -> None
+        # type: (unicode) -> None
         self.templatedir = templatedir or ''
         super(QuickstartRenderer, self).__init__()
 
     def render(self, template_name, context):
-        # type: (str, Dict) -> str
+        # type: (unicode, Dict) -> unicode
         user_template = path.join(self.templatedir, path.basename(template_name))
         if self.templatedir and path.exists(user_template):
             return self.render_from_file(user_template, context)
@@ -374,7 +374,7 @@ directly.'''))
 
 
 def generate(d, overwrite=True, silent=False, templatedir=None):
-    # type: (Dict, bool, bool, str) -> None
+    # type: (Dict, bool, bool, unicode) -> None
     """Generate project based on values in *d*."""
     template = QuickstartRenderer(templatedir=templatedir)
 
@@ -426,7 +426,7 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     ensuredir(path.join(srcdir, d['dot'] + 'static'))
 
     def write_file(fpath, content, newline=None):
-        # type: (str, str, str) -> None
+        # type: (unicode, unicode, unicode) -> None
         if overwrite or not path.isfile(fpath):
             if 'quiet' not in d:
                 print(__('Creating file %s.') % fpath)

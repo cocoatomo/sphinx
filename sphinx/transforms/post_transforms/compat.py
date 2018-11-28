@@ -85,7 +85,7 @@ class MathNodeMigrator(SphinxTransform):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_post_transform(MathNodeMigrator)
 
     return {

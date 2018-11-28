@@ -24,7 +24,7 @@ except ImportError:
 
 class BaseStemmer:
     def stem(self, word):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         raise NotImplementedError()
 
 
@@ -34,7 +34,7 @@ class PyStemmer(BaseStemmer):
         self.stemmer = _PyStemmer('porter')
 
     def stem(self, word):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         return self.stemmer.stemWord(word)
 
 
@@ -43,7 +43,7 @@ class StandardStemmer(BaseStemmer, PorterStemmer):  # type: ignore
     make at least the stem method nicer.
     """
     def stem(self, word):  # type: ignore
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         return PorterStemmer.stem(self, word, 0, len(word) - 1)
 
 

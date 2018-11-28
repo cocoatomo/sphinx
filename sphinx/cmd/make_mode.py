@@ -63,14 +63,14 @@ BUILDERS = [
 class Make:
 
     def __init__(self, srcdir, builddir, opts):
-        # type: (str, str, List[str]) -> None
+        # type: (unicode, unicode, List[unicode]) -> None
         self.srcdir = srcdir
         self.builddir = builddir
         self.opts = opts
         self.makecmd = os.environ.get('MAKE', 'make')  # refer $MAKE to determine make command
 
     def builddir_join(self, *comps):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         return path.join(self.builddir, *comps)
 
     def build_clean(self):
@@ -147,7 +147,7 @@ class Make:
         return 0
 
     def run_generic_build(self, builder, doctreedir=None):
-        # type: (str, str) -> int
+        # type: (unicode, unicode) -> int
         # compatibility with old Makefile
         papersize = os.getenv('PAPER', '')
         opts = self.opts
@@ -164,7 +164,7 @@ class Make:
 
 
 def run_make_mode(args):
-    # type: (List[str]) -> int
+    # type: (List[unicode]) -> int
     if len(args) < 3:
         print('Error: at least 3 arguments (builder, source '
               'dir, build dir) are required.', file=sys.stderr)

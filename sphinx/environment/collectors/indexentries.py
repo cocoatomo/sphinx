@@ -30,11 +30,11 @@ class IndexEntriesCollector(EnvironmentCollector):
     name = 'indices'
 
     def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, str) -> None
+        # type: (Sphinx, BuildEnvironment, unicode) -> None
         env.indexentries.pop(docname, None)
 
     def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
+        # type: (Sphinx, BuildEnvironment, Set[unicode], BuildEnvironment) -> None
         for docname in docnames:
             env.indexentries[docname] = other.indexentries[docname]
 

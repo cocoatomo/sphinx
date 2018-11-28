@@ -55,19 +55,19 @@ class SphinxTransform(Transform):
     def app(self):
         # type: () -> Sphinx
         """Reference to the :class:`.Sphinx` object."""
-        return self.document.settings.env.app
+        return self.document.settings.env.app  # type: ignore
 
     @property
     def env(self):
         # type: () -> BuildEnvironment
         """Reference to the :class:`.BuildEnvironment` object."""
-        return self.document.settings.env
+        return self.document.settings.env  # type: ignore
 
     @property
     def config(self):
         # type: () -> Config
         """Reference to the :class:`.Config` object."""
-        return self.document.settings.env.config
+        return self.document.settings.env.config  # type: ignore
 
 
 class SphinxTransformer(Transformer):
@@ -75,7 +75,7 @@ class SphinxTransformer(Transformer):
     A transformer for Sphinx.
     """
 
-    document = None  # type: nodes.Node
+    document = None  # type: nodes.document
     env = None  # type: BuildEnvironment
 
     def set_environment(self, env):
@@ -86,7 +86,7 @@ class SphinxTransformer(Transformer):
         # type: () -> None
         if isinstance(self.document, nodes.document):
             if not hasattr(self.document.settings, 'env') and self.env:
-                self.document.settings.env = self.env
+                self.document.settings.env = self.env  # type: ignore
 
             Transformer.apply_transforms(self)
         else:
@@ -328,13 +328,13 @@ class SphinxContentsFilter(ContentsFilter):
     within table-of-contents link nodes.
     """
     def visit_pending_xref(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.pending_xref) -> None
         text = node.astext()
         self.parent.append(nodes.literal(text, text))
         raise nodes.SkipNode
 
     def visit_image(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.image) -> None
         raise nodes.SkipNode
 
 
@@ -381,7 +381,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
 
     @property
     def smartquotes_action(self):
-        # type: () -> str
+        # type: () -> unicode
         """A smartquotes_action setting for SmartQuotes.
 
         Users can change this setting through :confval:`smartquotes_action`.
@@ -389,7 +389,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         return self.config.smartquotes_action
 
     def get_tokens(self, txtnodes):
-        # type: (List[nodes.Node]) -> Generator
+        # type: (List[nodes.Element]) -> Generator[Tuple[unicode, unicode], None, None]
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
 

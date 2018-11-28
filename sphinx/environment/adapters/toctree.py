@@ -19,7 +19,7 @@ from sphinx.util.nodes import clean_astext, process_only_nodes
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List  # NOQA
+    from typing import Any, Dict, List, Optional  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.typing import unicode  # NOQA
@@ -33,7 +33,7 @@ class TocTree:
         self.env = env
 
     def note(self, docname, toctreenode):
-        # type: (str, addnodes.toctree) -> None
+        # type: (unicode, addnodes.toctree) -> None
         """Note a TOC tree directive in a document and gather information about
         file relations from it.
         """
@@ -50,7 +50,7 @@ class TocTree:
 
     def resolve(self, docname, builder, toctree, prune=True, maxdepth=0,
                 titles_only=False, collapse=False, includehidden=False):
-        # type: (str, Builder, addnodes.toctree, bool, int, bool, bool, bool) -> nodes.Node
+        # type: (unicode, Builder, addnodes.toctree, bool, int, bool, bool, bool) -> Optional[addnodes.compact_paragraph]  # NOQA
         """Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
         a new node.
@@ -87,7 +87,7 @@ class TocTree:
         excluded = Matcher(self.env.config.exclude_patterns)
 
         def _toctree_add_classes(node, depth):
-            # type: (nodes.Node, int) -> None
+            # type: (nodes.Element, int) -> None
             """Add 'toctree-l%d' and 'current' classes to the toctree."""
             for subnode in node.children:
                 if isinstance(subnode, (addnodes.compact_paragraph,
@@ -259,12 +259,12 @@ class TocTree:
         return newnode
 
     def get_toctree_ancestors(self, docname):
-        # type: (str) -> List[str]
+        # type: (unicode) -> List[unicode]
         parent = {}
         for p, children in self.env.toctree_includes.items():
             for child in children:
                 parent[child] = p
-        ancestors = []  # type: List[str]
+        ancestors = []  # type: List[unicode]
         d = docname
         while d in parent and d not in ancestors:
             ancestors.append(d)
@@ -272,7 +272,7 @@ class TocTree:
         return ancestors
 
     def _toctree_prune(self, node, depth, maxdepth, collapse=False):
-        # type: (nodes.Node, int, int, bool) -> None
+        # type: (nodes.Element, int, int, bool) -> None
         """Utility: Cut a TOC at a specified depth."""
         for subnode in node.children[:]:
             if isinstance(subnode, (addnodes.compact_paragraph,
@@ -294,7 +294,7 @@ class TocTree:
                         self._toctree_prune(subnode, depth + 1, maxdepth,  collapse)
 
     def get_toc_for(self, docname, builder):
-        # type: (str, Builder) -> nodes.Node
+        # type: (unicode, Builder) -> nodes.Node
         """Return a TOC nodetree -- for use on the same page only!"""
         tocdepth = self.env.metadata[docname].get('tocdepth', 0)
         try:
@@ -310,10 +310,10 @@ class TocTree:
         return toc
 
     def get_toctree_for(self, docname, builder, collapse, **kwds):
-        # type: (str, Builder, bool, Any) -> nodes.Node
+        # type: (unicode, Builder, bool, Any) -> nodes.Node
         """Return the global TOC nodetree."""
         doctree = self.env.get_doctree(self.env.config.master_doc)
-        toctrees = []
+        toctrees = []  # type: List[nodes.Element]
         if 'includehidden' not in kwds:
             kwds['includehidden'] = True
         if 'maxdepth' not in kwds:

@@ -36,7 +36,7 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Generator, List, Set, Tuple, Type  # NOQA
+    from typing import Any, Callable, cast, Generator, IO, List, Set, Tuple, Type  # NOQA
     from docutils.statemachine import State, ViewList  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -45,7 +45,7 @@ if False:
 
 
 __version_info__ = tuple(LooseVersion(docutils.__version__).version)
-additional_nodes = set()  # type: Set[nodes.Node]
+additional_nodes = set()  # type: Set[Type[nodes.Node]]
 
 
 @contextmanager
@@ -53,13 +53,13 @@ def docutils_namespace():
     # type: () -> Generator[None, None, None]
     """Create namespace for reST parsers."""
     try:
-        _directives = copy(directives._directives)
-        _roles = copy(roles._roles)
+        _directives = copy(directives._directives)  # type: ignore
+        _roles = copy(roles._roles)  # type: ignore
 
         yield
     finally:
-        directives._directives = _directives
-        roles._roles = _roles
+        directives._directives = _directives  # type: ignore
+        roles._roles = _roles  # type: ignore
 
         for node in list(additional_nodes):
             unregister_node(node)
@@ -80,7 +80,7 @@ def register_node(node):
     inside ``docutils_namespace()`` to prevent side-effects.
     """
     if not hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
-        nodes._add_node_class_names([node.__name__])
+        nodes._add_node_class_names([node.__name__])  # type: ignore
         additional_nodes.add(node)
 
 
@@ -108,7 +108,7 @@ def patched_get_language():
     from docutils.languages import get_language
 
     def patched_get_language(language_code, reporter=None):
-        # type: (str, Reporter) -> Any
+        # type: (unicode, Reporter) -> Any
         return get_language(language_code)
 
     try:
@@ -121,7 +121,7 @@ def patched_get_language():
 
 @contextmanager
 def using_user_docutils_conf(confdir):
-    # type: (str) -> Generator[None, None, None]
+    # type: (unicode) -> Generator[None, None, None]
     """Let docutils know the location of ``docutils.conf`` for Sphinx."""
     try:
         docutilsconfig = os.environ.get('DOCUTILSCONFIG', None)
@@ -138,7 +138,7 @@ def using_user_docutils_conf(confdir):
 
 @contextmanager
 def patch_docutils(confdir=None):
-    # type: (str) -> Generator[None, None, None]
+    # type: (unicode) -> Generator[None, None, None]
     """Patch to docutils temporarily."""
     with patched_get_language(), using_user_docutils_conf(confdir):
         yield
@@ -163,7 +163,7 @@ class sphinx_domains:
         self.enable()
 
     def __exit__(self, type, value, traceback):
-        # type: (str, str, str) -> None
+        # type: (unicode, unicode, unicode) -> None
         self.disable()
 
     def enable(self):
@@ -180,7 +180,7 @@ class sphinx_domains:
         roles.role = self.role_func
 
     def lookup_domain_element(self, type, name):
-        # type: (str, str) -> Tuple[Any, List]
+        # type: (unicode, unicode) -> Tuple[Any, List[nodes.system_message]]
         """Lookup a markup element (directive or role), given its name which can
         be a full name (with domain).
         """
@@ -208,24 +208,24 @@ class sphinx_domains:
 
         raise ElementLookupError
 
-    def lookup_directive(self, name, lang_module, document):
-        # type: (str, str, nodes.document) -> Tuple[Any, List]
+    def lookup_directive(self, directive_name, language_module, document):
+        # type: (unicode, ModuleType, nodes.document) -> Tuple[Optional[Type[Directive]], List[nodes.system_message]]  # NOQA
         try:
-            return self.lookup_domain_element('directive', name)
+            return self.lookup_domain_element('directive', directive_name)
         except ElementLookupError:
-            return self.directive_func(name, lang_module, document)
+            return self.directive_func(directive_name, language_module, document)
 
-    def lookup_role(self, name, lang_module, lineno, reporter):
-        # type: (str, str, int, Any) -> Tuple[Any, List]
+    def lookup_role(self, role_name, language_module, lineno, reporter):
+        # type: (unicode, ModuleType, int, Reporter) -> Tuple[RoleFunction, List[nodes.system_message]]  # NOQA
         try:
-            return self.lookup_domain_element('role', name)
+            return self.lookup_domain_element('role', role_name)
         except ElementLookupError:
-            return self.role_func(name, lang_module, lineno, reporter)
+            return self.role_func(role_name, language_module, lineno, reporter)
 
 
 class WarningStream:
     def write(self, text):
-        # type: (str) -> None
+        # type: (unicode) -> None
         matched = report_re.search(text)
         if not matched:
             logger.warning(text.rstrip("\r\n"))
@@ -246,8 +246,8 @@ class LoggingReporter(Reporter):
     def __init__(self, source, report_level=Reporter.WARNING_LEVEL,
                  halt_level=Reporter.SEVERE_LEVEL, debug=False,
                  error_handler='backslashreplace'):
-        # type: (str, int, int, bool, str) -> None
-        stream = WarningStream()
+        # type: (unicode, int, int, bool, unicode) -> None
+        stream = cast(IO, WarningStream())
         super(LoggingReporter, self).__init__(source, report_level, halt_level,
                                               stream, debug, error_handler=error_handler)
 
@@ -285,7 +285,7 @@ def directive_helper(obj, has_content=None, argument_spec=None, **option_spec):
 
 @contextmanager
 def switch_source_input(state, content):
-    # type: (State, ViewList) -> Generator[None, None, None]
+    # type: (State, StringList) -> Generator[None, None, None]
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method
@@ -311,7 +311,7 @@ class SphinxFileOutput(FileOutput):
         super(SphinxFileOutput, self).__init__(**kwargs)
 
     def write(self, data):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         if (self.destination_path and self.autoclose and 'b' not in self.mode and
                 self.overwrite_if_changed and os.path.exists(self.destination_path)):
             with open(self.destination_path, encoding=self.encoding) as f:
@@ -335,7 +335,7 @@ class SphinxDirective(Directive):
     def env(self):
         # type: () -> BuildEnvironment
         """Reference to the :class:`.BuildEnvironment` object."""
-        return self.state.document.settings.env
+        return self.state.document.settings.env  # type: ignore
 
     @property
     def config(self):
@@ -350,7 +350,7 @@ __document_cache__ = None  # type: nodes.document
 
 
 def new_document(source_path, settings=None):
-    # type: (str, Any) -> nodes.document
+    # type: (unicode, Any) -> nodes.document
     """Return a new empty document object.  This is an alternative of docutils'.
 
     This is a simple wrapper for ``docutils.utils.new_document()``.  It

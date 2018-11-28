@@ -136,7 +136,7 @@ class ParallelTasks:
 
 
 def make_chunks(arguments, nproc, maxbatch=10):
-    # type: (Sequence[str], int, int) -> List[Any]
+    # type: (Sequence[unicode], int, int) -> List[Any]
     # determine how many documents to read in one go
     nargs = len(arguments)
     chunksize = nargs // nproc

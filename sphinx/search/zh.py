@@ -246,8 +246,8 @@ class SearchChinese(SearchLanguage):
         self.stemmer = get_stemmer()
 
     def split(self, input):
-        # type: (str) -> List[str]
-        chinese = []  # type: List[str]
+        # type: (unicode) -> List[unicode]
+        chinese = []  # type: List[unicode]
         if JIEBA:
             chinese = list(jieba.cut_for_search(input))
 
@@ -255,9 +255,9 @@ class SearchChinese(SearchLanguage):
         return chinese + latin1
 
     def word_filter(self, stemmed_word):
-        # type: (str) -> bool
+        # type: (unicode) -> bool
         return len(stemmed_word) > 1
 
     def stem(self, word):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         return self.stemmer.stem(word.lower())

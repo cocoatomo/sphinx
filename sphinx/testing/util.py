@@ -39,25 +39,25 @@ __all__ = [
 
 
 def assert_re_search(regex, text, flags=0):
-    # type: (Pattern, str, int) -> None
+    # type: (Pattern, unicode, int) -> None
     if not re.search(regex, text, flags):
         assert False, '%r did not match %r' % (regex, text)
 
 
 def assert_not_re_search(regex, text, flags=0):
-    # type: (Pattern, str, int) -> None
+    # type: (Pattern, unicode, int) -> None
     if re.search(regex, text, flags):
         assert False, '%r did match %r' % (regex, text)
 
 
 def assert_startswith(thing, prefix):
-    # type: (str, str) -> None
+    # type: (unicode, unicode) -> None
     if not thing.startswith(prefix):
         assert False, '%r does not start with %r' % (thing, prefix)
 
 
 def assert_node(node, cls=None, xpath="", **kwargs):
-    # type: (nodes.Node, Any, str, Any) -> None
+    # type: (nodes.Element, Any, unicode, Any) -> None
     if cls:
         if isinstance(cls, list):
             assert_node(node, cls[0], xpath=xpath, **kwargs)
@@ -87,7 +87,7 @@ def assert_node(node, cls=None, xpath="", **kwargs):
 
 
 def etree_parse(path):
-    # type: (str) -> Any
+    # type: (unicode) -> Any
     with warnings.catch_warnings(record=False):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
         return ElementTree.parse(path)
@@ -108,7 +108,7 @@ class SphinxTestApp(application.Sphinx):
     def __init__(self, buildername='html', srcdir=None,
                  freshenv=False, confoverrides=None, status=None, warning=None,
                  tags=None, docutilsconf=None):
-        # type: (str, path, bool, Dict, IO, IO, List[str], str) -> None
+        # type: (unicode, path, bool, Dict, IO, IO, List[unicode], unicode) -> None
 
         if docutilsconf is not None:
             (srcdir / 'docutils.conf').write_text(docutilsconf)
@@ -124,8 +124,8 @@ class SphinxTestApp(application.Sphinx):
         warningiserror = False
 
         self._saved_path = sys.path[:]
-        self._saved_directives = directives._directives.copy()
-        self._saved_roles = roles._roles.copy()
+        self._saved_directives = directives._directives.copy()  # type: ignore
+        self._saved_roles = roles._roles.copy()  # type: ignore
 
         self._saved_nodeclasses = set(v for v in dir(nodes.GenericNodeVisitor)
                                       if v.startswith('visit_'))
@@ -145,8 +145,8 @@ class SphinxTestApp(application.Sphinx):
         locale.translators.clear()
         sys.path[:] = self._saved_path
         sys.modules.pop('autodoc_fodder', None)
-        directives._directives = self._saved_directives
-        roles._roles = self._saved_roles
+        directives._directives = self._saved_directives  # type: ignore
+        roles._roles = self._saved_roles  # type: ignore
         for method in dir(nodes.GenericNodeVisitor):
             if method.startswith('visit_') and \
                method not in self._saved_nodeclasses:
@@ -185,14 +185,14 @@ _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
 
 
 def remove_unicode_literals(s):
-    # type: (str) -> str
+    # type: (unicode) -> unicode
     warnings.warn('remove_unicode_literals() is deprecated.',
                   RemovedInSphinx40Warning)
     return _unicode_literals_re.sub(lambda x: x.group(1) or x.group(2), s)
 
 
 def find_files(root, suffix=None):
-    # type: (str, bool) -> Generator
+    # type: (unicode, bool) -> Generator
     for dirpath, dirs, files in os.walk(root, followlinks=True):
         dirpath = path(dirpath)
         for f in [f for f in files if not suffix or f.endswith(suffix)]:  # type: ignore
@@ -201,5 +201,5 @@ def find_files(root, suffix=None):
 
 
 def strip_escseq(text):
-    # type: (str) -> str
+    # type: (unicode) -> unicode
     return re.sub('\x1b.*?m', '', text)

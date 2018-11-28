@@ -61,7 +61,7 @@ class DocumenterBridge:
         self.result = StringList()
 
     def warn(self, msg):
-        # type: (str) -> None
+        # type: (unicode) -> None
         logger.warning(msg, location=(self.env.docname, self.lineno))
 
 

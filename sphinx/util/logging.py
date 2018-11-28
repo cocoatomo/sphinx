@@ -50,7 +50,7 @@ VERBOSITY_MAP.update({
     2: logging.DEBUG,
 })
 
-COLOR_MAP = defaultdict(lambda: 'blue')  # type: Dict[int, str]
+COLOR_MAP = defaultdict(lambda: 'blue')  # type: Dict[int, unicode]
 COLOR_MAP.update({
     logging.ERROR: 'darkred',
     logging.WARNING: 'red',
@@ -125,7 +125,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
 
     def log(self, level, msg, *args, **kwargs):  # type: ignore
-        # type: (Union[int, str], str, Any, Any) -> None
+        # type: (Union[int, str], unicode, Any, Any) -> None
         if isinstance(level, int):
             super(SphinxLoggerAdapter, self).log(level, msg, *args, **kwargs)
         else:
@@ -133,11 +133,11 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
             super(SphinxLoggerAdapter, self).log(levelno, msg, *args, **kwargs)
 
     def verbose(self, msg, *args, **kwargs):
-        # type: (str, Any, Any) -> None
+        # type: (unicode, Any, Any) -> None
         self.log(VERBOSE, msg, *args, **kwargs)
 
     def process(self, msg, kwargs):  # type: ignore
-        # type: (str, Dict) -> Tuple[str, Dict]
+        # type: (unicode, Dict) -> Tuple[unicode, Dict]
         extra = kwargs.setdefault('extra', {})
         if 'type' in kwargs:
             extra['type'] = kwargs.pop('type')
@@ -290,7 +290,7 @@ def skip_warningiserror(skip=True):
 
 @contextmanager
 def prefixed_warnings(prefix):
-    # type: (str) -> Generator
+    # type: (unicode) -> Generator
     """Prepend prefix to all records for a while.
 
     For example::
@@ -361,7 +361,7 @@ class InfoFilter(logging.Filter):
 
 
 def is_suppressed_warning(type, subtype, suppress_warnings):
-    # type: (str, str, List[str]) -> bool
+    # type: (unicode, unicode, List[unicode]) -> bool
     """Check the warning is suppressed or not."""
     if type is None:
         return False
@@ -447,7 +447,7 @@ class MessagePrefixFilter(logging.Filter):
     """Prepend prefix to all records."""
 
     def __init__(self, prefix):
-        # type: (str) -> None
+        # type: (unicode) -> None
         self.prefix = prefix
         super(MessagePrefixFilter, self).__init__()
 
@@ -505,7 +505,7 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
 
 
 def get_node_location(node):
-    # type: (nodes.Node) -> str
+    # type: (nodes.Element) -> str
     (source, line) = get_source_line(node)
     if source and line:
         return "%s:%s" % (source, line)
@@ -539,7 +539,7 @@ class SafeEncodingWriter:
         self.encoding = getattr(stream, 'encoding', 'ascii') or 'ascii'
 
     def write(self, data):
-        # type: (str) -> None
+        # type: (unicode) -> None
         try:
             self.stream.write(data)
         except UnicodeEncodeError:
@@ -560,7 +560,7 @@ class LastMessagesWriter:
         self.app = app
 
     def write(self, data):
-        # type: (str) -> None
+        # type: (unicode) -> None
         self.app.messagelog.append(data)
 
 

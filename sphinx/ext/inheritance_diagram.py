@@ -67,7 +67,7 @@ module_sig_re = re.compile(r'''^(?:([\w.]*)\.)?  # module names
 
 
 def try_import(objname):
-    # type: (str) -> Any
+    # type: (unicode) -> Any
     """Import a object or module using *name* and *currentmodule*.
     *name* should be a relative name from *currentmodule* or
     a fully-qualified name.
@@ -95,7 +95,7 @@ def try_import(objname):
 
 
 def import_classes(name, currmodule):
-    # type: (str, str) -> Any
+    # type: (unicode, unicode) -> Any
     """Import a class using its fully-qualified *name*."""
     target = None
 
@@ -138,7 +138,7 @@ class InheritanceGraph:
     """
     def __init__(self, class_names, currmodule, show_builtins=False,
                  private_bases=False, parts=0, aliases=None, top_classes=[]):
-        # type: (str, str, bool, bool, int, Optional[Dict[str, str]], List[Any]) -> None
+        # type: (unicode, str, bool, bool, int, Optional[Dict[unicode, unicode]], List[Any]) -> None  # NOQA
         """*class_names* is a list of child classes to show bases from.
 
         If *show_builtins* is True, then Python builtins will be shown
@@ -153,7 +153,7 @@ class InheritanceGraph:
                                        'inheritance diagram')
 
     def _import_classes(self, class_names, currmodule):
-        # type: (str, str) -> List[Any]
+        # type: (unicode, str) -> List[Any]
         """Import a list of classes."""
         classes = []  # type: List[Any]
         for name in class_names:
@@ -161,7 +161,7 @@ class InheritanceGraph:
         return classes
 
     def _class_info(self, classes, show_builtins, private_bases, parts, aliases, top_classes):
-        # type: (List[Any], bool, bool, int, Optional[Dict[str, str]], List[Any]) -> List[Tuple[str, str, List[str], str]]  # NOQA
+        # type: (List[Any], bool, bool, int, Optional[Dict[unicode, unicode]], List[Any]) -> List[Tuple[unicode, unicode, List[unicode], unicode]]  # NOQA
         """Return name and bases for all classes that are ancestors of
         *classes*.
 
@@ -194,7 +194,7 @@ class InheritanceGraph:
             except Exception:  # might raise AttributeError for strange classes
                 pass
 
-            baselist = []  # type: List[str]
+            baselist = []  # type: List[unicode]
             all_classes[cls] = (nodename, fullname, baselist, tooltip)
 
             if fullname in top_classes:
@@ -215,7 +215,7 @@ class InheritanceGraph:
         return list(all_classes.values())
 
     def class_name(self, cls, parts=0, aliases=None):
-        # type: (Any, int, Optional[Dict[str, str]]) -> str
+        # type: (Any, int, Optional[Dict[unicode, unicode]]) -> unicode
         """Given a class object, return a fully-qualified name.
 
         This works for things I've tested in matplotlib so far, but may not be
@@ -236,7 +236,7 @@ class InheritanceGraph:
         return result
 
     def get_all_class_names(self):
-        # type: () -> List[str]
+        # type: () -> List[unicode]
         """Get all of the class names involved in the graph."""
         return [fullname for (_, fullname, _, _) in self.class_info]
 
@@ -259,16 +259,16 @@ class InheritanceGraph:
     }
 
     def _format_node_attrs(self, attrs):
-        # type: (Dict) -> str
+        # type: (Dict) -> unicode
         return ','.join(['%s=%s' % x for x in sorted(attrs.items())])
 
     def _format_graph_attrs(self, attrs):
-        # type: (Dict) -> str
+        # type: (Dict) -> unicode
         return ''.join(['%s=%s;\n' % x for x in sorted(attrs.items())])
 
     def generate_dot(self, name, urls={}, env=None,
                      graph_attrs={}, node_attrs={}, edge_attrs={}):
-        # type: (str, Dict, BuildEnvironment, Dict, Dict, Dict) -> str
+        # type: (unicode, Dict, BuildEnvironment, Dict, Dict, Dict) -> unicode
         """Generate a graphviz dot graph from the classes that were passed in
         to __init__.
 
@@ -290,7 +290,7 @@ class InheritanceGraph:
             n_attrs.update(env.config.inheritance_node_attrs)
             e_attrs.update(env.config.inheritance_edge_attrs)
 
-        res = []  # type: List[str]
+        res = []  # type: List[unicode]
         res.append('digraph %s {\n' % name)
         res.append(self._format_graph_attrs(g_attrs))
 
@@ -383,7 +383,7 @@ class InheritanceDiagram(SphinxDirective):
 
 
 def get_graph_hash(node):
-    # type: (inheritance_diagram) -> str
+    # type: (inheritance_diagram) -> unicode
     encoded = (node['content'] + str(node['parts'])).encode('utf-8')
     return md5(encoded).hexdigest()[-10:]
 
@@ -403,7 +403,7 @@ def html_visit_inheritance_diagram(self, node):
     graphviz_output_format = self.builder.env.config.graphviz_output_format.upper()
     current_filename = self.builder.current_docname + self.builder.out_suffix
     urls = {}
-    for child in node:
+    for child in node:  # type: nodes.Element
         if child.get('refuri') is not None:
             if graphviz_output_format == 'SVG':
                 urls[child['reftitle']] = "../" + child.get('refuri')
@@ -459,7 +459,7 @@ def skip(self, node):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.setup_extension('sphinx.ext.graphviz')
     app.add_node(
         inheritance_diagram,

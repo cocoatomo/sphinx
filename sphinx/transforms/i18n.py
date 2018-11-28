@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 
 def publish_msgstr(app, source, source_path, source_line, config, settings):
-    # type: (Sphinx, str, str, int, Config, Dict) -> nodes.document
+    # type: (Sphinx, unicode, unicode, int, Config, Dict) -> nodes.document
     """Publish msgstr (single line) into docutils document
 
     :param sphinx.application.Sphinx app: sphinx application
@@ -283,8 +283,8 @@ class Locale(SphinxTransform):
                     lst.append(new)
 
             is_autofootnote_ref = NodeMatcher(nodes.footnote_reference, auto=Any)
-            old_foot_refs = node.traverse(is_autofootnote_ref)
-            new_foot_refs = patch.traverse(is_autofootnote_ref)
+            old_foot_refs = node.traverse(is_autofootnote_ref)  # type: List[nodes.footnote_reference]  # NOQA
+            new_foot_refs = patch.traverse(is_autofootnote_ref)  # type: List[nodes.footnote_reference]  # NOQA
             if len(old_foot_refs) != len(new_foot_refs):
                 old_foot_ref_rawsources = [ref.rawsource for ref in old_foot_refs]
                 new_foot_ref_rawsources = [ref.rawsource for ref in new_foot_refs]
@@ -292,7 +292,7 @@ class Locale(SphinxTransform):
                                   ' original: {0}, translated: {1}')
                                .format(old_foot_ref_rawsources, new_foot_ref_rawsources),
                                location=node)
-            old_foot_namerefs = {}  # type: Dict[str, List[nodes.footnote_reference]]
+            old_foot_namerefs = {}  # type: Dict[unicode, List[nodes.footnote_reference]]
             for r in old_foot_refs:
                 old_foot_namerefs.setdefault(r.get('refname'), []).append(r)
             for new in new_foot_refs:
@@ -326,8 +326,8 @@ class Locale(SphinxTransform):
             # * use translated refname for section refname.
             # * inline reference "`Python <...>`_" has no 'refname'.
             is_refnamed_ref = NodeMatcher(nodes.reference, refname=Any)
-            old_refs = node.traverse(is_refnamed_ref)
-            new_refs = patch.traverse(is_refnamed_ref)
+            old_refs = node.traverse(is_refnamed_ref)  # type: List[nodes.reference]
+            new_refs = patch.traverse(is_refnamed_ref)  # type: List[nodes.reference]
             if len(old_refs) != len(new_refs):
                 old_ref_rawsources = [ref.rawsource for ref in old_refs]
                 new_ref_rawsources = [ref.rawsource for ref in new_refs]
@@ -372,8 +372,8 @@ class Locale(SphinxTransform):
 
             # citation should use original 'ids'.
             is_citation_ref = NodeMatcher(nodes.citation_reference, refname=Any)
-            old_cite_refs = node.traverse(is_citation_ref)
-            new_cite_refs = patch.traverse(is_citation_ref)
+            old_cite_refs = node.traverse(is_citation_ref)  # type: List[nodes.citation_reference]  # NOQA
+            new_cite_refs = patch.traverse(is_citation_ref)  # type: List[nodes.citation_reference]  # NOQA
             refname_ids_map = {}
             if len(old_cite_refs) != len(new_cite_refs):
                 old_cite_ref_rawsources = [ref.rawsource for ref in old_cite_refs]
@@ -392,8 +392,8 @@ class Locale(SphinxTransform):
             # Original pending_xref['reftarget'] contain not-translated
             # target name, new pending_xref must use original one.
             # This code restricts to change ref-targets in the translation.
-            old_refs = node.traverse(addnodes.pending_xref)
-            new_refs = patch.traverse(addnodes.pending_xref)
+            old_refs = node.traverse(addnodes.pending_xref)  # type: List[addnodes.pending_xref]  # NOQA
+            new_refs = patch.traverse(addnodes.pending_xref)  # type: List[addnodes.pending_xref]  # NOQA
             xref_reftarget_map = {}
             if len(old_refs) != len(new_refs):
                 old_ref_rawsources = [ref.rawsource for ref in old_refs]
@@ -404,7 +404,7 @@ class Locale(SphinxTransform):
                                location=node)
 
             def get_ref_key(node):
-                # type: (nodes.Node) -> Tuple[str, str, str]
+                # type: (nodes.Element) -> Tuple[unicode, unicode, unicode]
                 case = node["refdomain"], node["reftype"]
                 if case == ('std', 'term'):
                     return None
@@ -446,7 +446,7 @@ class Locale(SphinxTransform):
         if 'index' in self.config.gettext_additional_targets:
             # Extract and translate messages for index entries.
             for node, entries in traverse_translatable_index(self.document):
-                new_entries = []   # type: List[Tuple[str, str, str, str, str]]
+                new_entries = []   # type: List[Tuple[unicode, unicode, unicode, unicode, unicode]]  # NOQA
                 for type, msg, tid, main, key_ in entries:
                     msg_parts = split_index_msg(type, msg)
                     msgstr_parts = []

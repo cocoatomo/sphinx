@@ -46,14 +46,14 @@ class MathDomain(Domain):
     initial_data = {
         'objects': {},  # labelid -> (docname, eqno)
         'has_equations': {},  # docname -> bool
-    }  # type: Dict[str, Dict[str, Tuple[str, int]]]
+    }  # type: Dict[unicode, Dict[unicode, Tuple[unicode, int]]]
     dangling_warnings = {
         'eq': 'equation not found: %(target)s',
     }
     enumerable_nodes = {  # node_class -> (figtype, title_getter)
         displaymath: ('displaymath', None),
         nodes.math_block: ('displaymath', None),
-    }  # type: Dict[Type[nodes.Node], Tuple[str, Callable]]
+    }  # type: Dict[Type[nodes.Node], Tuple[unicode, Callable]]
     roles = {
         'numref': MathReferenceRole(),
     }
@@ -67,7 +67,7 @@ class MathDomain(Domain):
         self.data['has_equations'][docname] = any(document.traverse(math_node))
 
     def clear_doc(self, docname):
-        # type: (str) -> None
+        # type: (unicode) -> None
         for equation_id, (doc, eqno) in list(self.data['objects'].items()):
             if doc == docname:
                 del self.data['objects'][equation_id]
@@ -75,7 +75,7 @@ class MathDomain(Domain):
         self.data['has_equations'].pop(docname, None)
 
     def merge_domaindata(self, docnames, otherdata):
-        # type: (Iterable[str], Dict) -> None
+        # type: (Iterable[unicode], Dict) -> None
         for labelid, (doc, eqno) in otherdata['objects'].items():
             if doc in docnames:
                 self.data['objects'][labelid] = (doc, eqno)
@@ -121,7 +121,7 @@ class MathDomain(Domain):
         return []
 
     def add_equation(self, env, docname, labelid):
-        # type: (BuildEnvironment, str, str) -> int
+        # type: (BuildEnvironment, unicode, unicode) -> int
         equations = self.data['objects']
         if labelid in equations:
             path = env.doc2path(equations[labelid][0])
@@ -133,7 +133,7 @@ class MathDomain(Domain):
             return eqno
 
     def get_next_equation_number(self, docname):
-        # type: (str) -> int
+        # type: (unicode) -> int
         targets = [eq for eq in self.data['objects'].values() if eq[0] == docname]
         return len(targets) + 1
 
@@ -143,7 +143,7 @@ class MathDomain(Domain):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_domain(MathDomain)
     app.add_role('eq', MathReferenceRole(warn_dangling=True))
 

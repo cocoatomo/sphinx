@@ -53,7 +53,7 @@ class HighlightLanguageTransform(SphinxTransform):
 
 class HighlightLanguageVisitor(nodes.NodeVisitor):
     def __init__(self, document, default_language):
-        # type: (nodes.document, str) -> None
+        # type: (nodes.document, unicode) -> None
         self.default_setting = HighlightSetting(default_language, sys.maxsize)
         self.settings = []  # type: List[HighlightSetting]
         super(HighlightLanguageVisitor, self).__init__(document)
@@ -142,7 +142,7 @@ class TrimDoctestFlagsTransform(SphinxTransform):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_post_transform(HighlightLanguageTransform)
     app.add_post_transform(TrimDoctestFlagsTransform)
 

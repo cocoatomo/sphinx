@@ -39,9 +39,9 @@ if False:
 
 
 def make_link_role(base_url, prefix):
-    # type: (str, str) -> RoleFunction
+    # type: (unicode, unicode) -> RoleFunction
     def role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-        # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+        # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
         text = utils.unescape(text)
         has_explicit_title, title, part = split_explicit_title(text)
         try:
@@ -69,7 +69,7 @@ def setup_link_roles(app):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_config_value('extlinks', {}, 'env')
     app.connect('builder-inited', setup_link_roles)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

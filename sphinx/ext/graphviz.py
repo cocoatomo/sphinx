@@ -55,16 +55,16 @@ class ClickableMapDefinition:
     href_re = re.compile('href=".*?"')
 
     def __init__(self, filename, content, dot=''):
-        # type: (str, str, str) -> None
-        self.id = None  # type: str
+        # type: (unicode, unicode, unicode) -> None
+        self.id = None  # type: unicode
         self.filename = filename
         self.content = content.splitlines()
-        self.clickable = []  # type: List[str]
+        self.clickable = []  # type: List[unicode]
 
         self.parse(dot=dot)
 
     def parse(self, dot=None):
-        # type: (str) -> None
+        # type: (unicode) -> None
         matched = self.maptag_re.match(self.content[0])
         if not matched:
             raise GraphvizError('Invalid clickable map file found: %s' % self.filename)
@@ -82,7 +82,7 @@ class ClickableMapDefinition:
                 self.clickable.append(line)
 
     def generate_clickable_map(self):
-        # type: () -> str
+        # type: () -> unicode
         """Generate clickable map tags if clickable item exists.
 
         If not exists, this only returns empty string.
@@ -421,7 +421,7 @@ def on_build_finished(app, exc):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_node(graphviz,
                  html=(html_visit_graphviz, None),
                  latex=(latex_visit_graphviz, None),

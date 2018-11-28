@@ -18,7 +18,7 @@ if False:
 
 
 def prepare_docstring(s, ignore=1):
-    # type: (str, int) -> List[str]
+    # type: (unicode, int) -> List[unicode]
     """Convert a docstring into lines of parseable reST.  Remove common leading
     indentation, where the indentation of a given number of lines (usually just
     one) is ignored.
@@ -52,7 +52,7 @@ def prepare_docstring(s, ignore=1):
 
 
 def prepare_commentdoc(s):
-    # type: (str) -> List[str]
+    # type: (unicode) -> List[unicode]
     """Extract documentation comment lines (starting with #:) and return them
     as a list of lines.  Returns an empty list if there is no documentation.
     """

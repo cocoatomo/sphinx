@@ -254,7 +254,7 @@ class HTML5Translator(BaseTranslator):
 
     # overwritten
     def visit_admonition(self, node, name=''):
-        # type: (nodes.admonition, str) -> None
+        # type: (nodes.admonition, unicode) -> None
         self.body.append(self.starttag(
             node, 'div', CLASS=('admonition ' + name)))
         if name:
@@ -291,7 +291,7 @@ class HTML5Translator(BaseTranslator):
     def add_fignumber(self, node):
         # type: (nodes.Element) -> None
         def append_fignumber(figtype, figure_id):
-            # type: (str, str) -> None
+            # type: (unicode, unicode) -> None
             if self.builder.name == 'singlehtml':
                 key = u"%s/%s" % (self.docnames[-1], figtype)
             else:
@@ -817,26 +817,26 @@ class HTML5Translator(BaseTranslator):
             node['classes'].append('field-odd')
 
     def visit_math(self, node, math_env=''):
-        # type: (nodes.math, str) -> None
+        # type: (nodes.math, unicode) -> None
         name = self.builder.math_renderer_name
         visit, _ = self.builder.app.registry.html_inline_math_renderers[name]
         visit(self, node)
 
     def depart_math(self, node, math_env=''):
-        # type: (nodes.math, str) -> None
+        # type: (nodes.math, unicode) -> None
         name = self.builder.math_renderer_name
         _, depart = self.builder.app.registry.html_inline_math_renderers[name]
         if depart:
             depart(self, node)
 
     def visit_math_block(self, node, math_env=''):
-        # type: (nodes.math_block, str) -> None
+        # type: (nodes.math_block, unicode) -> None
         name = self.builder.math_renderer_name
         visit, _ = self.builder.app.registry.html_block_math_renderers[name]
         visit(self, node)
 
     def depart_math_block(self, node, math_env=''):
-        # type: (nodes.math_block, str) -> None
+        # type: (nodes.math_block, unicode) -> None
         name = self.builder.math_renderer_name
         _, depart = self.builder.app.registry.html_block_math_renderers[name]
         if depart:
@@ -850,21 +850,21 @@ class HTML5Translator(BaseTranslator):
 
     @property
     def highlightlang(self):
-        # type: () -> str
+        # type: () -> unicode
         warnings.warn('HTMLTranslator.highlightlang is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return self.builder.config.highlight_language
 
     @property
     def highlightlang_base(self):
-        # type: () -> str
+        # type: () -> unicode
         warnings.warn('HTMLTranslator.highlightlang_base is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return self.builder.config.highlight_language
 
     @property
     def highlightopts(self):
-        # type: () -> str
+        # type: () -> unicode
         warnings.warn('HTMLTranslator.highlightopts is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return self.builder.config.highlight_options

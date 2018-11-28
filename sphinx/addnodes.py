@@ -41,12 +41,12 @@ class translatable:
         raise NotImplementedError
 
     def apply_translated_message(self, original_message, translated_message):
-        # type: (str, str) -> None
+        # type: (unicode, unicode) -> None
         """Apply translated message."""
         raise NotImplementedError
 
     def extract_original_messages(self):
-        # type: () -> Sequence[str]
+        # type: () -> Sequence[unicode]
         """Extract translation messages.
 
         :returns: list of extracted messages or messages generator
@@ -68,12 +68,12 @@ class toctree(nodes.General, nodes.Element, translatable):
             self['rawcaption'] = self['caption']
 
     def apply_translated_message(self, original_message, translated_message):
-        # type: (str, str) -> None
+        # type: (unicode, unicode) -> None
         if self.get('rawcaption') == original_message:
             self['caption'] = translated_message
 
     def extract_original_messages(self):
-        # type: () -> List[str]
+        # type: () -> List[unicode]
         if 'rawcaption' in self:
             return [self['rawcaption']]
         else:
@@ -126,7 +126,7 @@ class desc_type(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 class desc_returns(desc_type):
     """Node for a "returns" annotation (a la -> in Python)."""
     def astext(self):
-        # type: () -> str
+        # type: () -> unicode
         return ' -> ' + nodes.TextElement.astext(self)
 
 
@@ -148,7 +148,7 @@ class desc_optional(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     child_text_separator = ', '
 
     def astext(self):
-        # type: () -> str
+        # type: () -> unicode
         return '[' + nodes.TextElement.astext(self) + ']'
 
 
@@ -351,5 +351,5 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
 
 # make the new nodes known to docutils; needed because the HTML writer will
 # choke at some point if these are not added
-nodes._add_node_class_names(k for k in globals().keys()
+nodes._add_node_class_names(k for k in globals().keys()  # type: ignore
                             if k != 'nodes' and k[0] != '_')

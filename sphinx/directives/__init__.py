@@ -61,12 +61,12 @@ class ObjectDescription(SphinxDirective):
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
     doc_field_types = []    # type: List[Any]
-    domain = None           # type: str
-    objtype = None          # type: str
+    domain = None           # type: unicode
+    objtype = None          # type: unicode
     indexnode = None        # type: addnodes.index
 
     def get_signatures(self):
-        # type: () -> List[str]
+        # type: () -> List[unicode]
         """
         Retrieve the signatures to document from the directive arguments.  By
         default, signatures are given as arguments, one per line.
@@ -78,7 +78,7 @@ class ObjectDescription(SphinxDirective):
         return [strip_backslash_re.sub(r'\1', line.strip()) for line in lines]
 
     def handle_signature(self, sig, signode):
-        # type: (str, addnodes.desc_signature) -> Any
+        # type: (unicode, addnodes.desc_signature) -> Any
         """
         Parse the signature *sig* into individual nodes and append them to
         *signode*. If ValueError is raised, parsing is aborted and the whole
@@ -91,7 +91,7 @@ class ObjectDescription(SphinxDirective):
         raise ValueError
 
     def add_target_and_index(self, name, sig, signode):
-        # type: (Any, str, addnodes.desc_signature) -> None
+        # type: (Any, unicode, addnodes.desc_signature) -> None
         """
         Add cross-reference IDs and entries to self.indexnode, if applicable.
 
@@ -147,7 +147,7 @@ class ObjectDescription(SphinxDirective):
         node['objtype'] = node['desctype'] = self.objtype
         node['noindex'] = noindex = ('noindex' in self.options)
 
-        self.names = []  # type: List[str]
+        self.names = []  # type: List[unicode]
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
             # add a signature node for each signature in the current unit
@@ -200,9 +200,9 @@ class DefaultRole(SphinxDirective):
     def run(self):
         # type: () -> List[nodes.Node]
         if not self.arguments:
-            if '' in roles._roles:
+            if '' in roles._roles:  # type: ignore
                 # restore the "default" default role
-                del roles._roles['']
+                del roles._roles['']  # type: ignore
             return []
         role_name = self.arguments[0]
         role, messages = roles.role(role_name, self.state_machine.language,
@@ -213,7 +213,7 @@ class DefaultRole(SphinxDirective):
                 nodes.literal_block(self.block_text, self.block_text),
                 line=self.lineno)
             return messages + [error]
-        roles._roles[''] = role
+        roles._roles[''] = role  # type: ignore
         self.env.temp_data['default_role'] = role_name
         return messages
 
@@ -243,7 +243,7 @@ class DefaultDomain(SphinxDirective):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     directives.register_directive('default-role', DefaultRole)
     directives.register_directive('default-domain', DefaultDomain)
     directives.register_directive('describe', ObjectDescription)

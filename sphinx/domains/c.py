@@ -82,7 +82,7 @@ class CObject(ObjectDescription):
     ))
 
     def _parse_type(self, node, ctype):
-        # type: (nodes.Node, str) -> None
+        # type: (nodes.Node, unicode) -> None
         # add cross-ref nodes for all words
         for part in [_f for _f in wsplit_re.split(ctype) if _f]:
             tnode = nodes.Text(part, part)
@@ -97,7 +97,7 @@ class CObject(ObjectDescription):
                 node += tnode
 
     def _parse_arglist(self, arglist):
-        # type: (str) -> Iterator[str]
+        # type: (unicode) -> Iterator[unicode]
         while True:
             m = c_funcptr_arg_sig_re.match(arglist)
             if m:
@@ -116,7 +116,7 @@ class CObject(ObjectDescription):
                     break
 
     def handle_signature(self, sig, signode):
-        # type: (str, addnodes.desc_signature) -> str
+        # type: (unicode, addnodes.desc_signature) -> unicode
         """Transform a C signature into RST nodes."""
         # first try the function pointer signature regex, it's more specific
         m = c_funcptr_sig_re.match(sig)
@@ -185,7 +185,7 @@ class CObject(ObjectDescription):
         return fullname
 
     def get_index_text(self, name):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         if self.objtype == 'function':
             return _('%s (C function)') % name
         elif self.objtype == 'member':
@@ -200,7 +200,7 @@ class CObject(ObjectDescription):
             return ''
 
     def add_target_and_index(self, name, sig, signode):
-        # type: (str, str, addnodes.desc_signature) -> None
+        # type: (unicode, unicode, addnodes.desc_signature) -> None
         # for C API items we add a prefix since names are usually not qualified
         # by a module name and so easily clash with e.g. section titles
         targetname = 'c.' + name
@@ -238,7 +238,7 @@ class CObject(ObjectDescription):
 
 class CXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.Node, bool, str, str) -> Tuple[str, str]
+        # type: (BuildEnvironment, nodes.Node, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
         if not has_explicit_title:
             target = target.lstrip('~')  # only has a meaning for the title
             # if the first character is a tilde, don't display the module/class
@@ -279,16 +279,16 @@ class CDomain(Domain):
     }
     initial_data = {
         'objects': {},  # fullname -> docname, objtype
-    }  # type: Dict[str, Dict[str, Tuple[str, Any]]]
+    }  # type: Dict[unicode, Dict[unicode, Tuple[unicode, Any]]]
 
     def clear_doc(self, docname):
-        # type: (str) -> None
+        # type: (unicode) -> None
         for fullname, (fn, _l) in list(self.data['objects'].items()):
             if fn == docname:
                 del self.data['objects'][fullname]
 
     def merge_domaindata(self, docnames, otherdata):
-        # type: (List[str], Dict) -> None
+        # type: (List[unicode], Dict) -> None
         # XXX check duplicates
         for fullname, (fn, objtype) in otherdata['objects'].items():
             if fn in docnames:
@@ -321,13 +321,13 @@ class CDomain(Domain):
                               contnode, target))]
 
     def get_objects(self):
-        # type: () -> Iterator[Tuple[str, str, str, str, str, int]]
+        # type: () -> Iterator[Tuple[unicode, unicode, unicode, unicode, unicode, int]]
         for refname, (docname, type) in list(self.data['objects'].items()):
             yield (refname, refname, type, docname, 'c.' + refname, 1)
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_domain(CDomain)
 
     return {

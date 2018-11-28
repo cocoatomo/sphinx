@@ -100,7 +100,7 @@ def find_subsections(section):
 
 
 def smart_capwords(s, sep=None):
-    # type: (str, str) -> str
+    # type: (unicode, unicode) -> unicode
     """Like string.capwords() but does not capitalize words that already
     contain a capital letter."""
     words = s.split(sep)
@@ -120,11 +120,11 @@ class TexinfoWriter(writers.Writer):
             ('Dir entry', ['--texinfo-dir-entry'], {'default': ''}),
             ('Description', ['--texinfo-dir-description'], {'default': ''}),
             ('Category', ['--texinfo-dir-category'], {'default':
-                                                      'Miscellaneous'})))  # type: Tuple[str, Any, Tuple[Tuple[str, List[str], Dict[str, str]], ...]]  # NOQA
+                                                      'Miscellaneous'})))  # type: Tuple[unicode, Any, Tuple[Tuple[unicode, List[unicode], Dict[unicode, unicode]], ...]]  # NOQA
 
     settings_defaults = {}  # type: Dict
 
-    output = None  # type: str
+    output = None  # type: unicode
 
     visitor_attributes = ('output', 'fragment')
 
@@ -167,19 +167,19 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.builder = builder
         self.init_settings()
 
-        self.written_ids = set()        # type: Set[str]
+        self.written_ids = set()        # type: Set[unicode]
                                         # node names and anchors in output
         # node names and anchors that should be in output
-        self.referenced_ids = set()     # type: Set[str]
-        self.indices = []               # type: List[Tuple[str, str]]
+        self.referenced_ids = set()     # type: Set[unicode]
+        self.indices = []               # type: List[Tuple[unicode, unicode]]
                                         # (node name, content)
-        self.short_ids = {}             # type: Dict[str, str]
+        self.short_ids = {}             # type: Dict[unicode, unicode]
                                         # anchors --> short ids
-        self.node_names = {}            # type: Dict[str, str]
+        self.node_names = {}            # type: Dict[unicode, unicode]
                                         # node name --> node's name to display
-        self.node_menus = {}            # type: Dict[str, List[str]]
+        self.node_menus = {}            # type: Dict[unicode, List[unicode]]
                                         # node name --> node's menu entries
-        self.rellinks = {}              # type: Dict[str, List[str]]
+        self.rellinks = {}              # type: Dict[unicode, List[unicode]]
                                         # node name --> (next, previous, up)
 
         self.collect_indices()
@@ -187,18 +187,18 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.collect_node_menus()
         self.collect_rellinks()
 
-        self.body = []                  # type: List[str]
-        self.context = []               # type: List[str]
+        self.body = []                  # type: List[unicode]
+        self.context = []               # type: List[unicode]
         self.previous_section = None    # type: nodes.section
         self.section_level = 0
         self.seen_title = False
-        self.next_section_ids = set()   # type: Set[str]
+        self.next_section_ids = set()   # type: Set[unicode]
         self.escape_newlines = 0
         self.escape_hyphens = 0
-        self.curfilestack = []          # type: List[str]
-        self.footnotestack = []         # type: List[Dict[str, List[Union[collected_footnote, bool]]]]  # NOQA
+        self.curfilestack = []          # type: List[unicode]
+        self.footnotestack = []         # type: List[Dict[unicode, List[Union[collected_footnote, bool]]]]  # NOQA
         self.in_footnote = 0
-        self.handled_abbrs = set()      # type: Set[str]
+        self.handled_abbrs = set()      # type: Set[unicode]
         self.colwidths = None           # type: List[int]
 
     def finish(self):
@@ -241,7 +241,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
                                             language=self.builder.config.language))
         })
         # title
-        title = None  # type: str
+        title = None  # type: unicode
         title = elements['title']  # type: ignore
         if not title:
             title = self.document.next_node(nodes.title)
@@ -275,7 +275,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         Assigns the attribute ``node_name`` to each section."""
 
         def add_node_name(name):
-            # type: (str) -> str
+            # type: (unicode) -> unicode
             node_id = self.escape_id(name)
             nth, suffix = 1, ''
             while node_id + suffix in self.written_ids or \
@@ -360,7 +360,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
     # characters.
 
     def escape(self, s):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         """Return a string with Texinfo command characters escaped."""
         s = s.replace('@', '@@')
         s = s.replace('{', '@{')
@@ -371,7 +371,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         return s
 
     def escape_arg(self, s):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         """Return an escaped string suitable for use as an argument
         to a Texinfo command."""
         s = self.escape(s)
@@ -382,7 +382,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         return s
 
     def escape_id(self, s):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         """Return an escaped string suitable for node names and anchors."""
         bad_chars = ',:.()'
         for bc in bad_chars:
@@ -391,7 +391,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         return self.escape(s)
 
     def escape_menu(self, s):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         """Return an escaped string suitable for menu entries."""
         s = self.escape_arg(s)
         s = s.replace(':', ';')
@@ -405,7 +405,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
             self.body.append('\n')
 
     def format_menu_entry(self, name, node_name, desc):
-        # type: (str, str, str) -> str
+        # type: (unicode, unicode, unicode) -> unicode
         if name == node_name:
             s = '* %s:: ' % (name,)
         else:
@@ -416,7 +416,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         return s + wdesc.strip() + '\n'
 
     def add_menu_entries(self, entries, reg=re.compile(r'\s+---?\s+')):
-        # type: (List[str], Pattern) -> None
+        # type: (List[unicode], Pattern) -> None
         for entry in entries:
             name = self.node_names[entry]
             # special formatting for entries that are divided by an em-dash
@@ -434,7 +434,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
             self.body.append(self.format_menu_entry(name, entry, desc))
 
     def add_menu(self, node_name):
-        # type: (str) -> None
+        # type: (unicode) -> None
         entries = self.node_menus[node_name]
         if not entries:
             return
@@ -447,7 +447,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
             return
 
         def _add_detailed_menu(name):
-            # type: (str) -> None
+            # type: (unicode) -> None
             entries = self.node_menus[name]
             if not entries:
                 return
@@ -464,7 +464,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
                          '@end menu\n')
 
     def tex_image_length(self, width_str):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         match = re.match(r'(\d*\.?\d*)\s*(\S*)', width_str)
         if not match:
             # fallback
@@ -482,8 +482,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def collect_indices(self):
         # type: () -> None
         def generate(content, collapsed):
-            # type: (List[Tuple[str, List[IndexEntry]]], bool) -> str
-            ret = ['\n@menu\n']  # type: List[str]
+            # type: (List[Tuple[unicode, List[IndexEntry]]], bool) -> unicode
+            ret = ['\n@menu\n']  # type: List[unicode]
             for letter, entries in content:
                 for entry in entries:
                     if not entry[3]:
@@ -531,7 +531,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
                         continue
                     for k in footnotes_under(c):
                         yield k
-        fnotes = {}  # type: Dict[str, List[Union[collected_footnote, bool]]]
+        fnotes = {}  # type: Dict[unicode, List[Union[collected_footnote, bool]]]
         for fn in footnotes_under(node):
             num = fn.children[0].astext().strip()
             fnotes[num] = [collected_footnote(*fn.children), False]
@@ -540,7 +540,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
     # -- xref handling
 
     def get_short_id(self, id):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         """Return a shorter 'id' associated with ``id``."""
         # Shorter ids improve paragraph filling in places
         # that the id is hidden by Emacs.
@@ -552,7 +552,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         return sid
 
     def add_anchor(self, id, node):
-        # type: (str, nodes.Node) -> None
+        # type: (unicode, nodes.Node) -> None
         if id.startswith('index-'):
             return
         id = self.curfilestack[-1] + ':' + id
@@ -564,7 +564,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
                 self.written_ids.add(id)
 
     def add_xref(self, id, name, node):
-        # type: (str, str, nodes.Node) -> None
+        # type: (unicode, unicode, nodes.Node) -> None
         name = self.escape_menu(name)
         sid = self.get_short_id(id)
         self.body.append('@ref{%s,,%s}' % (sid, name))
@@ -629,13 +629,13 @@ class TexinfoTranslator(nodes.NodeVisitor):
         '@section',
         '@subsection',
         '@subsubsection',
-    )  # type: Tuple[str, ...]
+    )  # type: Tuple[unicode, ...]
 
     rubrics = (
         '@heading',
         '@subheading',
         '@subsubheading',
-    )  # type: Tuple[str, ...]
+    )  # type: Tuple[unicode, ...]
 
     def visit_title(self, node):
         # type: (nodes.title) -> None
@@ -1198,7 +1198,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
     # -- Admonitions
 
     def visit_admonition(self, node, name=''):
-        # type: (nodes.admonition, str) -> None
+        # type: (nodes.admonition, unicode) -> None
         if not name:
             name = self.escape(node[0].astext())
         self.body.append(u'\n@cartouche\n@quotation %s ' % name)
@@ -1210,7 +1210,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
                          '@end cartouche\n')
 
     def _make_visit_admonition(name):
-        # type: (str) -> Callable[[TexinfoTranslator, nodes.Node], None]
+        # type: (unicode) -> Callable[[TexinfoTranslator, nodes.Node], None]
         def visit(self, node):
             # type: (nodes.Node) -> None
             self.visit_admonition(node, admonitionlabels[name])

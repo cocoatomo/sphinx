@@ -41,24 +41,24 @@ core_events = {
     'html-collect-pages': 'builder',
     'html-page-context': 'pagename, context, doctree or None',
     'build-finished': 'exception',
-}  # type: Dict[str, str]
+}  # type: Dict[unicode, unicode]
 
 
 class EventManager:
     def __init__(self):
         # type: () -> None
         self.events = core_events.copy()
-        self.listeners = defaultdict(OrderedDict)  # type: Dict[str, Dict[int, Callable]]
+        self.listeners = defaultdict(OrderedDict)  # type: Dict[unicode, Dict[int, Callable]]
         self.next_listener_id = 0
 
     def add(self, name):
-        # type: (str) -> None
+        # type: (unicode) -> None
         if name in self.events:
             raise ExtensionError(__('Event %r already present') % name)
         self.events[name] = ''
 
     def connect(self, name, callback):
-        # type: (str, Callable) -> int
+        # type: (unicode, Callable) -> int
         if name not in self.events:
             raise ExtensionError(__('Unknown event name: %s') % name)
 
@@ -73,14 +73,14 @@ class EventManager:
             event.pop(listener_id, None)
 
     def emit(self, name, *args):
-        # type: (str, Any) -> List
+        # type: (unicode, Any) -> List
         results = []
         for callback in self.listeners[name].values():
             results.append(callback(*args))
         return results
 
     def emit_firstresult(self, name, *args):
-        # type: (str, Any) -> Any
+        # type: (unicode, Any) -> Any
         for result in self.emit(name, *args):
             if result is not None:
                 return result

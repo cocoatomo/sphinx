@@ -64,7 +64,7 @@ class ImagemagickConverter(ImageConverter):
         return True
 
     def convert(self, _from, _to):
-        # type: (str, str) -> bool
+        # type: (unicode, unicode) -> bool
         """Converts the image to expected one."""
         try:
             if _from.lower().endswith('.gif'):
@@ -100,7 +100,7 @@ class ImagemagickConverter(ImageConverter):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_post_transform(ImagemagickConverter)
     app.add_config_value('image_converter', 'convert', 'env')
     app.add_config_value('image_converter_args', [], 'env')

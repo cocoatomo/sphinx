@@ -48,7 +48,7 @@ class ObjType:
     }
 
     def __init__(self, lname, *roles, **attrs):
-        # type: (str, Any, Any) -> None
+        # type: (unicode, Any, Any) -> None
         self.lname = lname
         self.roles = roles                      # type: Tuple
         self.attrs = self.known_attrs.copy()    # type: Dict
@@ -79,9 +79,9 @@ class Index:
     domains using :meth:`~sphinx.application.Sphinx.add_index_to_domain()`.
     """
 
-    name = None  # type: str
-    localname = None  # type: str
-    shortname = None  # type: str
+    name = None  # type: unicode
+    localname = None  # type: unicode
+    shortname = None  # type: unicode
 
     def __init__(self, domain):
         # type: (Domain) -> None
@@ -91,7 +91,7 @@ class Index:
         self.domain = domain
 
     def generate(self, docnames=None):
-        # type: (Iterable[str]) -> Tuple[List[Tuple[str, List[IndexEntry]]], bool]
+        # type: (Iterable[unicode]) -> Tuple[List[Tuple[unicode, List[IndexEntry]]], bool]
         """Return entries for the index given by *name*.  If *docnames* is
         given, restrict to entries referring to these docnames.
 
@@ -150,15 +150,15 @@ class Domain:
     #: domain label: longer, more descriptive (used in messages)
     label = ''
     #: type (usually directive) name -> ObjType instance
-    object_types = {}       # type: Dict[str, ObjType]
+    object_types = {}       # type: Dict[unicode, ObjType]
     #: directive name -> directive class
-    directives = {}         # type: Dict[str, Any]
+    directives = {}         # type: Dict[unicode, Type[Directive]]
     #: role name -> role callable
-    roles = {}              # type: Dict[str, Union[RoleFunction, XRefRole]]
+    roles = {}              # type: Dict[unicode, Union[RoleFunction, XRefRole]]
     #: a list of Index subclasses
     indices = []            # type: List[Type[Index]]
     #: role name -> a warning message if reference is missing
-    dangling_warnings = {}  # type: Dict[str, str]
+    dangling_warnings = {}  # type: Dict[unicode, unicode]
     #: node_class -> (enum_node_type, title_getter)
     enumerable_nodes = {}   # type: Dict[Type[nodes.Element], Tuple[unicode, Callable]]
 
@@ -172,10 +172,10 @@ class Domain:
     def __init__(self, env):
         # type: (BuildEnvironment) -> None
         self.env = env              # type: BuildEnvironment
-        self._role_cache = {}       # type: Dict[str, Callable]
-        self._directive_cache = {}  # type: Dict[str, Callable]
-        self._role2type = {}        # type: Dict[str, List[str]]
-        self._type2role = {}        # type: Dict[str, str]
+        self._role_cache = {}       # type: Dict[unicode, Callable]
+        self._directive_cache = {}  # type: Dict[unicode, Callable]
+        self._role2type = {}        # type: Dict[unicode, List[unicode]]
+        self._type2role = {}        # type: Dict[unicode, unicode]
 
         # convert class variables to instance one (to enhance through API)
         self.object_types = dict(self.object_types)
@@ -196,11 +196,11 @@ class Domain:
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)
             self._type2role[name] = obj.roles[0] if obj.roles else ''
-        self.objtypes_for_role = self._role2type.get    # type: Callable[[str], List[str]]
-        self.role_for_objtype = self._type2role.get     # type: Callable[[str], str]
+        self.objtypes_for_role = self._role2type.get    # type: Callable[[unicode], List[unicode]]  # NOQA
+        self.role_for_objtype = self._type2role.get     # type: Callable[[unicode], unicode]
 
     def add_object_type(self, name, objtype):
-        # type: (str, ObjType) -> None
+        # type: (unicode, ObjType) -> None
         """Add an object type."""
         self.object_types[name] = objtype
         if objtype.roles:
@@ -212,7 +212,7 @@ class Domain:
             self._role2type.setdefault(role, []).append(name)
 
     def role(self, name):
-        # type: (str) -> RoleFunction
+        # type: (unicode) -> RoleFunction
         """Return a role adapter function that always gives the registered
         role its full name ('domain:name') as the first argument.
         """
@@ -223,14 +223,14 @@ class Domain:
         fullname = '%s:%s' % (self.name, name)
 
         def role_adapter(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-            # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+            # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
             return self.roles[name](fullname, rawtext, text, lineno,
                                     inliner, options, content)
         self._role_cache[name] = role_adapter
         return role_adapter
 
     def directive(self, name):
-        # type: (str) -> Callable
+        # type: (unicode) -> Callable
         """Return a directive adapter class that always gives the registered
         directive its full name ('domain:name') as ``self.name``.
         """
@@ -252,12 +252,12 @@ class Domain:
     # methods that should be overwritten
 
     def clear_doc(self, docname):
-        # type: (str) -> None
+        # type: (unicode) -> None
         """Remove traces of a document in the domain-specific inventories."""
         pass
 
     def merge_domaindata(self, docnames, otherdata):
-        # type: (List[str], Dict) -> None
+        # type: (List[unicode], Dict) -> None
         """Merge in data regarding *docnames* from a different domaindata
         inventory (coming from a subprocess in parallel builds).
         """
@@ -318,7 +318,7 @@ class Domain:
         raise NotImplementedError
 
     def get_objects(self):
-        # type: () -> Iterable[Tuple[str, str, str, str, str, int]]
+        # type: () -> Iterable[Tuple[unicode, unicode, unicode, unicode, unicode, int]]
         """Return an iterable of "object descriptions", which are tuples with
         five items:
 
@@ -338,19 +338,19 @@ class Domain:
         return []
 
     def get_type_name(self, type, primary=False):
-        # type: (ObjType, bool) -> str
+        # type: (ObjType, bool) -> unicode
         """Return full name for given ObjType."""
         if primary:
             return type.lname
         return _('%s %s') % (self.label, type.lname)
 
     def get_enumerable_node_type(self, node):
-        # type: (nodes.Node) -> str
+        # type: (nodes.Node) -> unicode
         """Get type of enumerable nodes (experimental)."""
         enum_node_type, _ = self.enumerable_nodes.get(node.__class__, (None, None))
         return enum_node_type
 
     def get_full_qualified_name(self, node):
-        # type: (nodes.Node) -> str
+        # type: (nodes.Node) -> unicode
         """Return full qualified name for given node."""
         return None

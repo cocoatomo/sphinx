@@ -122,7 +122,7 @@ def merge_doctrees(old, new, condition):
 
 
 def get_ratio(old, new):
-    # type: (str, str) -> float
+    # type: (unicode, unicode) -> float
     """Return a "similiarity ratio" (in percent) representing the similarity
     between the two strings where 0 is equal and anything above less than equal.
     """
@@ -136,7 +136,7 @@ def get_ratio(old, new):
 
 
 def levenshtein_distance(a, b):
-    # type: (str, str) -> int
+    # type: (unicode, unicode) -> int
     """Return the Levenshtein edit distance between two strings *a* and *b*."""
     if a == b:
         return 0
@@ -184,7 +184,7 @@ class UIDTransform(SphinxTransform):
 
 
 def prepare(document):
-    # type: (nodes.Node) -> None
+    # type: (nodes.document) -> None
     """Simple wrapper for UIDTransform."""
     warnings.warn('versioning.prepare() is deprecated. Use UIDTransform instead.',
                   RemovedInSphinx30Warning, stacklevel=2)

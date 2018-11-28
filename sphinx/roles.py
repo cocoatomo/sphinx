@@ -84,7 +84,7 @@ class XRefRole:
             self.innernodeclass = innernodeclass
 
     def _fix_parens(self, env, has_explicit_title, title, target):
-        # type: (BuildEnvironment, bool, str, str) -> Tuple[str, str]
+        # type: (BuildEnvironment, bool, unicode, unicode) -> Tuple[unicode, unicode]
         if not has_explicit_title:
             if title.endswith('()'):
                 # remove parentheses
@@ -110,7 +110,7 @@ class XRefRole:
         else:
             typ = typ.lower()
         if ':' not in typ:
-            domain, role = '', typ
+            domain, role = '', typ  # type: unicode, unicode
             classes = ['xref', role]
         else:
             domain, role = typ.split(':', 1)
@@ -136,7 +136,7 @@ class XRefRole:
         refnode = self.nodeclass(rawtext, reftype=role, refdomain=domain,
                                  refexplicit=has_explicit_title)
         # we may need the line number for warnings
-        set_role_source_info(inliner, lineno, refnode)  # type: ignore
+        set_role_source_info(inliner, lineno, refnode)
         title, target = self.process_link(
             env, refnode, has_explicit_title, title, target)
         # now that the target and title are finally determined, set them
@@ -151,7 +151,7 @@ class XRefRole:
     # methods that can be overwritten
 
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.reference, bool, str, str) -> Tuple[str, str]
+        # type: (BuildEnvironment, nodes.Element, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
         """Called after parsing title and target text, and creating the
         reference node (given in *refnode*).  This method can alter the
         reference node and must return a new (or the same) ``(title, target)``
@@ -171,7 +171,7 @@ class XRefRole:
 
 class AnyXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.reference, bool, str, str) -> Tuple[str, str]
+        # type: (BuildEnvironment, nodes.Element, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
         result = XRefRole.process_link(self, env, refnode, has_explicit_title,
                                        title, target)
         # add all possible context info (i.e. std:program, py:module etc.)
@@ -200,7 +200,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
         indexnode['entries'] = [
             ('single', _('Python Enhancement Proposals; PEP %s') % target,
              targetid, '', None)]
-        anchor = ''
+        anchor = ''  # type: unicode
         anchorindex = target.find('#')
         if anchorindex > 0:
             target, anchor = target[:anchorindex], target[anchorindex:]
@@ -374,7 +374,7 @@ def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         entries = [('single', target, targetid, main, None)]
     indexnode = addnodes.index()
     indexnode['entries'] = entries
-    set_role_source_info(inliner, lineno, indexnode)  # type: ignore
+    set_role_source_info(inliner, lineno, indexnode)
     textnode = nodes.Text(title, title)
     return [indexnode, targetnode, textnode], []
 
@@ -397,7 +397,7 @@ specific_docroles = {
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     from docutils.parsers.rst import roles
 
     for rolename, nodeclass in generic_docroles.items():

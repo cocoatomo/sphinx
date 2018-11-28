@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 class TocTreeCollector(EnvironmentCollector):
     def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, str) -> None
+        # type: (Sphinx, BuildEnvironment, unicode) -> None
         env.tocs.pop(docname, None)
         env.toc_secnumbers.pop(docname, None)
         env.toc_fignumbers.pop(docname, None)
@@ -46,7 +46,7 @@ class TocTreeCollector(EnvironmentCollector):
                 del env.files_to_rebuild[subfn]
 
     def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
+        # type: (Sphinx, BuildEnvironment, Set[unicode], BuildEnvironment) -> None
         for docname in docnames:
             env.tocs[docname] = other.tocs[docname]
             env.toc_num_entries[docname] = other.toc_num_entries[docname]
@@ -134,21 +134,21 @@ class TocTreeCollector(EnvironmentCollector):
         app.env.toc_num_entries[docname] = numentries[0]
 
     def get_updated_docs(self, app, env):
-        # type: (Sphinx, BuildEnvironment) -> List[str]
+        # type: (Sphinx, BuildEnvironment) -> List[unicode]
         return self.assign_section_numbers(env) + self.assign_figure_numbers(env)
 
     def assign_section_numbers(self, env):
-        # type: (BuildEnvironment) -> List[str]
+        # type: (BuildEnvironment) -> List[unicode]
         """Assign a section number to each heading under a numbered toctree."""
         # a list of all docnames whose section numbers changed
         rewrite_needed = []
 
-        assigned = set()  # type: Set[str]
+        assigned = set()  # type: Set[unicode]
         old_secnumbers = env.toc_secnumbers
         env.toc_secnumbers = {}
 
         def _walk_toc(node, secnums, depth, titlenode=None):
-            # type: (nodes.Node, Dict, int, nodes.Node) -> None
+            # type: (nodes.Element, Dict, int, nodes.Node) -> None
             # titlenode is the title of the document, it will get assigned a
             # secnumber too, so that it shows up in next/prev/parent rellinks
             for subnode in node.children:
@@ -214,18 +214,18 @@ class TocTreeCollector(EnvironmentCollector):
         return rewrite_needed
 
     def assign_figure_numbers(self, env):
-        # type: (BuildEnvironment) -> List[str]
+        # type: (BuildEnvironment) -> List[unicode]
         """Assign a figure number to each figure under a numbered toctree."""
 
         rewrite_needed = []
 
-        assigned = set()  # type: Set[str]
+        assigned = set()  # type: Set[unicode]
         old_fignumbers = env.toc_fignumbers
         env.toc_fignumbers = {}
-        fignum_counter = {}  # type: Dict[str, Dict[Tuple[int, ...], int]]
+        fignum_counter = {}  # type: Dict[unicode, Dict[Tuple[int, ...], int]]
 
         def get_figtype(node):
-            # type: (nodes.Node) -> str
+            # type: (nodes.Node) -> unicode
             for domain in env.domains.values():
                 figtype = domain.get_enumerable_node_type(node)
                 if figtype:
@@ -234,7 +234,7 @@ class TocTreeCollector(EnvironmentCollector):
             return None
 
         def get_section_number(docname, section):
-            # type: (str, nodes.Node) -> Tuple[int, ...]
+            # type: (unicode, nodes.Node) -> Tuple[int, ...]
             anchorname = '#' + section['ids'][0]
             secnumbers = env.toc_secnumbers.get(docname, {})
             if anchorname in secnumbers:
@@ -245,7 +245,7 @@ class TocTreeCollector(EnvironmentCollector):
             return secnum or tuple()
 
         def get_next_fignumber(figtype, secnum):
-            # type: (str, Tuple[int, ...]) -> Tuple[int, ...]
+            # type: (unicode, Tuple[int, ...]) -> Tuple[int, ...]
             counter = fignum_counter.setdefault(figtype, {})
 
             secnum = secnum[:env.config.numfig_secnum_depth]
@@ -253,7 +253,7 @@ class TocTreeCollector(EnvironmentCollector):
             return secnum + (counter[secnum],)
 
         def register_fignumber(docname, secnum, figtype, fignode):
-            # type: (str, Tuple[int], str, nodes.Node) -> None
+            # type: (unicode, Tuple[int], unicode, nodes.Node) -> None
             env.toc_fignumbers.setdefault(docname, {})
             fignumbers = env.toc_fignumbers[docname].setdefault(figtype, {})
             figure_id = fignode['ids'][0]
@@ -261,7 +261,7 @@ class TocTreeCollector(EnvironmentCollector):
             fignumbers[figure_id] = get_next_fignumber(figtype, secnum)
 
         def _walk_doctree(docname, doctree, secnum):
-            # type: (str, nodes.Node, Tuple[int, ...]) -> None
+            # type: (unicode, nodes.Element, Tuple[int, ...]) -> None
             for subnode in doctree.children:
                 if isinstance(subnode, nodes.section):
                     next_secnum = get_section_number(docname, subnode)
@@ -287,7 +287,7 @@ class TocTreeCollector(EnvironmentCollector):
                 _walk_doctree(docname, subnode, secnum)
 
         def _walk_doc(docname, secnum):
-            # type: (str, Tuple[int]) -> None
+            # type: (unicode, Tuple[int]) -> None
             if docname not in assigned:
                 assigned.add(docname)
                 doctree = env.get_doctree(docname)

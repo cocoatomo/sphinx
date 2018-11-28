@@ -38,15 +38,15 @@ class TextBuilder(Builder):
     allow_parallel = True
     default_translator_class = TextTranslator
 
-    current_docname = None  # type: str
+    current_docname = None  # type: unicode
 
     def init(self):
         # type: () -> None
         # section numbers for headings in the currently visited document
-        self.secnumbers = {}  # type: Dict[str, Tuple[int, ...]]
+        self.secnumbers = {}  # type: Dict[unicode, Tuple[int, ...]]
 
     def get_outdated_docs(self):
-        # type: () -> Iterator[str]
+        # type: () -> Iterator[unicode]
         for docname in self.env.found_docs:
             if docname not in self.env.all_docs:
                 yield docname
@@ -65,15 +65,15 @@ class TextBuilder(Builder):
                 pass
 
     def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
+        # type: (unicode, unicode) -> unicode
         return ''
 
     def prepare_writing(self, docnames):
-        # type: (Set[str]) -> None
+        # type: (Set[unicode]) -> None
         self.writer = TextWriter(self)
 
     def write_doc(self, docname, doctree):
-        # type: (str, nodes.Node) -> None
+        # type: (unicode, nodes.Node) -> None
         self.current_docname = docname
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         destination = StringOutput(encoding='utf-8')
@@ -92,7 +92,7 @@ class TextBuilder(Builder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(TextBuilder)
 
     app.add_config_value('text_sectionchars', '*=-~"+`', 'env')

@@ -69,13 +69,13 @@ class Catalog:
 
     def __init__(self):
         # type: () -> None
-        self.messages = []  # type: List[str]
+        self.messages = []  # type: List[unicode]
                             # retain insertion order, a la OrderedDict
-        self.metadata = OrderedDict()  # type: Dict[str, List[Tuple[str, int, str]]]
+        self.metadata = OrderedDict()  # type: Dict[unicode, List[Tuple[unicode, int, unicode]]]  # NOQA
                                         # msgid -> file, line, uid
 
     def add(self, msg, origin):
-        # type: (str, MsgOrigin) -> None
+        # type: (unicode, MsgOrigin) -> None
         if not hasattr(origin, 'uid'):
             # Nodes that are replicated like todo don't have a uid,
             # however i18n is also unnecessary.
@@ -92,7 +92,7 @@ class MsgOrigin:
     """
 
     def __init__(self, source, line):
-        # type: (str, int) -> None
+        # type: (unicode, int) -> None
         self.source = source
         self.line = line
         self.uid = uuid4().hex
@@ -125,26 +125,26 @@ class I18nBuilder(Builder):
         self.env.set_versioning_method(self.versioning_method,
                                        self.env.config.gettext_uuid)
         self.tags = I18nTags()
-        self.catalogs = defaultdict(Catalog)  # type: DefaultDict[str, Catalog]
+        self.catalogs = defaultdict(Catalog)  # type: DefaultDict[unicode, Catalog]
 
     def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
+        # type: (unicode, unicode) -> unicode
         return ''
 
     def get_outdated_docs(self):
-        # type: () -> Set[str]
+        # type: () -> Set[unicode]
         return self.env.found_docs
 
     def prepare_writing(self, docnames):
-        # type: (Set[str]) -> None
+        # type: (Set[unicode]) -> None
         return
 
     def compile_catalogs(self, catalogs, message):
-        # type: (Set[CatalogInfo], str) -> None
+        # type: (Set[CatalogInfo], unicode) -> None
         return
 
     def write_doc(self, docname, doctree):
-        # type: (str, nodes.Node) -> None
+        # type: (unicode, nodes.Node) -> None
         catalog = self.catalogs[find_catalog(docname,
                                              self.config.gettext_compact)]
 
@@ -195,7 +195,7 @@ ltz = LocalTimeZone()
 
 
 def should_write(filepath, new_content):
-    # type: (str, str) -> bool
+    # type: (unicode, unicode) -> bool
     if not path.exists(filepath):
         return True
     try:
@@ -227,7 +227,7 @@ class MessageCatalogBuilder(I18nBuilder):
         self.templates.init(self)
 
     def _collect_templates(self):
-        # type: () -> Set[str]
+        # type: () -> Set[unicode]
         template_files = set()
         for template_path in self.config.templates_path:
             tmpl_abs_path = path.join(self.app.srcdir, template_path)
@@ -259,7 +259,7 @@ class MessageCatalogBuilder(I18nBuilder):
                 raise ThemeError('%s: %r' % (template, exc))
 
     def build(self, docnames, summary=None, method='update'):
-        # type: (Iterable[str], str, str) -> None
+        # type: (Iterable[unicode], unicode, unicode) -> None
         self._extract_from_template()
         I18nBuilder.build(self, docnames, summary, method)
 
@@ -273,7 +273,7 @@ class MessageCatalogBuilder(I18nBuilder):
             'ctime': datetime.fromtimestamp(
                 timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
         }
-        for textdomain, catalog in status_iterator(self.catalogs.items(),  # type: ignore
+        for textdomain, catalog in status_iterator(self.catalogs.items(),
                                                    __("writing message catalogs... "),
                                                    "darkgreen", len(self.catalogs),
                                                    self.app.verbosity,
@@ -312,7 +312,7 @@ class MessageCatalogBuilder(I18nBuilder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(MessageCatalogBuilder)
 
     app.add_config_value('gettext_compact', True, 'gettext')

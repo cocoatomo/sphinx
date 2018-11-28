@@ -43,7 +43,7 @@ class PseudoXMLWriter(writers.Writer):
     """Formats this writer supports."""
 
     config_section = 'pseudoxml writer'
-    config_section_dependencies = ('writers',)
+    config_section_dependencies = ('writers',)  # type: Tuple[unicode]
 
     output = None
     """Final translated form of `document`."""
@@ -58,6 +58,6 @@ class PseudoXMLWriter(writers.Writer):
         self.output = self.document.pformat()
 
     def supports(self, format):
-        # type: (str) -> bool
+        # type: (unicode) -> bool
         """This writer supports all format-specific elements."""
         return True

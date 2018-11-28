@@ -81,7 +81,7 @@ def install_jsmath(app, env):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_html_math_renderer('jsmath',
                                (html_visit_math, None),
                                (html_visit_displaymath, None))

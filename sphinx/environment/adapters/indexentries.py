@@ -35,14 +35,14 @@ class IndexEntries:
 
     def create_index(self, builder, group_entries=True,
                      _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
-        # type: (Builder, bool, Pattern) -> List[Tuple[str, List[Tuple[str, Any]]]]
+        # type: (Builder, bool, Pattern) -> List[Tuple[unicode, List[Tuple[unicode, Any]]]]
         """Create the real index from the collected index entries."""
         from sphinx.environment import NoUri
 
-        new = {}  # type: Dict[str, List]
+        new = {}  # type: Dict[unicode, List]
 
         def add_entry(word, subword, main, link=True, dic=new, key=None):
-            # type: (str, str, str, bool, Dict, str) -> None
+            # type: (unicode, unicode, unicode, bool, Dict, unicode) -> None
             # Force the word to be unicode if it's a ASCII bytestring.
             # This will solve problems with unicode normalization later.
             # For instance the RFC role will add bytestrings at the moment
@@ -97,7 +97,7 @@ class IndexEntries:
         # sort the index entries; put all symbols at the front, even those
         # following the letters in ASCII, this is where the chr(127) comes from
         def keyfunc(entry):
-            # type: (Tuple[str, List]) -> Tuple[str, str]
+            # type: (Tuple[unicode, List]) -> Tuple[unicode, unicode]
             key, (void, void, category_key) = entry
             if category_key:
                 # using specified category key to sort
@@ -121,7 +121,7 @@ class IndexEntries:
             #     (in module foo)
             #     (in module bar)
             oldkey = ''
-            oldsubitems = None  # type: Dict[str, List]
+            oldsubitems = None  # type: Dict[unicode, List]
             i = 0
             while i < len(newlist):
                 key, (targets, subitems, _key) = newlist[i]
@@ -144,7 +144,7 @@ class IndexEntries:
 
         # group the entries by letter
         def keyfunc2(item):
-            # type: (Tuple[str, List]) -> str
+            # type: (Tuple[unicode, List]) -> unicode
             # hack: mutating the subitems dicts to a list in the keyfunc
             k, v = item
             v[1] = sorted((si, se) for (si, (se, void, void)) in v[1].items())

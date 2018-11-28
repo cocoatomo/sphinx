@@ -42,7 +42,7 @@ ESCAPED = re.compile(r'\\u.{4}|\\.')
 def encode_string(s):
     # type: (str) -> str
     def replace(match):
-        # type: (Match) -> str
+        # type: (Match) -> unicode
         s = match.group(0)
         try:
             return ESCAPE_DICT[s]

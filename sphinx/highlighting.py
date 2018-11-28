@@ -70,7 +70,7 @@ class PygmentsBridge:
     latex_formatter = LatexFormatter
 
     def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=None):
-        # type: (str, str, bool) -> None
+        # type: (unicode, unicode, bool) -> None
         self.dest = dest
         if stylename is None or stylename == 'sphinx':
             style = SphinxStyle
@@ -82,7 +82,7 @@ class PygmentsBridge:
                             stylename)
         else:
             style = get_style_by_name(stylename)
-        self.formatter_args = {'style': style}  # type: Dict[str, Any]
+        self.formatter_args = {'style': style}  # type: Dict[unicode, Any]
         if dest == 'html':
             self.formatter = self.html_formatter
         else:
@@ -100,7 +100,7 @@ class PygmentsBridge:
         return self.formatter(**kwargs)
 
     def unhighlighted(self, source):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         warnings.warn('PygmentsBridge.unhighlighted() is now deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         if self.dest == 'html':
@@ -114,7 +114,7 @@ class PygmentsBridge:
                    source + '\\end{Verbatim}\n'
 
     def highlight_block(self, source, lang, opts=None, location=None, force=False, **kwargs):
-        # type: (str, str, Any, Any, bool, Any) -> str
+        # type: (unicode, unicode, Any, Any, bool, Any) -> unicode
         if not isinstance(source, text_type):
             source = source.decode()
 
@@ -174,7 +174,7 @@ class PygmentsBridge:
             return hlsource.translate(tex_hl_escape_map_new)
 
     def get_stylesheet(self):
-        # type: () -> str
+        # type: () -> unicode
         formatter = self.get_formatter()
         if self.dest == 'html':
             return formatter.get_style_defs('.highlight')

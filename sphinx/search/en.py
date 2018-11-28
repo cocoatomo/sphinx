@@ -227,5 +227,5 @@ class SearchEnglish(SearchLanguage):
         self.stemmer = get_stemmer()
 
     def stem(self, word):
-        # type: (str) -> str
+        # type: (unicode) -> unicode
         return self.stemmer.stem(word.lower())

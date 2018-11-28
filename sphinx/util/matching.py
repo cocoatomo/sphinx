@@ -18,7 +18,7 @@ if False:
 
 
 def _translate_pattern(pat):
-    # type: (str) -> str
+    # type: (unicode) -> unicode
     """Translate a shell-style glob pattern to a regular expression.
 
     Adapted from the fnmatch module, but enhanced so that single stars don't
@@ -65,7 +65,7 @@ def _translate_pattern(pat):
 
 
 def compile_matchers(patterns):
-    # type: (List[str]) -> List[Callable[[str], Match[str]]]
+    # type: (List[unicode]) -> List[Callable[[unicode], Match[unicode]]]
     return [re.compile(_translate_pattern(pat)).match for pat in patterns]
 
 
@@ -77,16 +77,16 @@ class Matcher:
     """
 
     def __init__(self, patterns):
-        # type: (List[str]) -> None
+        # type: (List[unicode]) -> None
         expanded = [pat[3:] for pat in patterns if pat.startswith('**/')]
         self.patterns = compile_matchers(patterns + expanded)
 
     def __call__(self, string):
-        # type: (str) -> bool
+        # type: (unicode) -> bool
         return self.match(string)
 
     def match(self, string):
-        # type: (str) -> bool
+        # type: (unicode) -> bool
         return any(pat(string) for pat in self.patterns)
 
 
@@ -97,7 +97,7 @@ _pat_cache = {}  # type: Dict[str, Pattern]
 
 
 def patmatch(name, pat):
-    # type: (str, str) -> Match[str]
+    # type: (unicode, unicode) -> Match[unicode]
     """Return if name matches pat.  Adapted from fnmatch module."""
     if pat not in _pat_cache:
         _pat_cache[pat] = re.compile(_translate_pattern(pat))
@@ -105,7 +105,7 @@ def patmatch(name, pat):
 
 
 def patfilter(names, pat):
-    # type: (List[str], str) -> List[str]
+    # type: (List[unicode], unicode) -> List[unicode]
     """Return the subset of the list NAMES that match PAT.
 
     Adapted from fnmatch module.

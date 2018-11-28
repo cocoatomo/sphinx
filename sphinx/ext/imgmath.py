@@ -46,7 +46,7 @@ class MathExtError(SphinxError):
     category = 'Math extension error'
 
     def __init__(self, msg, stderr=None, stdout=None):
-        # type: (str, str, str) -> None
+        # type: (unicode, unicode, unicode) -> None
         if stderr:
             msg += '\n[stderr]\n' + stderr.decode(sys_encoding, 'replace')
         if stdout:
@@ -91,7 +91,7 @@ depth_re = re.compile(br'\[\d+ depth=(-?\d+)\]')
 
 
 def generate_latex_macro(math, config):
-    # type: (str, Config) -> str
+    # type: (unicode, Config) -> unicode
     """Generate LaTeX macro."""
     fontsize = config.imgmath_font_size
     baselineskip = int(round(fontsize * 1.2))
@@ -106,7 +106,7 @@ def generate_latex_macro(math, config):
 
 
 def ensure_tempdir(builder):
-    # type: (Builder) -> str
+    # type: (Builder) -> unicode
     """Create temporary directory.
 
     use only one tempdir per build -- the use of a directory is cleaner
@@ -120,7 +120,7 @@ def ensure_tempdir(builder):
 
 
 def compile_math(latex, builder):
-    # type: (str, Builder) -> str
+    # type: (unicode, Builder) -> unicode
     """Compile LaTeX macros for math to DVI."""
     tempdir = ensure_tempdir(builder)
     filename = path.join(tempdir, 'math.tex')
@@ -154,7 +154,7 @@ def compile_math(latex, builder):
 
 
 def convert_dvi_to_image(command, name):
-    # type: (List[str], str) -> Tuple[str, str]
+    # type: (List[unicode], unicode) -> Tuple[unicode, unicode]
     """Convert DVI file to specific image format."""
     try:
         p = Popen(command, stdout=PIPE, stderr=PIPE)
@@ -174,7 +174,7 @@ def convert_dvi_to_image(command, name):
 
 
 def convert_dvi_to_png(dvipath, builder):
-    # type: (str, Builder) -> Tuple[str, int]
+    # type: (unicode, Builder) -> Tuple[unicode, int]
     """Convert DVI file to PNG image."""
     tempdir = ensure_tempdir(builder)
     filename = path.join(tempdir, 'math.png')
@@ -201,7 +201,7 @@ def convert_dvi_to_png(dvipath, builder):
 
 
 def convert_dvi_to_svg(dvipath, builder):
-    # type: (str, Builder) -> Tuple[str, int]
+    # type: (unicode, Builder) -> Tuple[unicode, int]
     """Convert DVI file to SVG image."""
     tempdir = ensure_tempdir(builder)
     filename = path.join(tempdir, 'math.svg')
@@ -347,7 +347,7 @@ def html_visit_displaymath(self, node):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_html_math_renderer('imgmath',
                                (html_visit_math, None),
                                (html_visit_displaymath, None))

@@ -49,7 +49,7 @@ class XMLBuilder(Builder):
         pass
 
     def get_outdated_docs(self):
-        # type: () -> Iterator[str]
+        # type: () -> Iterator[unicode]
         for docname in self.env.found_docs:
             if docname not in self.env.all_docs:
                 yield docname
@@ -68,15 +68,15 @@ class XMLBuilder(Builder):
                 pass
 
     def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
+        # type: (unicode, unicode) -> unicode
         return docname
 
     def prepare_writing(self, docnames):
-        # type: (Set[str]) -> None
+        # type: (Set[unicode]) -> None
         self.writer = self._writer_class(self)
 
     def write_doc(self, docname, doctree):
-        # type: (str, nodes.Node) -> None
+        # type: (unicode, nodes.Node) -> None
         # work around multiple string % tuple issues in docutils;
         # replace tuples in attribute values with lists
         doctree = doctree.deepcopy()
@@ -118,7 +118,7 @@ class PseudoXMLBuilder(XMLBuilder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(XMLBuilder)
     app.add_builder(PseudoXMLBuilder)
 

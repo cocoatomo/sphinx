@@ -26,7 +26,7 @@ IEND_CHUNK = b'\x00\x00\x00\x00IEND\xAE\x42\x60\x82'
 
 
 def read_png_depth(filename):
-    # type: (str) -> int
+    # type: (unicode) -> int
     """Read the special tEXt chunk indicating the depth from a PNG file."""
     with open(filename, 'rb') as f:
         f.seek(- (LEN_IEND + LEN_DEPTH), 2)
@@ -39,7 +39,7 @@ def read_png_depth(filename):
 
 
 def write_png_depth(filename, depth):
-    # type: (str, int) -> None
+    # type: (unicode, int) -> None
     """Write the special tEXt chunk indicating the depth to a PNG file.
 
     The chunk is placed immediately before the special IEND chunk.

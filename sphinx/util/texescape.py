@@ -74,13 +74,13 @@ tex_replacements = [
     # OHM SIGN U+2126 is handled by LaTeX textcomp package
 ]
 
-tex_escape_map = {}  # type: Dict[int, str]
+tex_escape_map = {}  # type: Dict[int, unicode]
 tex_replace_map = {}
 tex_hl_escape_map_new = {}
 
 
 def escape(s):
-    # type: (str) -> str
+    # type: (unicode) -> unicode
     """Escape text for LaTeX output."""
     return s.translate(tex_escape_map)
 

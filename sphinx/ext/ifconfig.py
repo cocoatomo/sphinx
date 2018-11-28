@@ -80,7 +80,7 @@ def process_ifconfig_nodes(app, doctree, docname):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_node(ifconfig)
     app.add_directive('ifconfig', IfConfig)
     app.connect('doctree-resolved', process_ifconfig_nodes)
