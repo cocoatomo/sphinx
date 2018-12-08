@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Iterable, cast
+
 from docutils import nodes
 from docutils.writers.manpage import (
     Writer,
@@ -18,6 +20,7 @@ from docutils.writers.manpage import (
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import logging
+from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import NodeMatcher
 
@@ -41,9 +44,9 @@ class ManualPageWriter(Writer):
         transform = NestedInlineTransform(self.document)
         transform.apply()
         visitor = self.builder.create_translator(self.builder, self.document)
-        self.visitor = visitor
+        self.visitor = cast(ManualPageTranslator, visitor)
         self.document.walkabout(visitor)
-        self.output = visitor.astext()
+        self.output = self.visitor.astext()
 
 
 class NestedInlineTransform:
@@ -64,7 +67,7 @@ class NestedInlineTransform:
     def apply(self, **kwargs):
         # type: (Any) -> None
         matcher = NodeMatcher(nodes.literal, nodes.emphasis, nodes.strong)
-        for node in self.document.traverse(matcher):
+        for node in self.document.traverse(matcher):  # type: nodes.TextElement
             if any(matcher(subnode) for subnode in node):
                 pos = node.parent.index(node)
                 for subnode in reversed(node[1:]):
@@ -76,17 +79,16 @@ class NestedInlineTransform:
                         node.parent.insert(pos + 1, newnode)
 
 
-class ManualPageTranslator(BaseTranslator):
+class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     """
     Custom translator.
     """
 
     _docinfo = {}  # type: Dict[unicode, Any]
 
-    def __init__(self, builder, *args, **kwds):
-        # type: (Builder, Any, Any) -> None
-        super(ManualPageTranslator, self).__init__(*args, **kwds)
-        self.builder = builder
+    def __init__(self, builder, document):
+        # type: (Builder, nodes.document) -> None
+        super(ManualPageTranslator, self).__init__(builder, document)
 
         self.in_productionlist = 0
 
@@ -94,23 +96,24 @@ class ManualPageTranslator(BaseTranslator):
         self.section_level = -1
 
         # docinfo set by man_pages config value
-        self._docinfo['title'] = self.document.settings.title  # type: ignore
-        self._docinfo['subtitle'] = self.document.settings.subtitle  # type: ignore
-        if self.document.settings.authors:
+        settings = self.get_settings()
+        self._docinfo['title'] = settings.title
+        self._docinfo['subtitle'] = settings.subtitle
+        if settings.authors:
             # don't set it if no author given
-            self._docinfo['author'] = self.document.settings.authors  # type: ignore
-        self._docinfo['manual_section'] = self.document.settings.section  # type: ignore
+            self._docinfo['author'] = settings.authors
+        self._docinfo['manual_section'] = settings.section
 
         # docinfo set by other config values
-        self._docinfo['title_upper'] = self._docinfo['title'].upper()  # type: ignore
-        if builder.config.today:
-            self._docinfo['date'] = builder.config.today  # type: ignore
+        self._docinfo['title_upper'] = self._docinfo['title'].upper()
+        if self.config.today:
+            self._docinfo['date'] = self.config.today
         else:
-            self._docinfo['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),  # type: ignore  # NOQA
-                                                language=builder.config.language)
-        self._docinfo['copyright'] = builder.config.copyright  # type: ignore
-        self._docinfo['version'] = builder.config.version  # type: ignore
-        self._docinfo['manual_group'] = builder.config.project  # type: ignore
+            self._docinfo['date'] = format_date(self.config.today_fmt or _('%b %d, %Y'),
+                                                language=self.config.language)
+        self._docinfo['copyright'] = self.config.copyright
+        self._docinfo['version'] = self.config.version
+        self._docinfo['manual_group'] = self.config.project
 
         # Overwrite admonition label translations with our own
         for label, translation in admonitionlabels.items():
@@ -248,7 +251,7 @@ class ManualPageTranslator(BaseTranslator):
         if node.traverse(nodes.strong):
             self.body.append('\n')
         else:
-            BaseTranslator.visit_term(self, node)
+            super(ManualPageTranslator, self).visit_term(node)
 
     # overwritten -- we don't want source comments to show up
     def visit_comment(self, node):
@@ -259,7 +262,7 @@ class ManualPageTranslator(BaseTranslator):
     def visit_footnote(self, node):
         # type: (nodes.footnote) -> None
         self.ensure_eol()
-        BaseTranslator.visit_footnote(self, node)
+        super(ManualPageTranslator, self).visit_footnote(node)
 
     # overwritten -- handle footnotes rubric
     def visit_rubric(self, node):
@@ -292,11 +295,12 @@ class ManualPageTranslator(BaseTranslator):
         names = []
         self.in_productionlist += 1
         self.body.append('.sp\n.nf\n')
-        for production in node:
+        productionlist = cast(Iterable[addnodes.production], node)
+        for production in productionlist:
             names.append(production['tokenname'])
         maxlen = max(len(name) for name in names)
         lastname = None
-        for production in node:
+        for production in productionlist:
             if production['tokenname']:
                 lastname = production['tokenname'].ljust(maxlen)
                 self.body.append(self.defs['strong'][0])
@@ -403,9 +407,12 @@ class ManualPageTranslator(BaseTranslator):
 
     def visit_acks(self, node):
         # type: (addnodes.acks) -> None
+        bullet_list = cast(nodes.bullet_list, node[0])
+        list_items = cast(Iterable[nodes.list_item], bullet_list)
         self.ensure_eol()
-        self.body.append(', '.join(n.astext()
-                                   for n in node.children[0].children) + '.')
+        bullet_list = cast(nodes.bullet_list, node[0])
+        list_items = cast(Iterable[nodes.list_item], bullet_list)
+        self.body.append(', '.join(n.astext() for n in list_items) + '.')
         self.body.append('\n')
         raise nodes.SkipNode
 
@@ -471,14 +478,14 @@ class ManualPageTranslator(BaseTranslator):
                 self.body.append('.SH %s\n' %
                                  self.deunicode(node.astext().upper()))
                 raise nodes.SkipNode
-        return BaseTranslator.visit_title(self, node)
+        return super(ManualPageTranslator, self).visit_title(node)
 
     def depart_title(self, node):
         # type: (nodes.title) -> None
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('"\n')
             return
-        return BaseTranslator.depart_title(self, node)
+        return super(ManualPageTranslator, self).depart_title(node)
 
     def visit_raw(self, node):
         # type: (nodes.raw) -> None

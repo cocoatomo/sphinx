@@ -55,7 +55,7 @@ from sphinx.writers.html import HTMLWriter, HTMLTranslator
 
 if False:
     # For type annotation
-    from typing import Any, Dict, IO, Iterable, Iterator, List, Type, Tuple, Union  # NOQA
+    from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Type, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.domains import Domain, Index, IndexEntry  # NOQA
@@ -379,8 +379,8 @@ class StandaloneHTMLBuilder(Builder):
         self.script_files.append(JavaScript(filename, **kwargs))
 
     @property
-    def default_translator_class(self):
-        # type: () -> nodes.NodeVisitor
+    def default_translator_class(self):  # type: ignore
+        # type: () -> Type[nodes.NodeVisitor]
         use_html5_writer = self.config.html_experimental_html5_writer
         if use_html5_writer is None:
             use_html5_writer = self.default_html5_translator
@@ -454,7 +454,7 @@ class StandaloneHTMLBuilder(Builder):
         return self.config.html_extra_path + self.config.html_static_path
 
     def render_partial(self, node):
-        # type: (nodes.Nodes) -> Dict[unicode, unicode]
+        # type: (nodes.Node) -> Dict[unicode, unicode]
         """Utility: Render a lone doctree node."""
         if node is None:
             return {'fragment': ''}
@@ -480,7 +480,7 @@ class StandaloneHTMLBuilder(Builder):
         return pub.writer.parts
 
     def prepare_writing(self, docnames):
-        # type: (Iterable[unicode]) -> nodes.Node
+        # type: (Set[unicode]) -> None
         # create the search indexer
         self.indexer = None
         if self.search:
@@ -497,7 +497,7 @@ class StandaloneHTMLBuilder(Builder):
         self.docsettings = OptionParser(
             defaults=self.env.settings,
             components=(self.docwriter,),
-            read_config_files=True).get_default_values()
+            read_config_files=True).get_default_values()  # type: Any
         self.docsettings.compact_lists = bool(self.config.html_compact_lists)
 
         # determine the additional indices to include
@@ -590,7 +590,7 @@ class StandaloneHTMLBuilder(Builder):
         self.globalcontext.update(self.config.html_context)
 
     def get_doc_context(self, docname, body, metatags):
-        # type: (unicode, unicode, Dict) -> Dict[unicode, Any]
+        # type: (unicode, unicode, unicode) -> Dict[unicode, Any]
         """Collect items for the template context of a page."""
         # find out relations
         prev = next = None
@@ -633,8 +633,8 @@ class StandaloneHTMLBuilder(Builder):
         parents.reverse()
 
         # title rendered as HTML
-        title = self.env.longtitles.get(docname)
-        title = title and self.render_partial(title)['title'] or ''
+        title_node = self.env.longtitles.get(docname)
+        title = title_node and self.render_partial(title_node)['title'] or ''
 
         # Suffix for the document
         source_suffix = path.splitext(self.env.doc2path(docname))[1]
@@ -671,7 +671,7 @@ class StandaloneHTMLBuilder(Builder):
         }
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (unicode, nodes.document) -> None
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
@@ -689,11 +689,11 @@ class StandaloneHTMLBuilder(Builder):
         self.handle_page(docname, ctx, event_arg=doctree)
 
     def write_doc_serialized(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (unicode, nodes.document) -> None
         self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
         self.post_process_images(doctree)
-        title = self.env.longtitles.get(docname)
-        title = title and self.render_partial(title)['title'] or ''
+        title_node = self.env.longtitles.get(docname)
+        title = title_node and self.render_partial(title_node)['title'] or ''
         self.index_page(docname, doctree, title)
 
     def finish(self):
@@ -956,11 +956,11 @@ class StandaloneHTMLBuilder(Builder):
         try:
             searchindexfn = path.join(self.outdir, self.searchindex_filename)
             if self.indexer_dumps_unicode:
-                f = open(searchindexfn, 'r', encoding='utf-8')
+                with open(searchindexfn, 'r', encoding='utf-8') as ft:  # type: ignore
+                    self.indexer.load(ft, self.indexer_format)
             else:
-                f = open(searchindexfn, 'rb')
-            with f:
-                self.indexer.load(f, self.indexer_format)
+                with open(searchindexfn, 'rb') as fb:
+                    self.indexer.load(fb, self.indexer_format)
         except (IOError, OSError, ValueError):
             if keep:
                 logger.warning(__('search index couldn\'t be loaded, but not all '
@@ -970,7 +970,7 @@ class StandaloneHTMLBuilder(Builder):
         self.indexer.prune(keep)
 
     def index_page(self, pagename, doctree, title):
-        # type: (unicode, nodes.Node, unicode) -> None
+        # type: (unicode, nodes.document, unicode) -> None
         # only index pages with title
         if self.indexer is not None and title:
             filename = self.env.doc2path(pagename, base=None)
@@ -1175,11 +1175,11 @@ class StandaloneHTMLBuilder(Builder):
         # first write to a temporary file, so that if dumping fails,
         # the existing index won't be overwritten
         if self.indexer_dumps_unicode:
-            f = open(searchindexfn + '.tmp', 'w', encoding='utf-8')
+            with open(searchindexfn + '.tmp', 'w', encoding='utf-8') as ft:  # type: ignore
+                self.indexer.dump(ft, self.indexer_format)
         else:
-            f = open(searchindexfn + '.tmp', 'wb')
-        with f:
-            self.indexer.dump(f, self.indexer_format)
+            with open(searchindexfn + '.tmp', 'wb') as fb:
+                self.indexer.dump(fb, self.indexer_format)
         movefile(searchindexfn + '.tmp', searchindexfn)
         logger.info(__('done'))
 
@@ -1212,8 +1212,8 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
         return outfilename
 
     def prepare_writing(self, docnames):
-        # type: (Iterable[unicode]) -> None
-        StandaloneHTMLBuilder.prepare_writing(self, docnames)
+        # type: (Set[unicode]) -> None
+        super(DirectoryHTMLBuilder, self).prepare_writing(docnames)
         self.globalcontext['no_search_suffix'] = True
 
 
@@ -1271,7 +1271,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         return self.render_partial(toctree)['fragment']
 
     def assemble_doctree(self):
-        # type: () -> nodes.Node
+        # type: () -> nodes.document
         master = self.config.master_doc
         tree = self.env.get_doctree(master)
         tree = inline_all_toctrees(self, set(), master, tree, darkgreen, [master])
@@ -1322,14 +1322,13 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         return {self.config.master_doc: new_fignumbers}
 
     def get_doc_context(self, docname, body, metatags):
-        # type: (unicode, unicode, Dict) -> Dict
+        # type: (unicode, unicode, unicode) -> Dict
         # no relation links...
-        toc = TocTree(self.env).get_toctree_for(self.config.master_doc,
-                                                self, False)
+        toctree = TocTree(self.env).get_toctree_for(self.config.master_doc, self, False)
         # if there is no toctree, toc is None
-        if toc:
-            self.fix_refuris(toc)
-            toc = self.render_partial(toc)['fragment']
+        if toctree:
+            self.fix_refuris(toctree)
+            toc = self.render_partial(toctree)['fragment']
             display_toc = True
         else:
             toc = ''
@@ -1354,7 +1353,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         docnames = self.env.all_docs
 
         logger.info(bold(__('preparing documents... ')), nonl=True)
-        self.prepare_writing(docnames)
+        self.prepare_writing(docnames)  # type: ignore
         logger.info(__('done'))
 
         logger.info(bold(__('assembling single document... ')), nonl=True)
@@ -1434,11 +1433,11 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     def dump_context(self, context, filename):
         # type: (Dict, unicode) -> None
         if self.implementation_dumps_unicode:
-            f = open(filename, 'w', encoding='utf-8')
+            with open(filename, 'w', encoding='utf-8') as ft:  # type: ignore
+                self.implementation.dump(context, ft, *self.additional_dump_args)
         else:
-            f = open(filename, 'wb')
-        with f:
-            self.implementation.dump(context, f, *self.additional_dump_args)
+            with open(filename, 'wb') as fb:
+                self.implementation.dump(context, fb, *self.additional_dump_args)
 
     def handle_page(self, pagename, ctx, templatename='page.html',
                     outfilename=None, event_arg=None):
@@ -1477,7 +1476,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         self.dump_context(self.globalcontext, outfilename)
 
         # super here to dump the search index
-        StandaloneHTMLBuilder.handle_finish(self)
+        super(SerializingHTMLBuilder, self).handle_finish()
 
         # copy the environment file from the doctree dir to the output dir
         # as needed by the web app
@@ -1524,10 +1523,6 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
     out_suffix = '.fjson'
     globalcontext_filename = 'globalcontext.json'
     searchindex_filename = 'searchindex.json'
-
-    def init(self):
-        # type: () -> None
-        SerializingHTMLBuilder.init(self)
 
 
 def convert_html_css_files(app, config):

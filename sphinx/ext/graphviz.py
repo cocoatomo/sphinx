@@ -18,7 +18,6 @@ from subprocess import Popen, PIPE
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.statemachine import ViewList
 from six import text_type
 
 import sphinx
@@ -28,13 +27,15 @@ from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import search_image_for_language
+from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
 
 if False:
     # For type annotation
     from docutils.parsers.rst import Directive  # NOQA
-    from typing import Any, Dict, List, Tuple, Union  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.docutils import SphinxTranslator  # NOQA
     from sphinx.util.typing import unicode  # NOQA
     from sphinx.writers.html import HTMLTranslator  # NOQA
     from sphinx.writers.latex import LaTeXTranslator  # NOQA
@@ -103,12 +104,10 @@ def figure_wrapper(directive, node, caption):
     if 'align' in node:
         figure_node['align'] = node.attributes.pop('align')
 
-    parsed = nodes.Element()
-    directive.state.nested_parse(ViewList([caption], source=''),
-                                 directive.content_offset, parsed)
-    caption_node = nodes.caption(parsed[0].rawsource, '', *parsed[0].children)
-    caption_node.source = parsed[0].source
-    caption_node.line = parsed[0].line
+    inodes, messages = directive.state.inline_text(caption, directive.lineno)
+    caption_node = nodes.caption(caption, '', *inodes)
+    caption_node.extend(messages)
+    set_source_info(directive, caption_node)
     figure_node += caption_node
     return figure_node
 
@@ -169,12 +168,13 @@ class Graphviz(SphinxDirective):
         if 'align' in self.options:
             node['align'] = self.options['align']
 
-        caption = self.options.get('caption')
-        if caption:
-            node = figure_wrapper(self, node, caption)
-
-        self.add_name(node)
-        return [node]
+        if 'caption' not in self.options:
+            self.add_name(node)
+            return [node]
+        else:
+            figure = figure_wrapper(self, node, self.options['caption'])
+            self.add_name(figure)
+            return [figure]
 
 
 class GraphvizSimple(SphinxDirective):
@@ -208,16 +208,17 @@ class GraphvizSimple(SphinxDirective):
         if 'align' in self.options:
             node['align'] = self.options['align']
 
-        caption = self.options.get('caption')
-        if caption:
-            node = figure_wrapper(self, node, caption)
-
-        self.add_name(node)
-        return [node]
+        if 'caption' not in self.options:
+            self.add_name(node)
+            return [node]
+        else:
+            figure = figure_wrapper(self, node, self.options['caption'])
+            self.add_name(figure)
+            return [figure]
 
 
 def render_dot(self, code, options, format, prefix='graphviz'):
-    # type: (Union[HTMLTranslator, LaTeXTranslator, TexinfoTranslator], unicode, Dict, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
+    # type: (SphinxTranslator, unicode, Dict, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
     """Render graphviz code into a PNG or PDF output file."""
     graphviz_dot = options.get('graphviz_dot', self.builder.config.graphviz_dot)
     hashkey = (code + str(options) + str(graphviz_dot) +
@@ -390,7 +391,7 @@ def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
 
 
 def texinfo_visit_graphviz(self, node):
-    # type: (nodes.NodeVisitor, graphviz) -> None
+    # type: (TexinfoTranslator, graphviz) -> None
     render_dot_texinfo(self, node, node['code'], node['options'])
 
 

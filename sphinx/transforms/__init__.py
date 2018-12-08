@@ -10,6 +10,7 @@
 """
 
 import re
+from typing import cast
 
 from docutils import nodes
 from docutils.transforms import Transform, Transformer
@@ -27,7 +28,7 @@ from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if False:
     # For type annotation
-    from typing import Any, Generator, List  # NOQA
+    from typing import Any, Generator, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.domain.std import StandardDomain  # NOQA
@@ -55,7 +56,7 @@ class SphinxTransform(Transform):
     def app(self):
         # type: () -> Sphinx
         """Reference to the :class:`.Sphinx` object."""
-        return self.document.settings.env.app  # type: ignore
+        return self.env.app
 
     @property
     def env(self):
@@ -67,7 +68,7 @@ class SphinxTransform(Transform):
     def config(self):
         # type: () -> Config
         """Reference to the :class:`.Config` object."""
-        return self.document.settings.env.config  # type: ignore
+        return self.env.config
 
 
 class SphinxTransformer(Transformer):
@@ -88,7 +89,7 @@ class SphinxTransformer(Transformer):
             if not hasattr(self.document.settings, 'env') and self.env:
                 self.document.settings.env = self.env  # type: ignore
 
-            Transformer.apply_transforms(self)
+            super(SphinxTransformer, self).apply_transforms()
         else:
             # wrap the target node by document node during transforming
             try:
@@ -97,7 +98,7 @@ class SphinxTransformer(Transformer):
                     document.settings.env = self.env
                 document += self.document
                 self.document = document
-                Transformer.apply_transforms(self)
+                super(SphinxTransformer, self).apply_transforms()
             finally:
                 self.document = self.document[0]
 
@@ -209,19 +210,20 @@ class CitationReferences(SphinxTransform):
     def apply(self, **kwargs):
         # type: (Any) -> None
         # mark citation labels as not smartquoted
-        for citnode in self.document.traverse(nodes.citation):
-            citnode[0]['support_smartquotes'] = False
+        for citation in self.document.traverse(nodes.citation):
+            label = cast(nodes.label, citation[0])
+            label['support_smartquotes'] = False
 
-        for citnode in self.document.traverse(nodes.citation_reference):
-            cittext = citnode.astext()
+        for citation_ref in self.document.traverse(nodes.citation_reference):
+            cittext = citation_ref.astext()
             refnode = addnodes.pending_xref(cittext, refdomain='std', reftype='citation',
                                             reftarget=cittext, refwarn=True,
                                             support_smartquotes=False,
-                                            ids=citnode["ids"])
-            refnode.source = citnode.source or citnode.parent.source
-            refnode.line = citnode.line or citnode.parent.line
+                                            ids=citation_ref["ids"])
+            refnode.source = citation_ref.source or citation_ref.parent.source
+            refnode.line = citation_ref.line or citation_ref.parent.line
             refnode += nodes.Text('[' + cittext + ']')
-            citnode.parent.replace(citnode, refnode)
+            citation_ref.parent.replace(citation_ref, refnode)
 
 
 TRANSLATABLE_NODES = {
@@ -241,9 +243,9 @@ class ApplySourceWorkaround(SphinxTransform):
 
     def apply(self, **kwargs):
         # type: (Any) -> None
-        for n in self.document.traverse():
-            if isinstance(n, (nodes.TextElement, nodes.image)):
-                apply_source_workaround(n)
+        for node in self.document.traverse():  # type: nodes.Node
+            if isinstance(node, (nodes.TextElement, nodes.image)):
+                apply_source_workaround(node)
 
 
 class AutoIndexUpgrader(SphinxTransform):
@@ -281,7 +283,7 @@ class ExtraTranslatableNodes(SphinxTransform):
             # type: (nodes.Node) -> bool
             return isinstance(node, tuple(target_nodes))
 
-        for node in self.document.traverse(is_translatable_node):
+        for node in self.document.traverse(is_translatable_node):  # type: nodes.Element
             node['translatable'] = True
 
 
@@ -351,7 +353,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         if not self.is_available():
             return
 
-        SmartQuotes.apply(self)
+        super(SphinxSmartQuotes, self).apply()
 
     def is_available(self):
         # type: () -> bool
@@ -389,7 +391,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         return self.config.smartquotes_action
 
     def get_tokens(self, txtnodes):
-        # type: (List[nodes.Element]) -> Generator[Tuple[unicode, unicode], None, None]
+        # type: (List[nodes.Text]) -> Generator[Tuple[unicode, unicode], None, None]
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
 

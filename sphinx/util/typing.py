@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Tuple
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
@@ -23,6 +23,8 @@ if PY2:
 else:
     unicode = str
 
+# An entry of Directive.option_spec
+DirectiveOption = Callable[[str], Any]
 
 # common role functions
 RoleFunction = Callable[[text_type, text_type, text_type, int, Inliner, Dict, List[text_type]],

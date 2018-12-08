@@ -254,7 +254,7 @@ class SphinxDocTestRunner(doctest.DocTestRunner):
         old_stdout = sys.stdout
         sys.stdout = string_io
         try:
-            res = doctest.DocTestRunner.summarize(self, verbose)
+            res = super(SphinxDocTestRunner, self).summarize(verbose)
         finally:
             sys.stdout = old_stdout
         out(string_io.getvalue())
@@ -427,7 +427,8 @@ Doctest summary
                 # type: (nodes.Node) -> bool
                 return isinstance(node, (nodes.literal_block, nodes.comment)) \
                     and 'testnodetype' in node
-        for node in doctree.traverse(condition):
+
+        for node in doctree.traverse(condition):  # type: nodes.Element
             source = node['test'] if 'test' in node else node.astext()
             filename = self.get_filename_for_node(node, docname)
             line_number = self.get_line_number(node)

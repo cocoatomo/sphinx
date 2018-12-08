@@ -52,7 +52,7 @@ class IfConfig(SphinxDirective):
         set_source_info(self, node)
         node['expr'] = self.arguments[0]
         self.state.nested_parse(self.content, self.content_offset,
-                                node, match_titles=1)
+                                node, match_titles=True)
         return [node]
 
 

@@ -11,7 +11,7 @@
 from __future__ import absolute_import
 
 import re
-from typing import Any
+from typing import Any, cast
 
 from docutils import nodes
 from six import text_type
@@ -23,6 +23,7 @@ from sphinx.util import logging
 if False:
     # For type annotation
     from typing import Any, Callable, Iterable, List, Optional, Set, Tuple, Type  # NOQA
+    from docutils.statemachine import StringList  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.utils.tags import Tags  # NOQA
     from sphinx.util.typing import unicode  # NOQA
@@ -68,18 +69,19 @@ class NodeMatcher:
             if self.classes and not isinstance(node, self.classes):
                 return False
 
-            if self.attrs and isinstance(node, nodes.Text):
-                return False
+            if self.attrs:
+                if not isinstance(node, nodes.Element):
+                    return False
 
-            for key, value in self.attrs.items():
-                if key not in node:  # type: ignore
-                    return False
-                elif value is Any:
-                    continue
-                elif node.get(key) != value:  # type: ignore
-                    return False
-            else:
-                return True
+                for key, value in self.attrs.items():
+                    if key not in node:
+                        return False
+                    elif value is Any:
+                        continue
+                    elif node.get(key) != value:
+                        return False
+
+            return True
         except Exception:
             # for non-Element nodes
             return False
@@ -251,10 +253,9 @@ META_TYPE_NODES = (
 
 
 def extract_messages(doctree):
-    # type: (nodes.Element) -> Iterable[Tuple[nodes.Node, unicode]]
+    # type: (nodes.Element) -> Iterable[Tuple[nodes.Element, unicode]]
     """Extract translatable messages from a document tree."""
-    node = None  # type: nodes.Element
-    for node in doctree.traverse(is_translatable):
+    for node in doctree.traverse(is_translatable):  # type: nodes.Element
         if isinstance(node, addnodes.translatable):
             for msg in node.extract_original_messages():
                 yield node, msg
@@ -269,7 +270,7 @@ def extract_messages(doctree):
                 msg += '\n   :alt: %s' % node['alt']
         elif isinstance(node, META_TYPE_NODES):
             msg = node.rawcontent
-        elif is_pending_meta(node):
+        elif isinstance(node, nodes.pending) and is_pending_meta(node):
             msg = node.details['nodes'][0].rawcontent
         else:
             msg = node.rawsource.replace('\n', ' ').strip()
@@ -280,7 +281,7 @@ def extract_messages(doctree):
 
 
 def find_source_node(node):
-    # type: (nodes.Node) -> unicode
+    # type: (nodes.Element) -> unicode
     for pnode in traverse_parent(node):
         if pnode.source:
             return pnode.source
@@ -288,7 +289,7 @@ def find_source_node(node):
 
 
 def traverse_parent(node, cls=None):
-    # type: (nodes.Node, Any) -> Iterable[nodes.Node]
+    # type: (nodes.Element, Any) -> Iterable[nodes.Element]
     while node:
         if cls is None or isinstance(node, cls):
             yield node
@@ -298,8 +299,7 @@ def traverse_parent(node, cls=None):
 def traverse_translatable_index(doctree):
     # type: (nodes.Element) -> Iterable[Tuple[nodes.Element, List[unicode]]]
     """Traverse translatable index node from a document tree."""
-    node = None  # type: nodes.Element
-    for node in doctree.traverse(NodeMatcher(addnodes.index, inline=False)):
+    for node in doctree.traverse(NodeMatcher(addnodes.index, inline=False)):  # type: addnodes.index  # NOQA
         if 'raw_entries' in node:
             entries = node['raw_entries']
         else:
@@ -308,7 +308,7 @@ def traverse_translatable_index(doctree):
 
 
 def nested_parse_with_titles(state, content, node):
-    # type: (Any, List[unicode], nodes.Node) -> unicode
+    # type: (Any, StringList, nodes.Node) -> unicode
     """Version of state.nested_parse() that allows titles and does not require
     titles to have the same decoration as the calling document.
 
@@ -392,12 +392,12 @@ def process_index_entry(entry, targetid):
 
 
 def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed):
-    # type: (Builder, Set[unicode], unicode, nodes.Element, Callable, MutableSequence[unicode]) -> nodes.Element  # NOQA
+    # type: (Builder, Set[unicode], unicode, nodes.document, Callable, List[unicode]) -> nodes.document  # NOQA
     """Inline all toctrees in the *tree*.
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
     """
-    tree = tree.deepcopy()
+    tree = cast(nodes.document, tree.deepcopy())
     for toctreenode in tree.traverse(addnodes.toctree):
         newnodes = []
         includefiles = map(text_type, toctreenode['includefiles'])

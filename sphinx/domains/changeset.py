@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import NamedTuple
+from typing import NamedTuple, cast
 
 from docutils import nodes
 
@@ -63,8 +63,8 @@ class VersionChange(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Element]
-        node = addnodes.versionmodified()  # type: nodes.Element
+        # type: () -> List[nodes.Node]
+        node = addnodes.versionmodified()
         node.document = self.state.document
         set_source_info(self, node)
         node['type'] = self.name
@@ -87,8 +87,9 @@ class VersionChange(SphinxDirective):
                 content.line = node[0].line
                 content += node[0].children
                 node[0].replace_self(nodes.paragraph('', '', content, translatable=False))
-            node[0].insert(0, nodes.inline('', '%s: ' % text,
-                                           classes=['versionmodified']))
+
+            para = cast(nodes.paragraph, node[0])
+            para.insert(0, nodes.inline('', '%s: ' % text, classes=['versionmodified']))
         else:
             para = nodes.paragraph('', '',
                                    nodes.inline('', '%s.' % text,
@@ -96,8 +97,12 @@ class VersionChange(SphinxDirective):
                                    translatable=False)
             node.append(para)
 
-        self.env.get_domain('changeset').note_changeset(node)  # type: ignore
-        return [node] + messages
+        domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
+        domain.note_changeset(node)
+
+        ret = [node]  # type: List[nodes.Node]
+        ret += messages
+        return ret
 
 
 class ChangeSetDomain(Domain):
@@ -131,7 +136,7 @@ class ChangeSetDomain(Domain):
         pass  # nothing to do here. All changesets are registered on calling directive.
 
     def note_changeset(self, node):
-        # type: (nodes.Element) -> None
+        # type: (addnodes.versionmodified) -> None
         version = node['version']
         module = self.env.ref_context.get('py:module')
         objname = self.env.temp_data.get('object')

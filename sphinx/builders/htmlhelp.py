@@ -22,13 +22,15 @@ from sphinx.config import string_classes
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.osutil import make_filename
+from sphinx.util.nodes import NodeMatcher
+from sphinx.util.osutil import make_filename_from_project
 from sphinx.util.pycompat import htmlescape
 
 if False:
     # For type annotation
     from typing import Any, Dict, IO, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.config import Config  # NOQA
     from sphinx.util.typing import unicode  # NOQA
 
 
@@ -200,7 +202,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         # the output files for HTML help is .html by default
         self.out_suffix = '.html'
         self.link_suffix = '.html'
-        StandaloneHTMLBuilder.init(self)
+        super(HTMLHelpBuilder, self).init()
         # determine the correct locale setting
         locale = chm_locales.get(self.config.language)
         if locale is not None:
@@ -221,13 +223,13 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         self.build_hhx(self.outdir, self.config.htmlhelp_basename)
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (unicode, nodes.document) -> None
         for node in doctree.traverse(nodes.reference):
             # add ``target=_blank`` attributes to external links
             if node.get('internal') is None and 'refuri' in node:
                 node['target'] = '_blank'
 
-        StandaloneHTMLBuilder.write_doc(self, docname, doctree)
+        super(HTMLHelpBuilder, self).write_doc(docname, doctree)
 
     def build_hhx(self, outdir, outname):
         # type: (unicode, unicode) -> None
@@ -293,11 +295,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                     for subnode in node:
                         write_toc(subnode, ullevel)
 
-            def istoctree(node):
-                # type: (nodes.Node) -> bool
-                return isinstance(node, addnodes.compact_paragraph) and \
-                    'toctree' in node
-            for node in tocdoc.traverse(istoctree):
+            matcher = NodeMatcher(addnodes.compact_paragraph, toctree=True)
+            for node in tocdoc.traverse(matcher):  # type: addnodes.compact_paragraph
                 write_toc(node)
             f.write(contents_footer)
 
@@ -337,12 +336,18 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             f.write('</UL>\n')
 
 
+def default_htmlhelp_basename(config):
+    # type: (Config) -> unicode
+    """Better default htmlhelp_basename setting."""
+    return make_filename_from_project(config.project) + 'doc'
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(HTMLHelpBuilder)
 
-    app.add_config_value('htmlhelp_basename', lambda self: make_filename(self.project), None)
+    app.add_config_value('htmlhelp_basename', default_htmlhelp_basename, None)
     app.add_config_value('htmlhelp_file_suffix', None, 'html', string_classes)
     app.add_config_value('htmlhelp_link_suffix', None, 'html', string_classes)
 

@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from docutils import writers
 from docutils.writers.docutils_xml import Writer as BaseXMLWriter
 
 if False:
@@ -34,10 +33,10 @@ class XMLWriter(BaseXMLWriter):
             self.builder.env.config.xml_pretty
         self.document.settings.xml_declaration = True
         self.document.settings.doctype_declaration = True
-        return BaseXMLWriter.translate(self)
+        return super(XMLWriter, self).translate()
 
 
-class PseudoXMLWriter(writers.Writer):
+class PseudoXMLWriter(BaseXMLWriter):
 
     supported = ('pprint', 'pformat', 'pseudoxml')
     """Formats this writer supports."""

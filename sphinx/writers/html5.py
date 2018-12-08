@@ -13,6 +13,7 @@ import os
 import posixpath
 import sys
 import warnings
+from typing import Iterable, cast
 
 from docutils import nodes
 from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
@@ -21,6 +22,7 @@ from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
+from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
 if False:
@@ -36,25 +38,26 @@ logger = logging.getLogger(__name__)
 # http://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
 
 
-class HTML5Translator(BaseTranslator):
+class HTML5Translator(SphinxTranslator, BaseTranslator):
     """
     Our custom HTML translator.
     """
 
-    def __init__(self, builder, *args, **kwds):
-        # type: (StandaloneHTMLBuilder, Any, Any) -> None
-        super(HTML5Translator, self).__init__(*args, **kwds)
-        self.highlighter = builder.highlighter
-        self.builder = builder
-        self.docnames = [builder.current_docname]  # for singlehtml builder
-        self.manpages_url = builder.config.manpages_url
+    builder = None  # type: StandaloneHTMLBuilder
+
+    def __init__(self, builder, document):
+        # type: (StandaloneHTMLBuilder, nodes.document) -> None
+        super(HTML5Translator, self).__init__(builder, document)
+        self.highlighter = self.builder.highlighter
+        self.docnames = [self.builder.current_docname]  # for singlehtml builder
+        self.manpages_url = self.config.manpages_url
         self.protect_literal_text = 0
-        self.permalink_text = builder.config.html_add_permalinks
+        self.permalink_text = self.config.html_add_permalinks
         # support backwards-compatible setting to a bool
         if not isinstance(self.permalink_text, str):
             self.permalink_text = self.permalink_text and u'\u00B6' or ''
         self.permalink_text = self.encode(self.permalink_text)
-        self.secnumber_suffix = builder.config.html_secnumber_suffix
+        self.secnumber_suffix = self.config.html_secnumber_suffix
         self.param_separator = ''
         self.optional_param_level = 0
         self._table_row_index = 0
@@ -218,10 +221,10 @@ class HTML5Translator(BaseTranslator):
             atts['class'] += ' external'
         if 'refuri' in node:
             atts['href'] = node['refuri'] or '#'
-            if self.settings.cloak_email_addresses and \
-               atts['href'].startswith('mailto:'):
+            if (self.get_settings().cloak_email_addresses and
+                    atts['href'].startswith('mailto:')):
                 atts['href'] = self.cloak_mailto(atts['href'])
-                self.in_mailto = 1
+                self.in_mailto = True
         else:
             assert 'refid' in node, \
                    'References must have "refuri" or "refid" attribute.'
@@ -254,7 +257,7 @@ class HTML5Translator(BaseTranslator):
 
     # overwritten
     def visit_admonition(self, node, name=''):
-        # type: (nodes.admonition, unicode) -> None
+        # type: (nodes.Element, unicode) -> None
         self.body.append(self.starttag(
             node, 'div', CLASS=('admonition ' + name)))
         if name:
@@ -325,15 +328,15 @@ class HTML5Translator(BaseTranslator):
     # overwritten
     def visit_bullet_list(self, node):
         # type: (nodes.bullet_list) -> None
-        if len(node) == 1 and node[0].tagname == 'toctree':
+        if len(node) == 1 and isinstance(node[0], addnodes.toctree):
             # avoid emitting empty <ul></ul>
             raise nodes.SkipNode
-        BaseTranslator.visit_bullet_list(self, node)
+        super(HTML5Translator, self).visit_bullet_list(node)
 
     # overwritten
     def visit_title(self, node):
         # type: (nodes.title) -> None
-        BaseTranslator.visit_title(self, node)
+        super(HTML5Translator, self).visit_title(node)
         self.add_secnumber(node)
         self.add_fignumber(node.parent)
         if isinstance(node.parent, nodes.table):
@@ -359,14 +362,14 @@ class HTML5Translator(BaseTranslator):
         elif isinstance(node.parent, nodes.table):
             self.body.append('</span>')
 
-        BaseTranslator.depart_title(self, node)
+        super(HTML5Translator, self).depart_title(node)
 
     # overwritten
     def visit_literal_block(self, node):
         # type: (nodes.literal_block) -> None
         if node.rawsource != node.astext():
             # most probably a parsed-literal block -- don't highlight
-            return BaseTranslator.visit_literal_block(self, node)
+            return super(HTML5Translator, self).visit_literal_block(node)
 
         lang = node.get('language', 'default')
         linenos = node.get('linenos', False)
@@ -392,7 +395,7 @@ class HTML5Translator(BaseTranslator):
         if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
             self.body.append('<div class="code-block-caption">')
         else:
-            BaseTranslator.visit_caption(self, node)
+            super(HTML5Translator, self).visit_caption(node)
         self.add_fignumber(node.parent)
         self.body.append(self.starttag(node, 'span', '', CLASS='caption-text'))
 
@@ -413,7 +416,7 @@ class HTML5Translator(BaseTranslator):
         if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
             self.body.append('</div>\n')
         else:
-            BaseTranslator.depart_caption(self, node)
+            super(HTML5Translator, self).depart_caption(node)
 
     def visit_doctest_block(self, node):
         # type: (nodes.doctest_block) -> None
@@ -451,11 +454,12 @@ class HTML5Translator(BaseTranslator):
         # type: (addnodes.productionlist) -> None
         self.body.append(self.starttag(node, 'pre'))
         names = []
-        for production in node:
+        productionlist = cast(Iterable[addnodes.production], node)
+        for production in productionlist:
             names.append(production['tokenname'])
         maxlen = max(len(name) for name in names)
         lastname = None
-        for production in node:
+        for production in productionlist:
             if production['tokenname']:
                 lastname = production['tokenname'].ljust(maxlen)
                 self.body.append(self.starttag(production, 'strong', ''))
@@ -498,7 +502,7 @@ class HTML5Translator(BaseTranslator):
         if isinstance(node.parent, addnodes.versionmodified):
             # Never compact versionmodified nodes.
             return False
-        return BaseTranslator.should_be_compact_paragraph(self, node)
+        return super(HTML5Translator, self).should_be_compact_paragraph(node)
 
     def visit_compact_paragraph(self, node):
         # type: (addnodes.compact_paragraph) -> None
@@ -572,7 +576,7 @@ class HTML5Translator(BaseTranslator):
                         node['width'] = str(size[0])
                     if 'height' not in node:
                         node['height'] = str(size[1])
-        BaseTranslator.visit_image(self, node)
+        super(HTML5Translator, self).visit_image(node)
 
     # overwritten
     def depart_image(self, node):
@@ -580,7 +584,7 @@ class HTML5Translator(BaseTranslator):
         if node['uri'].lower().endswith(('svg', 'svgz')):
             self.body.append(self.context.pop())
         else:
-            BaseTranslator.depart_image(self, node)
+            super(HTML5Translator, self).depart_image(node)
 
     def visit_toctree(self, node):
         # type: (addnodes.toctree) -> None
@@ -647,7 +651,7 @@ class HTML5Translator(BaseTranslator):
                     # protect runs of multiple spaces; the last one can wrap
                     self.body.append('&#160;' * (len(token) - 1) + ' ')
         else:
-            if self.in_mailto and self.settings.cloak_email_addresses:
+            if self.in_mailto and self.get_settings().cloak_email_addresses:
                 encoded = self.cloak_email(encoded)
             self.body.append(encoded)
 
@@ -754,7 +758,7 @@ class HTML5Translator(BaseTranslator):
         # type: (addnodes.manpage) -> None
         self.visit_literal_emphasis(node)
         if self.manpages_url:
-            node['refuri'] = self.manpages_url.format(**dict(node))
+            node['refuri'] = self.manpages_url.format(**node.attributes)
             self.visit_reference(node)
 
     def depart_manpage(self, node):
@@ -786,7 +790,7 @@ class HTML5Translator(BaseTranslator):
         self._table_row_index = 0
 
         classes = [cls.strip(u' \t\n')
-                   for cls in self.settings.table_style.split(',')]
+                   for cls in self.get_settings().table_style.split(',')]
         classes.insert(0, "docutils")  # compat
         if 'align' in node:
             classes.append('align-%s' % node['align'])
@@ -806,7 +810,7 @@ class HTML5Translator(BaseTranslator):
     def visit_field_list(self, node):
         # type: (nodes.field_list) -> None
         self._fieldlist_row_index = 0
-        return BaseTranslator.visit_field_list(self, node)
+        return super(HTML5Translator, self).visit_field_list(node)
 
     def visit_field(self, node):
         # type: (nodes.field) -> None
