@@ -11,14 +11,18 @@
 
 import re
 import textwrap
+import warnings
 from os import path
+from typing import Iterable, cast
 
 from docutils import nodes, writers
 
 from sphinx import addnodes, __display_version__
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import ExtensionError
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
+from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.i18n import format_date
 from sphinx.writers.latex import collected_footnote
 
@@ -135,15 +139,17 @@ class TexinfoWriter(writers.Writer):
 
     def translate(self):
         # type: () -> None
-        self.visitor = visitor = self.builder.create_translator(self.document, self.builder)
+        visitor = self.builder.create_translator(self.document, self.builder)
+        self.visitor = cast(TexinfoTranslator, visitor)
         self.document.walkabout(visitor)
-        visitor.finish()
+        self.visitor.finish()
         for attr in self.visitor_attributes:
-            setattr(self, attr, getattr(visitor, attr))
+            setattr(self, attr, getattr(self.visitor, attr))
 
 
-class TexinfoTranslator(nodes.NodeVisitor):
+class TexinfoTranslator(SphinxTranslator):
 
+    builder = None  # type: TexinfoBuilder
     ignore_missing_images = False
 
     default_elements = {
@@ -163,8 +169,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def __init__(self, document, builder):
         # type: (nodes.document, TexinfoBuilder) -> None
-        super(TexinfoTranslator, self).__init__(document)
-        self.builder = builder
+        super(TexinfoTranslator, self).__init__(builder, document)
         self.init_settings()
 
         self.written_ids = set()        # type: Set[unicode]
@@ -225,7 +230,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def init_settings(self):
         # type: () -> None
-        settings = self.settings = self.document.settings
+        self.settings = settings = self.get_settings()
         elements = self.elements = self.default_elements.copy()
         elements.update({
             # if empty, the title is set to the first section title
@@ -241,11 +246,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
                                             language=self.builder.config.language))
         })
         # title
-        title = None  # type: unicode
-        title = elements['title']  # type: ignore
+        title = settings.title  # type: unicode
         if not title:
-            title = self.document.next_node(nodes.title)
-            title = (title and title.astext()) or '<untitled>'  # type: ignore
+            title_node = self.document.next_node(nodes.title)
+            title = (title and title_node.astext()) or '<untitled>'
         elements['title'] = self.escape_id(title) or '<untitled>'
         # filename
         if not elements['filename']:
@@ -1203,36 +1207,34 @@ class TexinfoTranslator(nodes.NodeVisitor):
             name = self.escape(node[0].astext())
         self.body.append(u'\n@cartouche\n@quotation %s ' % name)
 
+    def _visit_named_admonition(self, node):
+        # type: (nodes.Element) -> None
+        label = admonitionlabels[node.tagname]
+        self.body.append(u'\n@cartouche\n@quotation %s ' % label)
+
     def depart_admonition(self, node):
         # type: (nodes.admonition) -> None
         self.ensure_eol()
         self.body.append('@end quotation\n'
                          '@end cartouche\n')
 
-    def _make_visit_admonition(name):
-        # type: (unicode) -> Callable[[TexinfoTranslator, nodes.Node], None]
-        def visit(self, node):
-            # type: (nodes.Node) -> None
-            self.visit_admonition(node, admonitionlabels[name])
-        return visit
-
-    visit_attention = _make_visit_admonition('attention')
+    visit_attention = _visit_named_admonition
     depart_attention = depart_admonition
-    visit_caution = _make_visit_admonition('caution')
+    visit_caution = _visit_named_admonition
     depart_caution = depart_admonition
-    visit_danger = _make_visit_admonition('danger')
+    visit_danger = _visit_named_admonition
     depart_danger = depart_admonition
-    visit_error = _make_visit_admonition('error')
+    visit_error = _visit_named_admonition
     depart_error = depart_admonition
-    visit_hint = _make_visit_admonition('hint')
+    visit_hint = _visit_named_admonition
     depart_hint = depart_admonition
-    visit_important = _make_visit_admonition('important')
+    visit_important = _visit_named_admonition
     depart_important = depart_admonition
-    visit_note = _make_visit_admonition('note')
+    visit_note = _visit_named_admonition
     depart_note = depart_admonition
-    visit_tip = _make_visit_admonition('tip')
+    visit_tip = _visit_named_admonition
     depart_tip = depart_admonition
-    visit_warning = _make_visit_admonition('warning')
+    visit_warning = _visit_named_admonition
     depart_warning = depart_admonition
 
     # -- Misc
@@ -1431,10 +1433,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
         # type: (addnodes.productionlist) -> None
         self.visit_literal_block(None)
         names = []
-        for production in node:
+        productionlist = cast(Iterable[addnodes.production], node)
+        for production in productionlist:
             names.append(production['tokenname'])
         maxlen = max(len(name) for name in names)
-        for production in node:
+        for production in productionlist:
             if production['tokenname']:
                 for id in production.get('ids'):
                     self.add_anchor(id, production)
@@ -1531,9 +1534,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def visit_acks(self, node):
         # type: (addnodes.acks) -> None
+        bullet_list = cast(nodes.bullet_list, node[0])
+        list_items = cast(Iterable[nodes.list_item], bullet_list)
         self.body.append('\n\n')
-        self.body.append(', '.join(n.astext()
-                                   for n in node.children[0].children) + '.')
+        self.body.append(', '.join(n.astext() for n in list_items) + '.')
         self.body.append('\n\n')
         raise nodes.SkipNode
 
@@ -1737,3 +1741,13 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.body.append('\n\n@example\n%s\n@end example\n\n' %
                          self.escape_arg(node.astext()))
         raise nodes.SkipNode
+
+    def _make_visit_admonition(name):
+        # type: (unicode) -> Callable[[TexinfoTranslator, nodes.Node], None]
+        warnings.warn('TexinfoTranslator._make_visit_admonition() is deprecated.',
+                      RemovedInSphinx30Warning)
+
+        def visit(self, node):
+            # type: (nodes.Node) -> None
+            self.visit_admonition(node, admonitionlabels[name])
+        return visit

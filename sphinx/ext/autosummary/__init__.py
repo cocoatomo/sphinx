@@ -59,11 +59,12 @@ import posixpath
 import re
 import sys
 from types import ModuleType
+from typing import List, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.states import RSTStateMachine, state_classes
-from docutils.statemachine import ViewList
+from docutils.statemachine import StringList
 from six import text_type
 
 import sphinx
@@ -82,12 +83,13 @@ from sphinx.util.matching import Matcher
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple, Type, Union  # NOQA
-    from docutils.utils import Inliner  # NOQA
+    from typing import Any, Dict, Tuple, Type  # NOQA
+    from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
     from sphinx.util.typing import unicode  # NOQA
+    from sphinx.writers.html import HTMLTranslator  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -103,7 +105,7 @@ class autosummary_toc(nodes.comment):
 
 
 def process_autosummary_toc(app, doctree):
-    # type: (Sphinx, nodes.Node) -> None
+    # type: (Sphinx, nodes.document) -> None
     """Insert items described in autosummary:: to the TOC tree, but do
     not generate the toctree:: list.
     """
@@ -111,7 +113,7 @@ def process_autosummary_toc(app, doctree):
     crawled = {}
 
     def crawl_toc(node, depth=1):
-        # type: (nodes.Node, int) -> None
+        # type: (nodes.Element, int) -> None
         crawled[node] = True
         for j, subnode in enumerate(node):
             try:
@@ -146,13 +148,16 @@ class autosummary_table(nodes.comment):
 
 
 def autosummary_table_visit_html(self, node):
-    # type: (nodes.NodeVisitor, autosummary_table) -> None
+    # type: (HTMLTranslator, autosummary_table) -> None
     """Make the first column of the table non-breaking."""
     try:
-        tbody = node[0][0][-1]
-        for row in tbody:
-            col1_entry = row[0]
-            par = col1_entry[0]
+        table = cast(nodes.table, node[0])
+        tgroup = cast(nodes.tgroup, table[0])
+        tbody = cast(nodes.tbody, tgroup[-1])
+        rows = cast(List[nodes.row], tbody)
+        for row in rows:
+            col1_entry = cast(nodes.entry, row[0])
+            par = cast(nodes.paragraph, col1_entry[0])
             for j, subnode in enumerate(list(par)):
                 if isinstance(subnode, nodes.Text):
                     new_text = text_type(subnode.astext())
@@ -238,7 +243,7 @@ class Autosummary(SphinxDirective):
         # type: () -> List[nodes.Node]
         self.genopt = Options()
         self.warnings = []  # type: List[nodes.Node]
-        self.result = ViewList()
+        self.result = StringList()
 
         names = [x.strip().split()[0] for x in self.content
                  if x.strip() and re.search(r'^[~a-zA-Z_]', x.strip()[0])]
@@ -269,8 +274,7 @@ class Autosummary(SphinxDirective):
             tocnode['maxdepth'] = -1
             tocnode['glob'] = None
 
-            tocnode = autosummary_toc('', '', tocnode)
-            nodes.append(tocnode)
+            nodes.append(autosummary_toc('', '', tocnode))
 
         return self.warnings + nodes
 
@@ -298,7 +302,7 @@ class Autosummary(SphinxDirective):
                 items.append((name, '', '', name))
                 continue
 
-            self.result = ViewList()  # initialize for each documenter
+            self.result = StringList()  # initialize for each documenter
             full_name = real_name
             if not isinstance(obj, ModuleType):
                 # give explicitly separated module name, so that members
@@ -349,7 +353,7 @@ class Autosummary(SphinxDirective):
         return items
 
     def get_table(self, items):
-        # type: (List[Tuple[unicode, unicode, unicode, unicode]]) -> List[Union[addnodes.tabular_col_spec, autosummary_table]]  # NOQA
+        # type: (List[Tuple[unicode, unicode, unicode, unicode]]) -> List[nodes.Node]
         """Generate a proper list of table nodes for autosummary:: directive.
 
         *items* is a list produced by :meth:`get_items`.
@@ -373,7 +377,7 @@ class Autosummary(SphinxDirective):
             source, line = self.state_machine.get_source_and_line()
             for text in column_texts:
                 node = nodes.paragraph('')
-                vl = ViewList()
+                vl = StringList()
                 vl.append(text, '%s:%d:<autosummary>' % (source, line))
                 with switch_source_input(self.state, vl):
                     self.state.nested_parse(vl, 0, node)
@@ -613,26 +617,28 @@ def _import_by_name(name):
 # -- :autolink: (smart default role) -------------------------------------------
 
 def autolink_role(typ, rawtext, etext, lineno, inliner, options={}, content=[]):
-    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     """Smart linking role.
 
     Expands to ':obj:`text`' if `text` is an object that can be imported;
     otherwise expands to '*text*'.
     """
     env = inliner.document.settings.env
-    r = None  # type: Tuple[List[nodes.Node], List[nodes.Node]]
-    r = env.get_domain('py').role('obj')(
-        'obj', rawtext, etext, lineno, inliner, options, content)
-    pnode = r[0][0]
+    pyobj_role = env.get_domain('py').role('obj')
+    objects, msg = pyobj_role('obj', rawtext, etext, lineno, inliner, options, content)
+    if msg != []:
+        return objects, msg
 
+    assert len(objects) == 1
+    pending_xref = cast(addnodes.pending_xref, objects[0])
     prefixes = get_import_prefixes_from_env(env)
     try:
-        name, obj, parent, modname = import_by_name(pnode['reftarget'], prefixes)
+        name, obj, parent, modname = import_by_name(pending_xref['reftarget'], prefixes)
     except ImportError:
-        content_node = pnode[0]
-        r[0][0] = nodes.emphasis(rawtext, content_node[0].astext(),
-                                 classes=content_node['classes'])
-    return r
+        literal = cast(nodes.literal, pending_xref[0])
+        objects[0] = nodes.emphasis(rawtext, literal.astext(), classes=literal['classes'])
+
+    return objects, msg
 
 
 def get_rst_suffix(app):

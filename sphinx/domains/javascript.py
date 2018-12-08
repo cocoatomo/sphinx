@@ -254,7 +254,7 @@ class JSModule(SphinxDirective):
         mod_name = self.arguments[0].strip()
         self.env.ref_context['js:module'] = mod_name
         noindex = 'noindex' in self.options
-        ret = []
+        ret = []  # type: List[nodes.Node]
         if not noindex:
             self.env.domaindata['js']['modules'][mod_name] = self.env.docname
             # Make a duplicate entry in 'objects' to facilitate searching for
@@ -273,7 +273,7 @@ class JSModule(SphinxDirective):
 
 class JSXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.Node, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
+        # type: (BuildEnvironment, nodes.Element, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
         # basically what sphinx.domains.python.PyXRefRole does
         refnode['js:object'] = env.ref_context.get('js:object')
         refnode['js:module'] = env.ref_context.get('js:module')

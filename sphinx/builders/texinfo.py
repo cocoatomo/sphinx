@@ -28,12 +28,13 @@ from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import SEP, make_filename
+from sphinx.util.osutil import SEP, make_filename_from_project
 from sphinx.writers.texinfo import TexinfoWriter, TexinfoTranslator
 
 if False:
     # For type annotation
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.config import Config  # NOQA
     from typing import Any, Dict, Iterable, List, Tuple, Union  # NOQA
     from sphinx.util.typing import unicode  # NOQA
 
@@ -124,7 +125,7 @@ class TexinfoBuilder(Builder):
             settings = OptionParser(
                 defaults=self.env.settings,
                 components=(docwriter,),
-                read_config_files=True).get_default_values()
+                read_config_files=True).get_default_values()  # type: Any
             settings.author = author
             settings.title = title
             settings.texinfo_filename = targetname[:-5] + '.info'
@@ -138,7 +139,7 @@ class TexinfoBuilder(Builder):
             logger.info(__("done"))
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
-        # type: (unicode, bool, List[unicode]) -> nodes.Node
+        # type: (unicode, bool, List[unicode]) -> nodes.document
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=1)
         tree = self.env.get_doctree(indexfile)
@@ -168,7 +169,7 @@ class TexinfoBuilder(Builder):
         for pendingnode in largetree.traverse(addnodes.pending_xref):
             docname = pendingnode['refdocname']
             sectname = pendingnode['refsectname']
-            newnodes = [nodes.emphasis(sectname, sectname)]
+            newnodes = [nodes.emphasis(sectname, sectname)]  # type: List[nodes.Node]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
                     newnodes.append(nodes.Text(_(' (in '), _(' (in ')))
@@ -210,17 +211,19 @@ class TexinfoBuilder(Builder):
                                    path.join(self.srcdir, src), err)
 
 
+def default_texinfo_documents(config):
+    # type: (Config) -> List[Tuple[unicode, unicode, unicode, unicode, unicode, unicode, unicode]]  # NOQA
+    """ Better default texinfo_documents settings. """
+    filename = make_filename_from_project(config.project)
+    return [(config.master_doc, filename, config.project, config.author, filename,
+             'One line description of project', 'Miscellaneous')]
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(TexinfoBuilder)
 
-    app.add_config_value('texinfo_documents',
-                         lambda self: [(self.master_doc, make_filename(self.project).lower(),
-                                        self.project, '', make_filename(self.project),
-                                        'The %s reference manual.' %
-                                        make_filename(self.project),
-                                        'Python')],
-                         None)
+    app.add_config_value('texinfo_documents', default_texinfo_documents, None)
     app.add_config_value('texinfo_appendices', [], None)
     app.add_config_value('texinfo_elements', {}, None)
     app.add_config_value('texinfo_domain_indices', True, None, [list])

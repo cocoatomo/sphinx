@@ -31,7 +31,7 @@ from sphinx.util.nodes import clean_astext, make_refnode
 
 if False:
     # For type annotation
-    from typing import Any, Callable, cast, Dict, Iterator, List, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterable, Iterator, List, Tuple, Type, Union  # NOQA
     from docutils.parsers.rst import Directive  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -95,7 +95,7 @@ class EnvVarXRefRole(XRefRole):
     """
 
     def result_nodes(self, document, env, node, is_ref):
-        # type: (nodes.document, BuildEnvironment, nodes.Element, bool) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+        # type: (nodes.document, BuildEnvironment, nodes.Element, bool) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         if not is_ref:
             return [node], []
         varname = node['reftarget']
@@ -246,7 +246,7 @@ def split_term_classifiers(line):
 
 
 def make_glossary_term(env, textnodes, index_key, source, lineno, new_id=None):
-    # type: (BuildEnvironment, List[nodes.Node], unicode, unicode, int, unicode) -> nodes.term
+    # type: (BuildEnvironment, Iterable[nodes.Node], unicode, unicode, int, unicode) -> nodes.term  # NOQA
     # get a text-only representation of the term and register it
     # as a cross-reference target
     term = nodes.term('', '', *textnodes)
@@ -303,9 +303,8 @@ class Glossary(SphinxDirective):
         entries = []  # type: List[Tuple[List[Tuple[unicode, unicode, int]], StringList]]
         in_definition = True
         was_empty = True
-        messages = []  # type: List[nodes.Element]
-        for line, (source, lineno) in zip(cast(List[unicode], self.content),
-                                          self.content.items):
+        messages = []  # type: List[nodes.Node]
+        for line, (source, lineno) in zip(self.content, self.content.items):
             # empty line -> add to last definition
             if not line:
                 if in_definition and entries:
@@ -422,8 +421,7 @@ class ProductionList(SphinxDirective):
     def run(self):
         # type: () -> List[nodes.Element]
         domain = cast(StandardDomain, self.env.get_domain('std'))
-        node = addnodes.productionlist()  # type: nodes.Node
-        messages = []  # type: List[nodes.Element]
+        node = addnodes.productionlist()  # type: nodes.Element
         i = 0
 
         for rule in self.arguments[0].split('\n'):
@@ -445,7 +443,7 @@ class ProductionList(SphinxDirective):
                 domain.add_object('token', subnode['tokenname'], self.env.docname, idname)
             subnode.extend(token_xrefs(tokens))
             node.append(subnode)
-        return [node] + messages
+        return [node]
 
 
 class StandardDomain(Domain):
@@ -595,7 +593,7 @@ class StandardDomain(Domain):
         # type: (BuildEnvironment, unicode, nodes.document) -> None
         for node in document.traverse(nodes.citation):
             node['docname'] = docname
-            label = node[0].astext()
+            label = cast(nodes.label, node[0]).astext()
             if label in self.data['citations']:
                 path = env.doc2path(self.data['citations'][label][0])
                 logger.warning(__('duplicate citation %s, other instance in %s'), label, path,
@@ -619,9 +617,10 @@ class StandardDomain(Domain):
             labelid = document.nameids[name]
             if labelid is None:
                 continue
-            node = cast(nodes.Element, document.ids[labelid])
-            if node.tagname == 'target' and 'refid' in node:  # indirect hyperlink targets
-                node = cast(nodes.Element, document.ids.get(node['refid']))
+            node = document.ids[labelid]
+            if isinstance(node, nodes.target) and 'refid' in node:
+                # indirect hyperlink targets
+                node = document.ids.get(node['refid'])
                 labelid = node['names'][0]
             if (node.tagname == 'footnote' or
                     'refuri' in node or
@@ -635,7 +634,8 @@ class StandardDomain(Domain):
                                location=node)
             anonlabels[name] = docname, labelid
             if node.tagname in ('section', 'rubric'):
-                sectname = clean_astext(node[0])  # node[0] == title node
+                title = cast(nodes.title, node[0])
+                sectname = clean_astext(title)
             elif self.is_enumerable_node(node):
                 sectname = self.get_numfig_title(node)
                 if not sectname:
@@ -669,7 +669,7 @@ class StandardDomain(Domain):
 
     def build_reference_node(self, fromdocname, builder, docname, labelid,
                              sectname, rolename, **options):
-        # type: (unicode, Builder, unicode, unicode, unicode, unicode, Any) -> nodes.TextElement  # NOQA
+        # type: (unicode, Builder, unicode, unicode, unicode, unicode, Any) -> nodes.Element
         nodeclass = options.pop('nodeclass', nodes.reference)
         newnode = nodeclass('', '', internal=True, **options)  # type: nodes.TextElement
         innernode = nodes.inline(sectname, sectname)
@@ -876,7 +876,7 @@ class StandardDomain(Domain):
 
     def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
         # type: (BuildEnvironment, unicode, Builder, unicode, addnodes.pending_xref, nodes.Element) -> List[Tuple[unicode, nodes.Element]]  # NOQA
-        results = []  # type: List[Tuple[unicode, nodes.Node]]
+        results = []  # type: List[Tuple[unicode, nodes.Element]]
         ltarget = target.lower()  # :ref: lowercases its target automatically
         for role in ('ref', 'option'):  # do not try "keyword"
             res = self.resolve_xref(env, fromdocname, builder, role,

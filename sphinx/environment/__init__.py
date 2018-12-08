@@ -141,12 +141,12 @@ class BuildEnvironment:
                                                 # docname -> dict of metadata items
 
         # TOC inventory
-        self.titles = {}            # type: Dict[unicode, nodes.Node]
+        self.titles = {}            # type: Dict[unicode, nodes.title]
                                     # docname -> title node
-        self.longtitles = {}        # type: Dict[unicode, nodes.Node]
+        self.longtitles = {}        # type: Dict[unicode, nodes.title]
                                     # docname -> title node; only different if
                                     # set differently with title directive
-        self.tocs = {}              # type: Dict[unicode, nodes.Node]
+        self.tocs = {}              # type: Dict[unicode, nodes.Element]
                                     # docname -> table of contents nodetree
         self.toc_num_entries = {}   # type: Dict[unicode, int]
                                     # docname -> number of real entries
@@ -555,7 +555,7 @@ class BuildEnvironment:
 
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
                                 prune_toctrees=True, includehidden=False):
-        # type: (unicode, Builder, nodes.documents, bool, bool) -> nodes.Node
+        # type: (unicode, Builder, nodes.document, bool, bool) -> nodes.document
         """Read the doctree from the pickle, resolve cross-references and
         toctrees and return it.
         """
@@ -700,7 +700,7 @@ class BuildEnvironment:
         self.app.builder.read_doc(docname)
 
     def write_doctree(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (unicode, nodes.document) -> None
         warnings.warn('env.write_doctree() is deprecated. '
                       'Please use builder.write_doctree() instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
@@ -784,7 +784,7 @@ class BuildEnvironment:
         return self.domaindata['changeset']['changes']
 
     def note_versionchange(self, type, version, node, lineno):
-        # type: (unicode, unicode, nodes.Node, int) -> None
+        # type: (unicode, unicode, addnodes.versionmodified, int) -> None
         warnings.warn('env.note_versionchange() is deprecated. '
                       'Please use ChangeSetDomain.note_changeset() instead.',
                       RemovedInSphinx30Warning, stacklevel=2)

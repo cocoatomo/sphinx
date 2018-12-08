@@ -26,6 +26,7 @@ from sphinx.util import encode_uri, requests, logging
 from sphinx.util.console import (  # type: ignore
     purple, red, darkgreen, darkgray, darkred, turquoise
 )
+from sphinx.util.nodes import traverse_parent
 from sphinx.util.requests import is_ssl_error
 
 if False:
@@ -265,7 +266,7 @@ class CheckExternalLinksBuilder(Builder):
         return self.env.found_docs
 
     def prepare_writing(self, docnames):
-        # type: (nodes.Node) -> None
+        # type: (Set[unicode]) -> None
         return
 
     def write_doc(self, docname, doctree):
@@ -277,11 +278,10 @@ class CheckExternalLinksBuilder(Builder):
                 continue
             uri = node['refuri']
             lineno = None
-            while lineno is None:
-                node = node.parent
-                if node is None:
+            for parent in traverse_parent(node):
+                if parent.line:
+                    lineno = parent.line
                     break
-                lineno = node.line
             self.wqueue.put((uri, docname, lineno), False)
             n += 1
         done = 0

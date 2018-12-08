@@ -12,13 +12,17 @@ import math
 import os
 import re
 import textwrap
+import warnings
 from itertools import groupby, chain
+from typing import Iterable, cast
 
 from docutils import nodes, writers
 from docutils.utils import column_width
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.locale import admonitionlabels, _
+from sphinx.util.docutils import SphinxTranslator
 
 if False:
     # For type annotation
@@ -333,7 +337,7 @@ class TextWrapper(textwrap.TextWrapper):
         """
         def split(t):
             # type: (unicode) -> List[unicode]
-            return textwrap.TextWrapper._split(self, t)
+            return super(TextWrapper, self)._split(t)  # type: ignore
         chunks = []  # type: List[unicode]
         for chunk in split(text):
             for w, g in groupby(chunk, column_width):
@@ -387,26 +391,26 @@ class TextWriter(writers.Writer):
         # type: () -> None
         visitor = self.builder.create_translator(self.document, self.builder)
         self.document.walkabout(visitor)
-        self.output = visitor.body
+        self.output = cast(TextTranslator, visitor).body
 
 
-class TextTranslator(nodes.NodeVisitor):
+class TextTranslator(SphinxTranslator):
+    builder = None  # type: TextBuilder
 
     def __init__(self, document, builder):
         # type: (nodes.document, TextBuilder) -> None
-        super(TextTranslator, self).__init__(document)
-        self.builder = builder
+        super(TextTranslator, self).__init__(builder, document)
 
-        newlines = builder.config.text_newlines
+        newlines = self.config.text_newlines
         if newlines == 'windows':
             self.nl = '\r\n'
         elif newlines == 'native':
             self.nl = os.linesep
         else:
             self.nl = '\n'
-        self.sectionchars = builder.config.text_sectionchars
-        self.add_secnumbers = builder.config.text_add_secnumbers
-        self.secnumber_suffix = builder.config.text_secnumber_suffix
+        self.sectionchars = self.config.text_sectionchars
+        self.add_secnumbers = self.config.text_add_secnumbers
+        self.secnumber_suffix = self.config.text_secnumber_suffix
         self.states = [[]]      # type: List[List[Tuple[int, Union[unicode, List[unicode]]]]]
         self.stateindent = [0]
         self.list_counter = []  # type: List[int]
@@ -691,11 +695,12 @@ class TextTranslator(nodes.NodeVisitor):
         # type: (addnodes.productionlist) -> None
         self.new_state()
         names = []
-        for production in node:
+        productionlist = cast(Iterable[addnodes.production], node)
+        for production in productionlist:
             names.append(production['tokenname'])
         maxlen = max(len(name) for name in names)
         lastname = None
-        for production in node:
+        for production in productionlist:
             if production['tokenname']:
                 self.add_text(production['tokenname'].ljust(maxlen) + ' ::=')
                 lastname = production['tokenname']
@@ -871,9 +876,10 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_acks(self, node):
         # type: (addnodes.acks) -> None
+        bullet_list = cast(nodes.bullet_list, node[0])
+        list_items = cast(Iterable[nodes.list_item], bullet_list)
         self.new_state(0)
-        self.add_text(', '.join(n.astext() for n in node.children[0].children) +
-                      '.')
+        self.add_text(', '.join(n.astext() for n in list_items) + '.')
         self.end_state()
         raise nodes.SkipNode
 
@@ -1045,33 +1051,31 @@ class TextTranslator(nodes.NodeVisitor):
         if isinstance(node.children[0], nodes.Sequential):
             self.add_text(self.nl)
 
-    def _make_depart_admonition(name):
-        # type: (unicode) -> Callable[[TextTranslator, nodes.Element], None]
-        def depart_admonition(self, node):
-            # type: (nodes.Element) -> None
-            self.end_state(first=admonitionlabels[name] + ': ')
-        return depart_admonition
+    def _depart_admonition(self, node):
+        # type: (nodes.Element) -> None
+        label = admonitionlabels[node.tagname]
+        self.end_state(first=label + ': ')
 
     visit_attention = _visit_admonition
-    depart_attention = _make_depart_admonition('attention')
+    depart_attention = _depart_admonition
     visit_caution = _visit_admonition
-    depart_caution = _make_depart_admonition('caution')
+    depart_caution = _depart_admonition
     visit_danger = _visit_admonition
-    depart_danger = _make_depart_admonition('danger')
+    depart_danger = _depart_admonition
     visit_error = _visit_admonition
-    depart_error = _make_depart_admonition('error')
+    depart_error = _depart_admonition
     visit_hint = _visit_admonition
-    depart_hint = _make_depart_admonition('hint')
+    depart_hint = _depart_admonition
     visit_important = _visit_admonition
-    depart_important = _make_depart_admonition('important')
+    depart_important = _depart_admonition
     visit_note = _visit_admonition
-    depart_note = _make_depart_admonition('note')
+    depart_note = _depart_admonition
     visit_tip = _visit_admonition
-    depart_tip = _make_depart_admonition('tip')
+    depart_tip = _depart_admonition
     visit_warning = _visit_admonition
-    depart_warning = _make_depart_admonition('warning')
+    depart_warning = _depart_admonition
     visit_seealso = _visit_admonition
-    depart_seealso = _make_depart_admonition('seealso')
+    depart_seealso = _depart_admonition
 
     def visit_versionmodified(self, node):
         # type: (addnodes.versionmodified) -> None
@@ -1366,3 +1370,13 @@ class TextTranslator(nodes.NodeVisitor):
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
+
+    def _make_depart_admonition(name):
+        # type: (unicode) -> Callable[[TextTranslator, nodes.Element], None]
+        warnings.warn('TextTranslator._make_depart_admonition() is deprecated.',
+                      RemovedInSphinx30Warning)
+
+        def depart_admonition(self, node):
+            # type: (nodes.Element) -> None
+            self.end_state(first=admonitionlabels[name] + ': ')
+        return depart_admonition

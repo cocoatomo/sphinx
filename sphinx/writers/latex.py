@@ -17,6 +17,7 @@ import sys
 import warnings
 from collections import defaultdict
 from os import path
+from typing import Iterable, cast
 
 from docutils import nodes, writers
 from docutils.writers.latex2e import Babel
@@ -25,9 +26,11 @@ from six import text_type
 from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import split_into, logging
+from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import clean_astext
 from sphinx.util.template import LaTeXRenderer
@@ -43,7 +46,9 @@ if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Pattern, Tuple, Set, Union  # NOQA
     from sphinx.builders.latex import LaTeXBuilder  # NOQA
-    from sphinx.builders.latex import nodes as latexnodes  # NOQA
+    from sphinx.builders.latex.nodes import (  # NOQA
+        captioned_literal_block, footnotemark, footnotetext, math_reference, thebibliography
+    )
     from sphinx.domains import IndexEntry  # NOQA
     from sphinx.util.typing import unicode  # NOQA
 
@@ -254,7 +259,7 @@ class LaTeXWriter(writers.Writer):
         # type: () -> None
         visitor = self.builder.create_translator(self.document, self.builder)
         self.document.walkabout(visitor)
-        self.output = visitor.astext()
+        self.output = cast(LaTeXTranslator, visitor).astext()
 
 
 # Helper classes
@@ -494,7 +499,8 @@ def rstdim_to_latexdim(width_str):
     return res
 
 
-class LaTeXTranslator(nodes.NodeVisitor):
+class LaTeXTranslator(SphinxTranslator):
+    builder = None  # type: LaTeXBuilder
 
     secnumdepth = 2  # legacy sphinxhowto.cls uses this, whereas article.cls
     # default is originally 3. For book/report, 2 is already LaTeX default.
@@ -505,8 +511,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def __init__(self, document, builder):
         # type: (nodes.document, LaTeXBuilder) -> None
-        super(LaTeXTranslator, self).__init__(document)
-        self.builder = builder
+        super(LaTeXTranslator, self).__init__(builder, document)
         self.body = []  # type: List[unicode]
 
         # flags
@@ -526,42 +531,42 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.first_param = 0
 
         # sort out some elements
-        self.elements = builder.context.copy()
+        self.elements = self.builder.context.copy()
 
         # but some have other interface in config file
-        self.elements['wrapperclass'] = self.format_docclass(document.settings.docclass)
+        self.elements['wrapperclass'] = self.format_docclass(self.get_settings().docclass)
 
         # we assume LaTeX class provides \chapter command except in case
         # of non-Japanese 'howto' case
         self.sectionnames = LATEXSECTIONNAMES[:]
-        if document.settings.docclass == 'howto':
-            docclass = builder.config.latex_docclass.get('howto', 'article')
+        if self.get_settings().docclass == 'howto':
+            docclass = self.config.latex_docclass.get('howto', 'article')
             if docclass[0] == 'j':  # Japanese class...
                 pass
             else:
                 self.sectionnames.remove('chapter')
         else:
-            docclass = builder.config.latex_docclass.get('manual', 'report')
+            docclass = self.config.latex_docclass.get('manual', 'report')
         self.elements['docclass'] = docclass
 
         # determine top section level
         self.top_sectionlevel = 1
-        if builder.config.latex_toplevel_sectioning:
+        if self.config.latex_toplevel_sectioning:
             try:
                 self.top_sectionlevel = \
-                    self.sectionnames.index(builder.config.latex_toplevel_sectioning)
+                    self.sectionnames.index(self.config.latex_toplevel_sectioning)
             except ValueError:
                 logger.warning(__('unknown %r toplevel_sectioning for class %r') %
-                               (builder.config.latex_toplevel_sectioning, docclass))
+                               (self.config.latex_toplevel_sectioning, docclass))
 
-        if builder.config.today:
-            self.elements['date'] = builder.config.today
+        if self.config.today:
+            self.elements['date'] = self.config.today
         else:
-            self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),
-                                                language=builder.config.language)
+            self.elements['date'] = format_date(self.config.today_fmt or _('%b %d, %Y'),
+                                                language=self.config.language)
 
-        if builder.config.numfig:
-            self.numfig_secnum_depth = builder.config.numfig_secnum_depth
+        if self.config.numfig:
+            self.numfig_secnum_depth = self.config.numfig_secnum_depth
             if self.numfig_secnum_depth > 0:  # default is 1
                 # numfig_secnum_depth as passed to sphinx.sty indices same names as in
                 # LATEXSECTIONNAMES but with -1 for part, 0 for chapter, 1 for section...
@@ -579,31 +584,31 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 self.elements['sphinxpkgoptions'] += ',nonumfigreset'
             try:
-                if builder.config.math_numfig:
+                if self.config.math_numfig:
                     self.elements['sphinxpkgoptions'] += ',mathnumfig'
             except AttributeError:
                 pass
 
-        if builder.config.latex_logo:
+        if self.config.latex_logo:
             # no need for \\noindent here, used in flushright
             self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
-                                    path.basename(builder.config.latex_logo)
+                                    path.basename(self.config.latex_logo)
 
-        if (builder.config.language and builder.config.language != 'ja' and
-                'fncychap' not in builder.config.latex_elements):
+        if (self.config.language and self.config.language != 'ja' and
+                'fncychap' not in self.config.latex_elements):
             # use Sonny style if any language specified
             self.elements['fncychap'] = ('\\usepackage[Sonny]{fncychap}\n'
                                          '\\ChNameVar{\\Large\\normalfont'
                                          '\\sffamily}\n\\ChTitleVar{\\Large'
                                          '\\normalfont\\sffamily}')
 
-        self.babel = ExtBabel(builder.config.language,
+        self.babel = ExtBabel(self.config.language,
                               not self.elements['babel'])
-        if builder.config.language and not self.babel.is_supported_language():
+        if self.config.language and not self.babel.is_supported_language():
             # emit warning if specified language is invalid
             # (only emitting, nothing changed to processing)
             logger.warning(__('no Babel option known for language %r'),
-                           builder.config.language)
+                           self.config.language)
 
         # set up multilingual module...
         if self.elements['latex_engine'] == 'pdflatex':
@@ -625,12 +630,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements['classoptions'] += ',' + self.babel.get_language()
             # this branch is not taken for xelatex/lualatex if default settings
             self.elements['multilingual'] = self.elements['babel']
-            if builder.config.language:
+            if self.config.language:
                 self.elements['shorthandoff'] = SHORTHANDOFF
 
                 # Times fonts don't work with Cyrillic languages
-                if self.babel.uses_cyrillic() \
-                   and 'fontpkg' not in builder.config.latex_elements:
+                if self.babel.uses_cyrillic() and 'fontpkg' not in self.config.latex_elements:
                     self.elements['fontpkg'] = ''
         elif self.elements['polyglossia']:
             self.elements['classoptions'] += ',' + self.babel.get_language()
@@ -644,25 +648,25 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements['multilingual'] = '%s\n%s' % (self.elements['polyglossia'],
                                                         mainlanguage)
 
-        if getattr(builder, 'usepackages', None):
+        if getattr(self.builder, 'usepackages', None):
             def declare_package(packagename, options=None):
                 # type:(unicode, unicode) -> unicode
                 if options:
                     return '\\usepackage[%s]{%s}' % (options, packagename)
                 else:
                     return '\\usepackage{%s}' % (packagename,)
-            usepackages = (declare_package(*p) for p in builder.usepackages)
+            usepackages = (declare_package(*p) for p in self.builder.usepackages)
             self.elements['usepackages'] += "\n".join(usepackages)
 
         minsecnumdepth = self.secnumdepth  # 2 from legacy sphinx manual/howto
-        if document.get('tocdepth'):
+        if self.document.get('tocdepth'):
             # reduce tocdepth if `part` or `chapter` is used for top_sectionlevel
             #   tocdepth = -1: show only parts
             #   tocdepth =  0: show parts and chapters
             #   tocdepth =  1: show parts, chapters and sections
             #   tocdepth =  2: show parts, chapters, sections and subsections
             #   ...
-            tocdepth = document['tocdepth'] + self.top_sectionlevel - 2
+            tocdepth = self.document['tocdepth'] + self.top_sectionlevel - 2
             if len(self.sectionnames) < len(LATEXSECTIONNAMES) and \
                self.top_sectionlevel > 0:
                 tocdepth += 1  # because top_sectionlevel is shifted by -1
@@ -673,16 +677,16 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements['tocdepth'] = '\\setcounter{tocdepth}{%d}' % tocdepth
             minsecnumdepth = max(minsecnumdepth, tocdepth)
 
-        if builder.config.numfig and (builder.config.numfig_secnum_depth > 0):
+        if self.config.numfig and (self.config.numfig_secnum_depth > 0):
             minsecnumdepth = max(minsecnumdepth, self.numfig_secnum_depth - 1)
 
         if minsecnumdepth > self.secnumdepth:
             self.elements['secnumdepth'] = '\\setcounter{secnumdepth}{%d}' %\
                                            minsecnumdepth
 
-        if getattr(document.settings, 'contentsname', None):
-            self.elements['contentsname'] = \
-                self.babel_renewcommand('\\contentsname', document.settings.contentsname)
+        contentsname = self.get_settings().contentsname
+        self.elements['contentsname'] = self.babel_renewcommand('\\contentsname',
+                                                                contentsname)
 
         if self.elements['maxlistdepth']:
             self.elements['sphinxpkgoptions'] += (',maxlistdepth=%s' %
@@ -696,9 +700,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
-        self.elements['numfig_format'] = self.generate_numfig_format(builder)
+        self.elements['numfig_format'] = self.generate_numfig_format(self.builder)
 
-        self.highlighter = highlighting.PygmentsBridge('latex', builder.config.pygments_style)
+        self.highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
         self.context = []                   # type: List[Any]
         self.descstack = []                 # type: List[unicode]
         self.table = None                   # type: Table
@@ -1443,9 +1447,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (addnodes.acks) -> None
         # this is a list in the source, but should be rendered as a
         # comma-separated list here
+        bullet_list = cast(nodes.bullet_list, node[0])
+        list_items = cast(Iterable[nodes.list_item], bullet_list)
         self.body.append('\n\n')
-        self.body.append(', '.join(n.astext()
-                                   for n in node.children[0].children) + '.')
+        self.body.append(', '.join(n.astext() for n in list_items) + '.')
         self.body.append('\n\n')
         raise nodes.SkipNode
 
@@ -1640,7 +1645,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def latex_image_length(self, width_str):
-        # type: (nodes.Node) -> unicode
+        # type: (unicode) -> unicode
         try:
             return rstdim_to_latexdim(width_str)
         except ValueError:
@@ -1806,35 +1811,33 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.admonition) -> None
         self.body.append('\\end{sphinxadmonition}\n')
 
-    def _make_visit_admonition(name):
-        # type: (unicode) -> Callable[[LaTeXTranslator, nodes.Element], None]
-        def visit_admonition(self, node):
-            # type: (nodes.Element) -> None
-            self.body.append(u'\n\\begin{sphinxadmonition}{%s}{%s:}' %
-                             (name, admonitionlabels[name]))
-        return visit_admonition
+    def _visit_named_admonition(self, node):
+        # type: (nodes.Element) -> None
+        label = admonitionlabels[node.tagname]
+        self.body.append(u'\n\\begin{sphinxadmonition}{%s}{%s:}' %
+                         (node.tagname, label))
 
     def _depart_named_admonition(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         self.body.append('\\end{sphinxadmonition}\n')
 
-    visit_attention = _make_visit_admonition('attention')
+    visit_attention = _visit_named_admonition
     depart_attention = _depart_named_admonition
-    visit_caution = _make_visit_admonition('caution')
+    visit_caution = _visit_named_admonition
     depart_caution = _depart_named_admonition
-    visit_danger = _make_visit_admonition('danger')
+    visit_danger = _visit_named_admonition
     depart_danger = _depart_named_admonition
-    visit_error = _make_visit_admonition('error')
+    visit_error = _visit_named_admonition
     depart_error = _depart_named_admonition
-    visit_hint = _make_visit_admonition('hint')
+    visit_hint = _visit_named_admonition
     depart_hint = _depart_named_admonition
-    visit_important = _make_visit_admonition('important')
+    visit_important = _visit_named_admonition
     depart_important = _depart_named_admonition
-    visit_note = _make_visit_admonition('note')
+    visit_note = _visit_named_admonition
     depart_note = _depart_named_admonition
-    visit_tip = _make_visit_admonition('tip')
+    visit_tip = _visit_named_admonition
     depart_tip = _depart_named_admonition
-    visit_warning = _make_visit_admonition('warning')
+    visit_warning = _visit_named_admonition
     depart_warning = _depart_named_admonition
 
     def visit_versionmodified(self, node):
@@ -1873,7 +1876,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         while isinstance(next_node, nodes.target):
             next_node = next_node.next_node(ascend=True)
 
-        domain = self.builder.env.get_domain('std')
+        domain = cast(StandardDomain, self.builder.env.get_domain('std'))
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
         elif domain.get_enumerable_node_type(next_node) and domain.get_numfig_title(next_node):
@@ -2144,7 +2147,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('}')
 
     def visit_thebibliography(self, node):
-        # type: (latexnodes.thebibliography) -> None
+        # type: (thebibliography) -> None
         longest_label = max((subnode[0].astext() for subnode in node), key=len)
         if len(longest_label) > MAX_CITATION_LABEL_LENGTH:
             # adjust max width of citation labels not to break the layout
@@ -2154,7 +2157,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                          self.encode(longest_label))
 
     def depart_thebibliography(self, node):
-        # type: (latexnodes.thebibliography) -> None
+        # type: (thebibliography) -> None
         self.body.append(u'\\end{sphinxthebibliography}\n')
 
     def visit_citation(self, node):
@@ -2197,30 +2200,30 @@ class LaTeXTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_footnotemark(self, node):
-        # type: (latexnodes.footnotemark) -> None
+        # type: (footnotemark) -> None
         self.body.append('\\sphinxfootnotemark[')
 
     def depart_footnotemark(self, node):
-        # type: (latexnodes.footnotemark) -> None
+        # type: (footnotemark) -> None
         self.body.append(']')
 
     def visit_footnotetext(self, node):
-        # type: (latexnodes.footnotetext) -> None
+        # type: (footnotetext) -> None
         number = node[0].astext()
         self.body.append('%%\n\\begin{footnotetext}[%s]'
                          '\\sphinxAtStartFootnote\n' % number)
 
     def depart_footnotetext(self, node):
-        # type: (latexnodes.footnotetext) -> None
+        # type: (footnotetext) -> None
         # the \ignorespaces in particular for after table header use
         self.body.append('%\n\\end{footnotetext}\\ignorespaces ')
 
     def visit_captioned_literal_block(self, node):
-        # type: (latexnodes.captioned_literal_block) -> None
+        # type: (captioned_literal_block) -> None
         pass
 
     def depart_captioned_literal_block(self, node):
-        # type: (latexnodes.captioned_literal_block) -> None
+        # type: (captioned_literal_block) -> None
         pass
 
     def visit_literal_block(self, node):
@@ -2556,7 +2559,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_math_reference(self, node):
-        # type: (latexnodes.math_reference) -> None
+        # type: (math_reference) -> None
         label = "equation:%s:%s" % (node['docname'], node['target'])
         eqref_format = self.builder.config.math_eqref_format
         if eqref_format:
@@ -2571,7 +2574,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(r'\eqref{%s}' % label)
 
     def depart_math_reference(self, node):
-        # type: (latexnodes.math_reference) -> None
+        # type: (math_reference) -> None
         pass
 
     def unknown_visit(self, node):
@@ -2657,6 +2660,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
             suffix = ''
 
         return ('%s\\def%s{%s}%s\n' % (prefix, name, definition, suffix))
+
+    def _make_visit_admonition(name):
+        # type: (unicode) -> Callable[[LaTeXTranslator, nodes.Element], None]
+        warnings.warn('LaTeXTranslator._make_visit_admonition() is deprecated.',
+                      RemovedInSphinx30Warning)
+
+        def visit_admonition(self, node):
+            # type: (nodes.Element) -> None
+            self.body.append(u'\n\\begin{sphinxadmonition}{%s}{%s:}' %
+                             (name, admonitionlabels[name]))
+        return visit_admonition
 
 # Import old modules here for compatibility
 # They should be imported after `LaTeXTranslator` to avoid recursive import.

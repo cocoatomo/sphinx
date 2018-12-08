@@ -39,17 +39,25 @@ Deprecated
   ``autodoc.DocstringSignatureMixin.get_doc()``,
   ``autodoc.DocstringSignatureMixin._find_signature()``, and
   ``autodoc.ClassDocumenter.get_doc()`` are deprecated.
+* The ``importer`` argument of ``sphinx.ext.autodoc.importer._MockModule``
+* The ``nodetype`` argument of ``sphinx.search.WordCollector.
+  is_meta_keywords()``
 * The ``suffix`` argument of ``env.doc2path()`` is deprecated.
 * The string style ``base`` argument of ``env.doc2path()`` is deprecated.
 * ``sphinx.application.Sphinx._setting_up_extension``
-* ``sphinx.ext.config.check_unicode()``
+* ``sphinx.config.check_unicode()``
+* ``sphinx.ext.autodoc.importer._MockImporter``
 * ``sphinx.ext.doctest.doctest_encode()``
+* ``sphinx.io.SphinxRSTFileInput``
 * ``sphinx.testing.util.remove_unicode_literal()``
 * ``sphinx.util.force_decode()``
 * ``sphinx.util.get_matching_docs()`` is deprecated
 * ``sphinx.util.osutil.walk()``
 * ``sphinx.util.pycompat.u``
 * ``sphinx.writers.latex.LaTeXTranslator.babel_defmacro()``
+* ``sphinx.writers.latex.TextTranslator._make_visit_admonition()``
+* ``sphinx.writers.texinfo.TexinfoTranslator._make_visit_admonition()``
+* ``sphinx.writers.text.TextTranslator._make_depart_admonition()``
 * template variables for LaTeX template
 
   - ``pageautorefname``
@@ -111,6 +119,7 @@ Bugs fixed
 * #5520: LaTeX, caption package incompatibility since Sphinx 1.6
 * #5614: autodoc: incremental build is broken when builtin modules are imported
 * #5627: qthelp: index.html missing in QtHelp
+* #5659: linkcheck: crashes for a hyperlink containing multibyte character
 
 Testing
 --------

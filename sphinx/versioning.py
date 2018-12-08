@@ -144,7 +144,7 @@ def levenshtein_distance(a, b):
         a, b = b, a
     if not a:
         return len(b)
-    previous_row = range(len(b) + 1)
+    previous_row = list(range(len(b) + 1))
     for i, column1 in enumerate(a):
         current_row = [i + 1]
         for j, column2 in enumerate(b):

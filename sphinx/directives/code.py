@@ -13,7 +13,7 @@ from difflib import unified_diff
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.statemachine import ViewList
+from docutils.statemachine import StringList
 from six import text_type
 
 from sphinx import addnodes
@@ -63,7 +63,7 @@ class HighlightLang(Highlight):
         warnings.warn('highlightlang directive is deprecated. '
                       'Please use highlight directive instead.',
                       RemovedInSphinx40Warning, stacklevel=2)
-        return Highlight.run(self)
+        return super(HighlightLang, self).run()
 
 
 def dedent_lines(lines, dedent, location=None):
@@ -89,18 +89,21 @@ def container_wrapper(directive, literal_node, caption):
     container_node = nodes.container('', literal_block=True,
                                      classes=['literal-block-wrapper'])
     parsed = nodes.Element()
-    directive.state.nested_parse(ViewList([caption], source=''),
+    directive.state.nested_parse(StringList([caption], source=''),
                                  directive.content_offset, parsed)
     if isinstance(parsed[0], nodes.system_message):
         msg = __('Invalid caption: %s' % parsed[0].astext())
         raise ValueError(msg)
-    caption_node = nodes.caption(parsed[0].rawsource, '',  # type: ignore
-                                 *parsed[0].children)  # type: ignore
-    caption_node.source = literal_node.source
-    caption_node.line = literal_node.line
-    container_node += caption_node
-    container_node += literal_node
-    return container_node
+    elif isinstance(parsed[0], nodes.Element):
+        caption_node = nodes.caption(parsed[0].rawsource, '',
+                                     *parsed[0].children)
+        caption_node.source = literal_node.source
+        caption_node.line = literal_node.line
+        container_node += caption_node
+        container_node += literal_node
+        return container_node
+    else:
+        raise RuntimeError  # never reached
 
 
 class CodeBlock(SphinxDirective):
@@ -151,7 +154,7 @@ class CodeBlock(SphinxDirective):
             lines = dedent_lines(lines, self.options['dedent'], location=location)
             code = '\n'.join(lines)
 
-        literal = nodes.literal_block(code, code)
+        literal = nodes.literal_block(code, code)  # type: nodes.Element
         literal['language'] = self.arguments[0]
         literal['linenos'] = 'linenos' in self.options or \
                              'lineno-start' in self.options
@@ -433,7 +436,7 @@ class LiteralInclude(SphinxDirective):
             reader = LiteralIncludeReader(filename, self.options, self.config)
             text, lines = reader.read(location=location)
 
-            retnode = nodes.literal_block(text, text, source=filename)
+            retnode = nodes.literal_block(text, text, source=filename)  # type: nodes.Element
             set_source_info(self, retnode)
             if self.options.get('diff'):  # if diff is set, set udiff
                 retnode['language'] = 'udiff'

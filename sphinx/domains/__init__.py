@@ -160,7 +160,7 @@ class Domain:
     #: role name -> a warning message if reference is missing
     dangling_warnings = {}  # type: Dict[unicode, unicode]
     #: node_class -> (enum_node_type, title_getter)
-    enumerable_nodes = {}   # type: Dict[Type[nodes.Element], Tuple[unicode, Callable]]
+    enumerable_nodes = {}   # type: Dict[Type[nodes.Node], Tuple[unicode, Callable]]
 
     #: data value for a fresh environment
     initial_data = {}       # type: Dict
@@ -223,7 +223,7 @@ class Domain:
         fullname = '%s:%s' % (self.name, name)
 
         def role_adapter(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-            # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+            # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
             return self.roles[name](fullname, rawtext, text, lineno,
                                     inliner, options, content)
         self._role_cache[name] = role_adapter
@@ -245,7 +245,7 @@ class Domain:
             def run(self):
                 # type: () -> List[nodes.Node]
                 self.name = fullname
-                return BaseDirective.run(self)
+                return super(DirectiveAdapter, self).run()
         self._directive_cache[name] = DirectiveAdapter
         return DirectiveAdapter
 
@@ -276,7 +276,7 @@ class Domain:
         pass
 
     def process_field_xref(self, pnode):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.pending_xref) -> None
         """Process a pending xref created in a doc field.
         For example, attach information about the current scope.
         """
@@ -351,6 +351,6 @@ class Domain:
         return enum_node_type
 
     def get_full_qualified_name(self, node):
-        # type: (nodes.Node) -> unicode
+        # type: (nodes.Element) -> unicode
         """Return full qualified name for given node."""
         return None

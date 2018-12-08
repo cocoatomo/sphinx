@@ -18,15 +18,19 @@ from docutils.parsers.rst.languages import en as english
 from docutils.utils import Reporter
 
 from sphinx.locale import __
+from sphinx.util import docutils
 from sphinx.util import logging
 
 if False:
     # For type annotation
     from typing import Generator  # NOQA
+    from docutils.statemachine import StringList  # NOQA
     from sphinx.util.typing import unicode  # NOQA
 
-symbols_re = re.compile(r'([!-\-/:-@\[-`{-~])')  # symbols without dot(0x2e)
 logger = logging.getLogger(__name__)
+
+docinfo_re = re.compile(':\\w+:.*?')
+symbols_re = re.compile(r'([!-\-/:-@\[-`{-~])')  # symbols without dot(0x2e)
 
 
 def escape(text):
@@ -43,10 +47,42 @@ def default_role(docname, name):
         dummy_reporter = Reporter('', 4, 4)
         role_fn, _ = roles.role(name, english, 0, dummy_reporter)
         if role_fn:
-            roles._roles[''] = role_fn  # type: ignore
+            docutils.register_role('', role_fn)
         else:
             logger.warning(__('default role %s not found'), name, location=docname)
 
     yield
 
-    roles._roles.pop('', None)  # type: ignore  # if a document has set a local default role
+    docutils.unregister_role('')
+
+
+def prepend_prolog(content, prolog):
+    # type: (StringList, unicode) -> None
+    """Prepend a string to content body as prolog."""
+    if prolog:
+        pos = 0
+        for line in content:
+            if docinfo_re.match(line):
+                pos += 1
+            else:
+                break
+
+        if pos > 0:
+            # insert a blank line after docinfo
+            content.insert(pos, '', '<generated>', 0)
+            pos += 1
+
+        # insert prolog (after docinfo if exists)
+        for lineno, line in enumerate(prolog.splitlines()):
+            content.insert(pos + lineno, line, '<rst_prolog>', lineno)
+
+        content.insert(pos + lineno + 1, '', '<generated>', 0)
+
+
+def append_epilog(content, epilog):
+    # type: (StringList, unicode) -> None
+    """Append a string to content body as epilog."""
+    if epilog:
+        content.append('', '<generated>', 0)
+        for lineno, line in enumerate(epilog.splitlines()):
+            content.append(line, '<rst_epilog>', lineno)

@@ -21,7 +21,7 @@ from inspect import isclass
 from io import StringIO
 from os import path
 
-from docutils.parsers.rst import Directive, directives, roles
+from docutils.parsers.rst import Directive, roles
 
 import sphinx
 from sphinx import package_dir, locale
@@ -63,6 +63,7 @@ if False:
     from sphinx.util.typing import RoleFunction, TitleGetter, unicode  # NOQA
 
 builtin_extensions = (
+    'sphinx.addnodes',
     'sphinx.builders.applehelp',
     'sphinx.builders.changes',
     'sphinx.builders.epub3',
@@ -523,7 +524,7 @@ class Sphinx:
         self.registry.add_translator(name, translator_class, override=override)
 
     def add_node(self, node, override=False, **kwds):
-        # type: (Type[nodes.Node], bool, Any) -> None
+        # type: (Type[nodes.Element], bool, Any) -> None
         """Register a Docutils node class.
 
         This is necessary for Docutils internals.  It may also be used in the
@@ -591,7 +592,7 @@ class Sphinx:
 
     @property
     def enumerable_nodes(self):
-        # type: () -> Dict[Type[nodes.Element], Tuple[unicode, TitleGetter]]
+        # type: () -> Dict[Type[nodes.Node], Tuple[unicode, TitleGetter]]
         warnings.warn('app.enumerable_nodes() is deprecated. '
                       'Use app.get_domain("std").enumerable_nodes instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
@@ -651,15 +652,15 @@ class Sphinx:
         """
         logger.debug('[app] adding directive: %r',
                      (name, obj, content, arguments, options))
-        if name in directives._directives and not override:  # type: ignore
+        if not override and docutils.is_directive_registered(name):
             logger.warning(__('directive %r is already registered, it will be overridden'),
                            name, type='app', subtype='add_directive')
 
         if not isclass(obj) or not issubclass(obj, Directive):
             directive = directive_helper(obj, content, arguments, **options)
-            directives.register_directive(name, directive)
+            docutils.register_directive(name, directive)
         else:
-            directives.register_directive(name, obj)
+            docutils.register_directive(name, obj)
 
     def add_role(self, name, role, override=False):
         # type: (unicode, Any, bool) -> None
@@ -674,10 +675,10 @@ class Sphinx:
            Add *override* keyword.
         """
         logger.debug('[app] adding role: %r', (name, role))
-        if name in roles._roles and not override:  # type: ignore
+        if not override and docutils.is_role_registered(name):
             logger.warning(__('role %r is already registered, it will be overridden'),
                            name, type='app', subtype='add_role')
-        roles.register_local_role(name, role)
+        docutils.register_role(name, role)
 
     def add_generic_role(self, name, nodeclass, override=False):
         # type: (unicode, Any, bool) -> None
@@ -693,11 +694,11 @@ class Sphinx:
         # Don't use ``roles.register_generic_role`` because it uses
         # ``register_canonical_role``.
         logger.debug('[app] adding generic role: %r', (name, nodeclass))
-        if name in roles._roles and not override:  # type: ignore
+        if not override and docutils.is_role_registered(name):
             logger.warning(__('role %r is already registered, it will be overridden'),
                            name, type='app', subtype='add_generic_role')
         role = roles.GenericRole(name, nodeclass)
-        roles.register_local_role(name, role)
+        docutils.register_role(name, role)
 
     def add_domain(self, domain, override=False):
         # type: (Type[Domain], bool) -> None
@@ -840,7 +841,7 @@ class Sphinx:
 
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None, objname='', override=False):
-        # type: (unicode, unicode, unicode, Optional[Type[nodes.TextElement]], unicode, bool) -> None  # NOQA
+        # type: (unicode, unicode, unicode, Type[nodes.TextElement], unicode, bool) -> None
         """Register a new crossref object type.
 
         This method is very similar to :meth:`add_object_type` except that the

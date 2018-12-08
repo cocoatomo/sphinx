@@ -143,8 +143,7 @@ class ReSTDomain(Domain):
             if doc in docnames:
                 self.data['objects'][typ, name] = doc
 
-    def resolve_xref(self, env, fromdocname, builder, typ, target, node,
-                     contnode):
+    def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         # type: (BuildEnvironment, unicode, Builder, unicode, unicode, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
         objects = self.data['objects']
         objtypes = self.objtypes_for_role(typ)
@@ -154,12 +153,12 @@ class ReSTDomain(Domain):
                                     objects[objtype, target],
                                     objtype + '-' + target,
                                     contnode, target + ' ' + objtype)
+        return None
 
-    def resolve_any_xref(self, env, fromdocname, builder, target,
-                         node, contnode):
-        # type: (BuildEnvironment, unicode, Builder, unicode, addnodes.pending_xref, nodes.Element) -> List[nodes.Element]  # NOQA
+    def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
+        # type: (BuildEnvironment, unicode, Builder, unicode, addnodes.pending_xref, nodes.Element) -> List[Tuple[unicode, nodes.Element]]  # NOQA
         objects = self.data['objects']
-        results = []
+        results = []  # type: List[Tuple[unicode, nodes.Element]]
         for objtype in self.object_types:
             if (objtype, target) in self.data['objects']:
                 results.append(('rst:' + self.role_for_objtype(objtype),

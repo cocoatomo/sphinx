@@ -33,7 +33,7 @@ from sphinx.util.tags import Tags
 
 if False:
     # For type annotation
-    from typing import Any, DefaultDict, Dict, Iterable, List, Set, Tuple  # NOQA
+    from typing import Any, DefaultDict, Dict, Iterable, List, Set, Tuple, Union  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.i18n import CatalogInfo  # NOQA
@@ -75,7 +75,7 @@ class Catalog:
                                         # msgid -> file, line, uid
 
     def add(self, msg, origin):
-        # type: (unicode, MsgOrigin) -> None
+        # type: (unicode, Union[nodes.Element, MsgOrigin]) -> None
         if not hasattr(origin, 'uid'):
             # Nodes that are replicated like todo don't have a uid,
             # however i18n is also unnecessary.
@@ -121,7 +121,7 @@ class I18nBuilder(Builder):
 
     def init(self):
         # type: () -> None
-        Builder.init(self)
+        super(I18nBuilder, self).init()
         self.env.set_versioning_method(self.versioning_method,
                                        self.env.config.gettext_uuid)
         self.tags = I18nTags()
@@ -144,9 +144,8 @@ class I18nBuilder(Builder):
         return
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
-        catalog = self.catalogs[find_catalog(docname,
-                                             self.config.gettext_compact)]
+        # type: (unicode, nodes.document) -> None
+        catalog = self.catalogs[find_catalog(docname, self.config.gettext_compact)]
 
         for node, msg in extract_messages(doctree):
             catalog.add(msg, node)
@@ -222,7 +221,7 @@ class MessageCatalogBuilder(I18nBuilder):
 
     def init(self):
         # type: () -> None
-        I18nBuilder.init(self)
+        super(MessageCatalogBuilder, self).init()
         self.create_template_bridge()
         self.templates.init(self)
 
@@ -261,11 +260,11 @@ class MessageCatalogBuilder(I18nBuilder):
     def build(self, docnames, summary=None, method='update'):
         # type: (Iterable[unicode], unicode, unicode) -> None
         self._extract_from_template()
-        I18nBuilder.build(self, docnames, summary, method)
+        super(MessageCatalogBuilder, self).build(docnames, summary, method)
 
     def finish(self):
         # type: () -> None
-        I18nBuilder.finish(self)
+        super(MessageCatalogBuilder, self).finish()
         data = {
             'version': self.config.version,
             'copyright': self.config.copyright,

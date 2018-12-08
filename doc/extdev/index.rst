@@ -131,6 +131,12 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``nodetype`` argument of
+       ``sphinx.search.WordCollector.is_meta_keywords()``
+     - 2.0
+     - 4.0
+     - N/A
+
    * - ``suffix`` argument of ``BuildEnvironment.doc2path()``
      - 2.0
      - 4.0
@@ -177,6 +183,36 @@ The following is a list of deprecated interfaces.
      - N/A
 
    * - ``sphinx.application.Sphinx._setting_up_extension``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - The ``importer`` argument of ``sphinx.ext.autodoc.importer._MockModule``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.ext.autodoc.importer._MockImporter``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.io.SphinxRSTFileInput``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator._make_visit_admonition()``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.texinfo.TexinfoTranslator._make_visit_admonition()``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.text.TextTranslator._make_depart_admonition()``
      - 2.0
      - 3.0
      - N/A

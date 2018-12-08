@@ -136,9 +136,8 @@ class XRefRole:
         refnode = self.nodeclass(rawtext, reftype=role, refdomain=domain,
                                  refexplicit=has_explicit_title)
         # we may need the line number for warnings
-        set_role_source_info(inliner, lineno, refnode)
-        title, target = self.process_link(
-            env, refnode, has_explicit_title, title, target)
+        set_role_source_info(inliner, lineno, refnode)  # type: ignore
+        title, target = self.process_link(env, refnode, has_explicit_title, title, target)
         # now that the target and title are finally determined, set them
         refnode['reftarget'] = target
         refnode += self.innernodeclass(rawtext, title, classes=classes)
@@ -160,7 +159,7 @@ class XRefRole:
         return title, ws_re.sub(' ', target)
 
     def result_nodes(self, document, env, node, is_ref):
-        # type: (nodes.document, BuildEnvironment, nodes.Node, bool) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+        # type: (nodes.document, BuildEnvironment, nodes.Element, bool) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         """Called before returning the finished nodes.  *node* is the reference
         node if one was created (*is_ref* is then true), else the content node.
         This method can add other nodes and must return a ``(nodes, messages)``
@@ -172,8 +171,8 @@ class XRefRole:
 class AnyXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
         # type: (BuildEnvironment, nodes.Element, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
-        result = XRefRole.process_link(self, env, refnode, has_explicit_title,
-                                       title, target)
+        result = super(AnyXRefRole, self).process_link(env, refnode, has_explicit_title,
+                                                       title, target)
         # add all possible context info (i.e. std:program, py:module etc.)
         refnode.attributes.update(env.ref_context)
         return result

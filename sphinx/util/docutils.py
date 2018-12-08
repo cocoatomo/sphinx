@@ -36,16 +36,18 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 
 if False:
     # For type annotation
-    from typing import Any, Callable, cast, Generator, IO, List, Set, Tuple, Type  # NOQA
-    from docutils.statemachine import State, ViewList  # NOQA
+    from types import ModuleType  # NOQA
+    from typing import Any, Callable, Generator, List, Set, Tuple, Type  # NOQA
+    from docutils.statemachine import State, StringList  # NOQA
+    from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.io import SphinxFileInput  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
+    from sphinx.util.typing import RoleFunction, unicode  # NOQA
 
 
 __version_info__ = tuple(LooseVersion(docutils.__version__).version)
-additional_nodes = set()  # type: Set[Type[nodes.Node]]
+additional_nodes = set()  # type: Set[Type[nodes.Element]]
 
 
 @contextmanager
@@ -64,6 +66,44 @@ def docutils_namespace():
         for node in list(additional_nodes):
             unregister_node(node)
             additional_nodes.discard(node)
+
+
+def is_directive_registered(name):
+    # type: (unicode) -> bool
+    """Check the *name* directive is already registered."""
+    return name in directives._directives
+
+
+def register_directive(name, directive):
+    # type: (unicode, Type[Directive]) -> None
+    """Register a directive to docutils.
+
+    This modifies global state of docutils.  So it is better to use this
+    inside ``docutils_namespace()`` to prevent side-effects.
+    """
+    directives.register_directive(name, directive)
+
+
+def is_role_registered(name):
+    # type: (unicode) -> bool
+    """Check the *name* role is already registered."""
+    return name in roles._roles
+
+
+def register_role(name, role):
+    # type: (unicode, RoleFunction) -> None
+    """Register a role to docutils.
+
+    This modifies global state of docutils.  So it is better to use this
+    inside ``docutils_namespace()`` to prevent side-effects.
+    """
+    roles.register_local_role(name, role)
+
+
+def unregister_role(name):
+    # type: (unicode) -> None
+    """Unregister a role from docutils."""
+    roles._roles.pop(name, None)
 
 
 def is_node_registered(node):
@@ -180,7 +220,7 @@ class sphinx_domains:
         roles.role = self.role_func
 
     def lookup_domain_element(self, type, name):
-        # type: (unicode, unicode) -> Tuple[Any, List[nodes.system_message]]
+        # type: (unicode, unicode) -> Any
         """Lookup a markup element (directive or role), given its name which can
         be a full name (with domain).
         """
@@ -319,7 +359,7 @@ class SphinxFileOutput(FileOutput):
                 if f.read() == data:
                     return data
 
-        return FileOutput.write(self, data)
+        return super(SphinxFileOutput, self).write(data)
 
 
 class SphinxDirective(Directive):
@@ -342,6 +382,32 @@ class SphinxDirective(Directive):
         # type: () -> Config
         """Reference to the :class:`.Config` object."""
         return self.env.config
+
+
+class SphinxTranslator(nodes.NodeVisitor):
+    """A base class for Sphinx translators.
+
+    This class provides helper methods for Sphinx translators.
+
+    .. note:: The subclasses of this class might not work with docutils.
+              This class is strongly coupled with Sphinx.
+    """
+
+    def __init__(self, builder, document):
+        # type: (Builder, nodes.document) -> None
+        super(SphinxTranslator, self).__init__(document)
+        self.builder = builder
+        self.config = builder.config
+
+    def get_settings(self):
+        # type: () -> Any
+        """Get settings object with type safe.
+
+        .. note:: It is hard to check types for settings object because it's attributes
+                  are added dynamically.  This method avoids the type errors through
+                  imitating it's type as Any.
+        """
+        return self.document.settings
 
 
 # cache a vanilla instance of nodes.document
